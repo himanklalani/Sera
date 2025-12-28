@@ -1,6 +1,9 @@
+// frontend/src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+
 import Home from './pages/Home';
 import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
@@ -11,8 +14,16 @@ import Checkout from './pages/Checkout';
 import ProductDetails from './pages/ProductDetails';
 import Shop from './pages/Shop';
 import OrderSuccess from './pages/OrderSuccess';
-import { About, FAQ, Terms } from './pages/InfoPages';
-import Contact from './pages/Contact';  // ✅ ADD THIS IMPORT
+
+// info pages (only About + FAQ from InfoPages.jsx)
+import { About, FAQ } from './pages/InfoPages';
+
+// new legal / policy pages (make sure these files exist)
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Returns from './pages/Returns';
+import TermsPage from './pages/TermsPage';
+
+import Contact from './pages/Contact';
 
 function App() {
   return (
@@ -21,6 +32,7 @@ function App() {
         <Navbar />
         <main className="flex-grow">
           <Routes>
+            {/* core pages */}
             <Route path="/" element={<Home />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/admin" element={<AdminDashboard />} />
@@ -31,10 +43,22 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-success" element={<OrderSuccess />} />
             <Route path="/product/:id" element={<ProductDetails />} />
+
+            {/* info pages */}
             <Route path="/about" element={<About />} />
             <Route path="/faq" element={<FAQ />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/contact" element={<Contact />} />  {/* ✅ ADD THIS ROUTE */}
+
+            {/* legal / policy pages */}
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/returns" element={<Returns />} />
+
+            {/* contact */}
+            <Route path="/contact" element={<Contact />} />
+
+            {/* optional: 404 fallback
+            <Route path="*" element={<NotFound />} />
+            */}
           </Routes>
         </main>
         <Footer />

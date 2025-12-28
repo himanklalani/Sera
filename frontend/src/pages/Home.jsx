@@ -2,11 +2,9 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
-// Placeholder components for sections
 const HeroSection = () => {
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{ 
@@ -15,7 +13,6 @@ const HeroSection = () => {
         }}
       />
       
-      {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-4">
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
@@ -29,10 +26,42 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 1.0 }}
-          className="text-xl md:text-2xl font-light tracking-wider"
+          className="text-lg md:text-2xl lg:text-3xl font-light tracking-widest uppercase drop-shadow-lg mb-12"
         >
-          Where elegance meets intention
+          timeless elegance <span className="block md:inline font-serif italic text-rose-200">meets</span> modern intention
         </motion.p>
+        
+        {/* Smooth scroll arrow - positioned in lower-middle */}
+        <motion.div 
+          className="absolute bottom-[25%] left-1/2 transform -translate-x-1/2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ 
+            opacity: 1, 
+            y: [0, 8, 0],
+          }}
+          transition={{ 
+            duration: 2,
+            repeat: Infinity,
+            repeatDelay: 1,
+            ease: "easeInOut"
+          }}
+        >
+          <svg 
+            width="28" 
+            height="28" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            className="text-white/90 drop-shadow-lg"
+          >
+            <path 
+              d="M6 9L12 15L18 9" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+          </svg>
+        </motion.div>
       </div>
     </div>
   );
@@ -41,92 +70,365 @@ const HeroSection = () => {
 const CategoriesSection = () => {
   const navigate = useNavigate();
   const categories = [
-    { name: 'EARRINGS', img: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1000&auto=format&fit=crop' },
-    { name: 'BRACELET', img: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1000&auto=format&fit=crop' },
-    { name: 'RINGS', img: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=1000&auto=format&fit=crop' },
-    { name: 'NECKLACE', img: 'https://images.unsplash.com/photo-1599643478518-17488fbbcd75?q=80&w=1000&auto=format&fit=crop' },
+    { 
+      name: 'EARRINGS', 
+      img: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1000&auto=format&fit=crop',
+    },
+    { 
+      name: 'BRACELET', 
+      img: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1000&auto=format&fit=crop',
+    },
+    { 
+      name: 'RINGS', 
+      img: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=1000&auto=format&fit=crop',
+    },
+    { 
+      name: 'NECKLACE', 
+      img: 'https://images.unsplash.com/photo-1599643478518-17488fbbcd75?q=80&w=1000&auto=format&fit=crop',
+    },
   ];
 
   return (
-    <section className="py-20 px-6 bg-white">
-      <h2 className="text-4xl font-serif text-center mb-12 uppercase tracking-widest text-gray-900">Explore Categories</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {categories.map((cat) => (
-          <div 
-            key={cat.name} 
-            className="group cursor-pointer"
-            onClick={() => navigate(`/shop?category=${cat.name}`)}
+    <section className="py-16 px-4 md:px-6 bg-gradient-to-b from-white to-rose-50">
+      <div className="max-w-6xl mx-auto">
+        <motion.h2 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="text-3xl md:text-4xl font-serif text-center mb-3 uppercase tracking-widest text-gray-900"
+        >
+          Explore Categories
+        </motion.h2>
+        <p className="text-center text-gray-600 mb-10 text-sm md:text-base">
+          Find your perfect accessory
+        </p>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          {categories.map((cat, index) => (
+            <motion.div
+              key={cat.name}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              onClick={() => navigate(`/shop?category=${cat.name}`)}
+              className="group cursor-pointer relative"
+            >
+              <div className="relative overflow-hidden rounded-2xl aspect-[3/4] bg-gray-100 shadow-md hover:shadow-xl transition-all duration-300">
+                <img 
+                  src={cat.img} 
+                  alt={cat.name} 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
+                
+                <div className="absolute inset-0 flex flex-col items-center justify-end pb-4 md:pb-6">
+                  <h3 className="text-white font-serif text-base md:text-xl tracking-widest transform group-hover:translate-y-[-4px] transition-transform duration-300">
+                    {cat.name}
+                  </h3>
+                </div>
+
+                <div className="hidden md:flex absolute inset-0 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <button className="bg-white text-gray-900 px-4 md:px-6 py-2 rounded-full text-xs md:text-sm uppercase tracking-wider font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-lg">
+                    Shop Now
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Mobile Shop button - lighter theme, just "Shop" */}
+        <div className="md:hidden flex justify-center mt-8">
+          <button 
+            onClick={() => navigate('/shop')}
+            className="inline-flex items-center justify-center px-8 py-3 rounded-full text-xs font-semibold tracking-[0.18em] uppercase
+                       bg-gradient-to-r from-rose-400 via-rose-300 to-pink-300
+                       text-white shadow-md shadow-rose-100
+                       border border-white/50
+                       hover:shadow-lg hover:shadow-rose-200 hover:brightness-110
+                       active:scale-95
+                       transition-all duration-200"
           >
-            <div className="overflow-hidden aspect-square mb-4">
-              <img 
-                src={cat.img} 
-                alt={cat.name} 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-            </div>
-            <h3 className="text-center font-serif text-xl tracking-widest group-hover:text-rose-500 transition-colors">
-              {cat.name}
-            </h3>
-          </div>
-        ))}
+            Shop
+          </button>
+        </div>
       </div>
     </section>
   );
 };
 
 const GiftingSection = () => {
+  const navigate = useNavigate();
+  const [activeIndex, setActiveIndex] = useState(0);
+  
+  const giftImages = [
+    'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1000&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1000&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1000&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=1000&auto=format&fit=crop',
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % giftImages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="flex flex-col md:flex-row h-auto md:h-[600px]">
-      <div className="w-full md:w-1/2 h-[400px] md:h-full">
-         <img 
-            src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1000&auto=format&fit=crop" 
-            alt="Gifting" 
-            className="w-full h-full object-cover"
-         />
+      <div className="w-full md:w-1/2 h-[400px] md:h-full relative bg-gradient-to-br from-rose-50 to-pink-100 flex items-center justify-center overflow-hidden">
+        <div className="relative w-64 h-80 md:w-80 md:h-96">
+          {giftImages.map((img, index) => {
+            const offset = index - activeIndex;
+            const isActive = index === activeIndex;
+            
+            return (
+              <motion.div
+                key={index}
+                className="absolute inset-0 w-full h-full"
+                initial={false}
+                animate={{
+                  rotateZ: offset * 3,
+                  y: offset * 15,
+                  x: offset * 10,
+                  scale: isActive ? 1 : 0.9 - Math.abs(offset) * 0.05,
+                  zIndex: giftImages.length - Math.abs(offset),
+                  opacity: Math.abs(offset) > 2 ? 0 : 1,
+                }}
+                transition={{
+                  duration: 0.5,
+                  ease: "easeInOut"
+                }}
+              >
+                <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+                  <img 
+                    src={img} 
+                    alt={`Gift ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+        
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-2">
+          {giftImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setActiveIndex(index)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === activeIndex ? 'bg-rose-500 w-6' : 'bg-white/50'
+              }`}
+            />
+          ))}
+        </div>
       </div>
-      <div className="w-full md:w-1/2 bg-baby-pink flex flex-col items-center justify-center p-12 text-center">
-        <h2 className="text-4xl md:text-5xl font-serif mb-6 text-gray-900">Ace the art of Gifting</h2>
-        <p className="max-w-md text-lg text-gray-700 leading-relaxed mb-8">
+
+      <div className="w-full md:w-1/2 bg-pink-50 flex flex-col items-center justify-center p-8 md:p-12 text-center">
+        <h2 className="text-3xl md:text-5xl font-serif mb-4 md:mb-6 text-gray-900">
+          Ace the art of Gifting
+        </h2>
+        <p className="max-w-md text-base md:text-lg text-gray-700 leading-relaxed mb-6 md:mb-8">
           Jewellery that feels personal, packaging that looks like a celebration. Whether it's a thoughtful surprise or a spontaneous gesture, our pieces come ready to gift, no extra wrapping required.
         </p>
-        <button className="px-8 py-3 border border-gray-900 text-gray-900 uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors duration-300">
-          Shop Gifts
-        </button>
+        
+        <motion.div 
+          className="flex flex-col items-center gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
+        </motion.div>
       </div>
     </section>
   );
 };
 
-const BestsellersSection = () => {
-  // Mock data for now
-  const products = [
-    { id: 1, name: 'Gold Hoops', price: 1200, img: 'https://images.unsplash.com/photo-1630019852942-f89202989a51?q=80&w=1000&auto=format&fit=crop' },
-    { id: 2, name: 'Pearl Necklace', price: 2500, img: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=1000&auto=format&fit=crop' },
-    { id: 3, name: 'Diamond Ring', price: 5000, img: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=1000&auto=format&fit=crop' },
-    { id: 4, name: 'Silver Bracelet', price: 1800, img: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1000&auto=format&fit=crop' },
+const BentoCollectionsSection = () => {
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+  
+  const collections = [
+    {
+      name: 'Our Bestsellers',
+      description: 'Customer favorites that never go out of style',
+      img: 'https://images.unsplash.com/photo-1630019852942-f89202989a51?q=80&w=1000&auto=format&fit=crop',
+      size: 'large',
+      color: 'from-rose-100 to-pink-50'
+    },
+    {
+      name: 'Everyday Essentials',
+      description: 'Chic daily pieces',
+      img: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1000&auto=format&fit=crop',
+      size: 'medium',
+      color: 'from-pink-50 to-rose-50'
+    },
+    {
+      name: 'Statement Pieces',
+      description: 'Bold & beautiful',
+      img: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1000&auto=format&fit=crop',
+      size: 'small',
+      color: 'from-rose-50 to-white'
+    },
+    {
+      name: 'Minimalist',
+      description: 'Less is more',
+      img: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=1000&auto=format&fit=crop',
+      size: 'small',
+      color: 'from-white to-rose-50'
+    },
+    {
+      name: 'Boho Vibes',
+      description: 'Free-spirited designs',
+      img: 'https://images.unsplash.com/photo-1599643478518-17488fbbcd75?q=80&w=1000&auto=format&fit=crop',
+      size: 'wide',
+      color: 'from-rose-50 to-pink-100'
+    },
+  ];
+
+  const getSizeClasses = (size) => {
+    switch(size) {
+      case 'large':
+        return 'col-span-2 row-span-2 md:col-span-2 md:row-span-2';
+      case 'medium':
+        return 'col-span-2 row-span-1 md:col-span-1 md:row-span-2';
+      case 'wide':
+        return 'col-span-2 row-span-1 md:col-span-2 md:row-span-1';
+      default:
+        return 'col-span-1 row-span-1';
+    }
+  };
+
+  return (
+    <section className="py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-rose-50 via-white to-pink-50">
+      <motion.h2 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true }}
+        className="text-3xl md:text-5xl font-serif text-center mb-4 uppercase tracking-widest text-gray-900"
+      >
+        Curated Collections
+      </motion.h2>
+      <p className="text-center text-gray-600 mb-12 md:mb-16 max-w-2xl mx-auto text-sm md:text-base px-4">
+        Trendy accessories that match your vibe 
+      </p>
+      
+      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 auto-rows-[180px] md:auto-rows-[240px] gap-3 md:gap-4">
+        {collections.map((collection, index) => (
+          <motion.div
+            key={collection.name}
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            viewport={{ once: true }}
+            onHoverStart={() => setHoveredIndex(index)}
+            onHoverEnd={() => setHoveredIndex(null)}
+            className={`${getSizeClasses(collection.size)} group relative overflow-hidden rounded-3xl cursor-pointer`}
+          >
+            <div className="absolute inset-0">
+              <img 
+                src={collection.img} 
+                alt={collection.name}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className={`absolute inset-0 bg-gradient-to-br ${collection.color} mix-blend-multiply opacity-40 group-hover:opacity-60 transition-opacity duration-300`} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            </div>
+
+            <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-end">
+              <motion.div
+                animate={{
+                  y: hoveredIndex === index ? -10 : 0,
+                }}
+                transition={{ duration: 0.3 }}
+              >
+                <h3 className="text-white font-serif text-lg md:text-2xl mb-1 md:mb-2 tracking-wide">
+                  {collection.name}
+                </h3>
+                <p className="text-white/90 text-xs md:text-sm mb-3 md:mb-4">
+                  {collection.description}
+                </p>
+                
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{
+                    opacity: hoveredIndex === index ? 1 : 0,
+                    y: hoveredIndex === index ? 0 : 10,
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white text-gray-900 px-4 md:px-5 py-2 rounded-full text-xs md:text-sm uppercase tracking-wider font-medium shadow-lg hover:bg-rose-500 hover:text-white transition-colors"
+                >
+                  Explore
+                </motion.button>
+              </motion.div>
+            </div>
+
+            <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-bl-full blur-2xl" />
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const FloatingGallerySection = () => {
+  const galleryItems = [
+    { img: 'https://images.unsplash.com/photo-1630019852942-f89202989a51?q=80&w=1000&auto=format&fit=crop', height: 'h-64', delay: 0 },
+    { img: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1000&auto=format&fit=crop', height: 'h-80', delay: 0.1 },
+    { img: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1000&auto=format&fit=crop', height: 'h-72', delay: 0.2 },
+    { img: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=1000&auto=format&fit=crop', height: 'h-96', delay: 0.3 },
+    { img: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?q=80&w=1000&auto=format&fit=crop', height: 'h-64', delay: 0.4 },
+    { img: 'https://images.unsplash.com/photo-1599643478518-17488fbbcd75?q=80&w=1000&auto=format&fit=crop', height: 'h-88', delay: 0.5 },
   ];
 
   return (
-    <section className="py-20 px-6 bg-rose-50">
-      <h2 className="text-4xl font-serif text-center mb-12 text-white drop-shadow-md">Our Bestsellers</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {products.map((product) => (
-          <div key={product.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl hover:shadow-rose-200 transition-shadow duration-300 group">
-             <div className="relative aspect-square overflow-hidden bg-gray-100">
-                <img 
-                  src={product.img} 
-                  alt={product.name} 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-             </div>
-             <div className="p-4 text-center">
-                <h3 className="font-serif text-lg mb-2">{product.name}</h3>
-                <p className="text-gray-600 mb-4">Rs. {product.price}</p>
-                <button className="w-full bg-rose-500 text-white py-2 rounded uppercase text-sm tracking-wider hover:bg-rose-600 transition-colors">
-                  Add to Cart
-                </button>
-             </div>
-          </div>
+    <section className="py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-pink-50 to-rose-100 overflow-hidden">
+      <motion.h2 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true }}
+        className="text-3xl md:text-5xl font-serif text-center mb-4 uppercase tracking-widest text-gray-900"
+      >
+        The Vibe
+      </motion.h2>
+      <p className="text-center text-gray-700 mb-12 md:mb-16 max-w-xl mx-auto text-sm md:text-base">
+        Catch the energy, feel the style 
+      </p>
+
+      <div className="max-w-7xl mx-auto columns-2 md:columns-3 gap-3 md:gap-4 space-y-3 md:space-y-4">
+        {galleryItems.map((item, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: item.delay }}
+            viewport={{ once: true }}
+            className="break-inside-avoid group"
+          >
+            <div className={`${item.height} relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300`}>
+              <motion.img
+                whileHover={{ scale: 1.1, rotate: 2 }}
+                transition={{ duration: 0.5 }}
+                src={item.img}
+                alt={`Gallery ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-rose-500/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
+                <motion.span
+                  initial={{ y: 20, opacity: 0 }}
+                  whileHover={{ y: 0, opacity: 1 }}
+                  className="text-white font-serif text-xl tracking-wider"
+                >
+                </motion.span>
+              </div>
+            </div>
+          </motion.div>
         ))}
       </div>
     </section>
@@ -139,7 +441,8 @@ export default function Home() {
       <HeroSection />
       <CategoriesSection />
       <GiftingSection />
-      <BestsellersSection />
+      <BentoCollectionsSection />
+      <FloatingGallerySection />
     </div>
   );
 }

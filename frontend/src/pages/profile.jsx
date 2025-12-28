@@ -558,11 +558,11 @@ const Profile = () => {
               className="w-full border p-2 rounded mb-4 focus:ring-1 focus:ring-rose-500 outline-none"
             >
               <option value="">-- Select Reason --</option>
-              <option value="damaged">Damaged Product (Free Exchange)</option>
-              <option value="defective">Defective Product (Free Exchange)</option>
-              <option value="wrong_item">Wrong Item Received (Rs. 100 fee)</option>
-              <option value="size_issue">Size Issue (Rs. 100 fee)</option>
-              <option value="changed_mind">Changed Mind (Rs. 100 fee)</option>
+              <option value="damaged">Received Damaged/ Defective Product (Free Exchange)</option>
+              <option value="wrong_item">Wrong Item Received (Free Exchange)</option>
+              <option value="changed_mind">Changed My Mind (Rs. 100 fee)</option>
+              <option value="other"> Others (Rs. 100 fee)</option>
+              
             </select>
             <p className="text-xs text-gray-500 mb-6">
               * Exchange window: 3 days from delivery<br/>

@@ -1,0 +1,15 @@
+name: Sync Fork
+on:
+  push:
+    branches: [ main ]
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: repo-sync/pull-request@v2
+      with:
+        source_repo: "himanklalani/Sera"
+        destination_repo: "serajewels/Sera"
+        source_branch: "main"
+        destination_branch: "main"
+        github_token: ${{ secrets.GITHUB_TOKEN }}

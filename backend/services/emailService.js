@@ -1,37 +1,23 @@
 // services/emailService.js
-const nodemailer = require('nodemailer');
+const axios = require('axios');
 
-// Create transporter with Brevo SMTP
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT),
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
-});
-
-// Verify transporter configuration
-if (process.env.SMTP_HOST) {
-    transporter.verify(function (error, success) {
-    if (error) {
-        console.error('SMTP Configuration Error:', error);
-    } else {
-        console.log('✅ SMTP Server is ready to send emails');
-    }
-    });
+// Verify API configuration
+if (process.env.BREVO_API_KEY) {
+  console.log('✅ Brevo API configured successfully');
 } else {
-    console.warn('⚠️ SMTP Configuration missing - Email sending disabled');
+  console.warn('⚠️ BREVO_API_KEY missing - Email sending disabled');
 }
 
 // Send OTP Email
 const sendOTPEmail = async (email, otp) => {
-  const mailOptions = {
-    from: `"Sera Jewelry" <${process.env.SMTP_FROM}>`,
-    to: email,
-    subject: 'Sera - Email Verification OTP',
-    html: `
+  const emailData = {
+    sender: { 
+      name: "Sera Jewelry", 
+      email: process.env.SMTP_FROM 
+    },
+    to: [{ email: email }],
+    subject: "Sera - Email Verification OTP",
+    htmlContent: `
       <!DOCTYPE html>
       <html>
       <head>
@@ -150,22 +136,32 @@ const sendOTPEmail = async (email, otp) => {
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ OTP Email sent successfully:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    const response = await axios.post('https://api.brevo.com/v3/smtp/email', emailData, {
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      }
+    });
+
+    console.log('✅ OTP Email sent successfully:', response.data.messageId);
+    return { success: true, messageId: response.data.messageId };
   } catch (error) {
-    console.error('❌ Email sending failed:', error);
+    console.error('❌ Email sending failed:', error.response?.data || error.message);
     throw new Error('Failed to send OTP email');
   }
 };
 
 // Send Password Reset Email
 const sendPasswordResetEmail = async (email, otp) => {
-  const mailOptions = {
-    from: `"Sera Jewelry" <${process.env.SMTP_FROM}>`,
-    to: email,
-    subject: 'Sera - Password Reset Request',
-    html: `
+  const emailData = {
+    sender: { 
+      name: "Sera Jewelry", 
+      email: process.env.SMTP_FROM 
+    },
+    to: [{ email: email }],
+    subject: "Sera - Password Reset Request",
+    htmlContent: `
       <!DOCTYPE html>
       <html>
       <head>
@@ -264,7 +260,20 @@ const sendPasswordResetEmail = async (email, otp) => {
     `
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    const response = await axios.post('https://api.brevo.com/v3/smtp/email', emailData, {
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      }
+    });
+
+    console.log('✅ Password reset email sent successfully:', response.data.messageId);
+  } catch (error) {
+    console.error('❌ Password reset email failed:', error.response?.data || error.message);
+    throw new Error('Failed to send password reset email');
+  }
 };
 
 module.exports = { sendOTPEmail, sendPasswordResetEmail };

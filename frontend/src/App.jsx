@@ -10,10 +10,10 @@ import Login from './pages/login';
 import Register from './pages/register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
-import Profile from './pages/Profile';
+import Profile from './pages/profile';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
-import ProductDetails from './pages/ProductDetails';
+import ProductDetails from './pages/productdetails';
 import Shop from './pages/Shop';
 import OrderSuccess from './pages/OrderSuccess';
 

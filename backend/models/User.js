@@ -67,8 +67,6 @@ userSchema.pre('save', async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-userSchema.index({ email: 1 });
-userSchema.index({ phone: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ 'wishlist': 1 });
 userSchema.index({ isActive: 1, createdAt: -1 });

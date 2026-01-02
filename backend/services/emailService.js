@@ -13,13 +13,17 @@ const transporter = nodemailer.createTransport({
 });
 
 // Verify transporter configuration
-transporter.verify(function (error, success) {
-  if (error) {
-    console.error('SMTP Configuration Error:', error);
-  } else {
-    console.log('✅ SMTP Server is ready to send emails');
-  }
-});
+if (process.env.SMTP_HOST) {
+    transporter.verify(function (error, success) {
+    if (error) {
+        console.error('SMTP Configuration Error:', error);
+    } else {
+        console.log('✅ SMTP Server is ready to send emails');
+    }
+    });
+} else {
+    console.warn('⚠️ SMTP Configuration missing - Email sending disabled');
+}
 
 // Send OTP Email
 const sendOTPEmail = async (email, otp) => {

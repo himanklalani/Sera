@@ -11,10 +11,41 @@ const AdminDashboard = () => {
   const [contacts, setContacts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // For Product Modal
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false); // For Order Modal
   const [editingProduct, setEditingProduct] = useState(null);
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [orderForm, setOrderForm] = useState({
+    shippingAddress: {
+      street: '',
+      city: '',
+      state: '',
+      pincode: '',
+      country: ''
+    },
+    status: '',
+    items: []
+  });
   const [selectedContact, setSelectedContact] = useState(null);
   const navigate = useNavigate();
+
+  // All products for dropdown in order edit
+  const [allProducts, setAllProducts] = useState([]);
+  
+  const fetchAllProducts = async () => {
+    try {
+      const { data } = await axios.get('http://localhost:5000/api/products');
+      setAllProducts(
+        Array.isArray(data?.products) 
+          ? data.products 
+          : Array.isArray(data) 
+          ? data 
+          : []
+      );
+    } catch (error) {
+      console.error('Error fetching all products:', error);
+    }
+  };
 
   // Form State
   const [formData, setFormData] = useState({
@@ -293,6 +324,64 @@ const AdminDashboard = () => {
     }
   };
 
+  const openOrderEditModal = async (order) => {
+    setEditingOrder(order);
+    setOrderForm({
+      shippingAddress: {
+        street: order.shippingAddress?.street || '',
+        city: order.shippingAddress?.city || '',
+        state: order.shippingAddress?.state || '',
+        pincode: order.shippingAddress?.pincode || '',
+        country: order.shippingAddress?.country || ''
+      },
+      status: order.status || 'pending',
+      items: order.items.map(item => ({
+        product: item.product?._id || item.product || '', // handle populated or ID
+        quantity: item.quantity || 1
+      }))
+    });
+    setIsOrderModalOpen(true);
+    await fetchAllProducts();
+  };
+
+  const handleUpdateOrder = async (e) => {
+    e.preventDefault();
+
+    // Validate items
+    const validItems = orderForm.items.filter(item => item.product && item.quantity > 0);
+    if (validItems.length === 0) {
+      alert('Order must have at least one valid item');
+      return;
+    }
+
+    try {
+      const ui = getUserInfo();
+      if (!ui) {
+        navigate('/login');
+        return;
+      }
+      const config = { headers: { Authorization: `Bearer ${ui.token}` } };
+      
+      const payload = {
+        ...orderForm,
+        items: validItems
+      };
+
+      await axios.put(
+        `http://localhost:5000/api/orders/${editingOrder._id}/update`,
+        payload,
+        config
+      );
+      
+      alert('Order updated successfully');
+      setIsOrderModalOpen(false);
+      setEditingOrder(null);
+      fetchData();
+    } catch (error) {
+      console.error('Error updating order:', error);
+      alert(error.response?.data?.message || 'Failed to update order');
+    }
+  };
   const handleCategoryDelete = async (id) => {
     if (!window.confirm('Delete this category?')) return;
     try {
@@ -1015,38 +1104,46 @@ const AdminDashboard = () => {
               )}
             </td>
             <td className="px-6 py-4">
-              {order.status === 'exchange_requested' ? (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleExchangeApproval(order._id, true)}
-                    className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-colors flex items-center gap-1"
-                  >
-                    <FaCheck /> Approve
-                  </button>
-                  <button
-                    onClick={() => handleExchangeApproval(order._id, false)}
-                    className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors flex items-center gap-1"
-                  >
-                    <FaTimes /> Reject
-                  </button>
-                </div>
-              ) : order.status === 'cancelled' ||
-                order.status === 'exchanged' ? (
-                <span className="text-gray-400 text-xs">No actions</span>
-              ) : (
-                <select
-                  value={order.status || 'pending'}
-                  onChange={(e) =>
-                    handleOrderStatus(order._id, e.target.value)
-                  }
-                  className="border border-gray-300 rounded px-3 py-1 text-sm focus:ring-rose-500 focus:border-rose-500"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="processing">Processing</option>
-                  <option value="shipped">Shipped</option>
-                  <option value="delivered">Delivered</option>
-                </select>
-              )}
+              <div className="flex items-center gap-2">
+                {order.status === 'exchange_requested' ? (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleExchangeApproval(order._id, true)}
+                      className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-colors flex items-center gap-1"
+                    >
+                      <FaCheck /> Approve
+                    </button>
+                    <button
+                      onClick={() => handleExchangeApproval(order._id, false)}
+                      className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors flex items-center gap-1"
+                    >
+                      <FaTimes /> Reject
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    {order.status !== 'cancelled' && order.status !== 'exchanged' && (
+                      <select
+                        value={order.status || 'pending'}
+                        onChange={(e) => handleOrderStatus(order._id, e.target.value)}
+                        className="border border-gray-300 rounded px-3 py-1 text-sm focus:ring-rose-500 focus:border-rose-500"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                      </select>
+                    )}
+                    <button
+                      onClick={() => openOrderEditModal(order)}
+                      className="p-2 text-gray-600 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                      title="Edit Order Details"
+                    >
+                      <FaEdit />
+                    </button>
+                  </div>
+                )}
+              </div>
             </td>
           </tr>
         ))}
@@ -1358,6 +1455,188 @@ const AdminDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Order Edit Modal */}
+      {isOrderModalOpen && editingOrder && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[90]">
+          <div className="bg-white p-8 rounded-lg w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setIsOrderModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+            >
+              <FaTimes />
+            </button>
+            <h2 className="text-2xl font-serif mb-6">Edit Order</h2>
+            
+            <form onSubmit={handleUpdateOrder} className="space-y-6">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-gray-700">Shipping Address</h3>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Street Address"
+                    value={orderForm.shippingAddress.street}
+                    onChange={(e) => setOrderForm({
+                      ...orderForm,
+                      shippingAddress: { ...orderForm.shippingAddress, street: e.target.value }
+                    })}
+                    className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
+                    required
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      placeholder="City"
+                      value={orderForm.shippingAddress.city}
+                      onChange={(e) => setOrderForm({
+                        ...orderForm,
+                        shippingAddress: { ...orderForm.shippingAddress, city: e.target.value }
+                      })}
+                      className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="State"
+                      value={orderForm.shippingAddress.state}
+                      onChange={(e) => setOrderForm({
+                        ...orderForm,
+                        shippingAddress: { ...orderForm.shippingAddress, state: e.target.value }
+                      })}
+                      className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      placeholder="Pincode"
+                      value={orderForm.shippingAddress.pincode}
+                      onChange={(e) => setOrderForm({
+                        ...orderForm,
+                        shippingAddress: { ...orderForm.shippingAddress, pincode: e.target.value }
+                      })}
+                      className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Country"
+                      value={orderForm.shippingAddress.country}
+                      onChange={(e) => setOrderForm({
+                        ...orderForm,
+                        shippingAddress: { ...orderForm.shippingAddress, country: e.target.value }
+                      })}
+                      className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Order Status
+                </label>
+                <select
+                  value={orderForm.status}
+                  onChange={(e) => setOrderForm({ ...orderForm, status: e.target.value })}
+                  className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="cancelled">Cancelled</option>
+                  <option value="exchange_requested">Exchange Requested</option>
+                  <option value="exchange_approved">Exchange Approved</option>
+                  <option value="exchanged">Exchanged</option>
+                </select>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-medium mb-3 text-gray-700">Order Items</h3>
+                <div className="space-y-4">
+                  {orderForm.items.map((item, index) => (
+                    <div key={index} className="flex gap-2 items-start bg-white p-3 rounded border">
+                      <div className="flex-1">
+                        <label className="block text-xs text-gray-500 mb-1">Product</label>
+                        <select
+                          value={item.product || ''}
+                          onChange={(e) => {
+                            const newItems = [...orderForm.items];
+                            newItems[index].product = e.target.value;
+                            setOrderForm({ ...orderForm, items: newItems });
+                          }}
+                          className="w-full border p-1 rounded text-sm"
+                        >
+                          <option value="">Select Product</option>
+                          {allProducts.map(p => (
+                            <option key={p._id} value={p._id}>
+                              {p.name} (Stock: {p.stock})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="w-20">
+                        <label className="block text-xs text-gray-500 mb-1">Qty</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => {
+                            const newItems = [...orderForm.items];
+                            newItems[index].quantity = parseInt(e.target.value) || 1;
+                            setOrderForm({ ...orderForm, items: newItems });
+                          }}
+                          className="w-full border p-1 rounded text-sm"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newItems = orderForm.items.filter((_, i) => i !== index);
+                          setOrderForm({ ...orderForm, items: newItems });
+                        }}
+                        className="mt-5 text-red-500 hover:text-red-700"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setOrderForm({
+                      ...orderForm,
+                      items: [...orderForm.items, { product: '', quantity: 1 }]
+                    })}
+                    className="text-sm text-rose-500 hover:text-rose-600 flex items-center gap-1"
+                  >
+                    <FaPlus className="text-xs" /> Add Item
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => setIsOrderModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-rose-500 text-white px-4 py-2 rounded-lg hover:bg-rose-600 transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

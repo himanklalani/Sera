@@ -279,4 +279,106 @@ router.put('/:id/exchange/approve', protect, asyncHandler(async (req, res) => {
   res.json(updatedOrder);
 }));
 
+// @desc    Update order details (Admin)
+// @route   PUT /api/orders/:id/update
+// @access  Private/Admin
+router.put('/:id/update', protect, asyncHandler(async (req, res) => {
+  if (req.user.role !== 'admin') {
+    res.status(401);
+    throw new Error('Not authorized as an admin');
+  }
+
+  const order = await Order.findById(req.params.id);
+
+  if (order) {
+    // Update shipping address
+    if (req.body.shippingAddress) {
+      order.shippingAddress = {
+        ...order.shippingAddress,
+        ...req.body.shippingAddress
+      };
+    }
+
+    // Update status with side effects handling
+    if (req.body.status && req.body.status !== order.status) {
+      const oldStatus = order.status;
+      order.status = req.body.status;
+      
+      // Mark delivered date
+      if (order.status === 'delivered' && oldStatus !== 'delivered') {
+        order.deliveredAt = new Date();
+      }
+    }
+
+    // Update items and stock
+    if (req.body.items && Array.isArray(req.body.items)) {
+      // Map old items for quick lookup
+      const oldItemsMap = {};
+      order.items.forEach(item => {
+        if (item.product) {
+            oldItemsMap[item.product.toString()] = item.quantity;
+        }
+      });
+
+      const newItemsProcessed = [];
+      let runningTotalPrice = 0;
+
+      // Validate new items and check stock
+      for (const item of req.body.items) {
+        if (!item.product) continue; // Skip invalid items
+        
+        const product = await Product.findById(item.product);
+        if (!product) {
+          res.status(404);
+          throw new Error(`Product not found: ${item.product}`);
+        }
+        
+        // Calculate available stock considering what we already hold in the order
+        const oldQty = oldItemsMap[product._id.toString()] || 0;
+        const availableStock = product.stock + oldQty;
+        
+        if (availableStock < item.quantity) {
+          res.status(400);
+          throw new Error(`Insufficient stock for ${product.name}. Available: ${availableStock}`);
+        }
+        
+        newItemsProcessed.push({
+          product: product._id,
+          name: product.name,
+          quantity: Number(item.quantity),
+          price: product.price // Update price to current product price
+        });
+        runningTotalPrice += product.price * item.quantity;
+      }
+
+      // If validation passes, apply stock changes
+      
+      // 1. Restore stock for ALL old items
+      for (const item of order.items) {
+        if (item.product) {
+            await Product.findByIdAndUpdate(item.product, {
+            $inc: { stock: item.quantity, sales: -item.quantity }
+            });
+        }
+      }
+
+      // 2. Deduct stock for ALL new items
+      for (const item of newItemsProcessed) {
+        await Product.findByIdAndUpdate(item.product, {
+          $inc: { stock: -item.quantity, sales: item.quantity }
+        });
+      }
+
+      order.items = newItemsProcessed;
+      order.totalPrice = runningTotalPrice; // Recalculate total price
+    }
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } else {
+    res.status(404);
+    throw new Error('Order not found');
+  }
+}));
+
 module.exports = router;

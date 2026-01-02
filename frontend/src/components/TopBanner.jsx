@@ -76,7 +76,7 @@ function ParallaxText({ children, baseVelocity = 100 }) {
 export default function TopBanner() {
   return (
     <div className="bg-baby-pink text-gray-800 py-2 overflow-hidden z-50 relative">
-      <ParallaxText baseVelocity={2}>
+      <ParallaxText baseVelocity={1.5 }>
         Welcome to Sera — Free shipping on orders above Rs999 — 
       </ParallaxText>
     </div>

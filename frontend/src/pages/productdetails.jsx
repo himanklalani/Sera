@@ -4,7 +4,9 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart } from 'react-icons/fa';
 
+
 const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500' viewBox='0 0 500 500'%3E%3Crect fill='%23f3f4f6' width='500' height='500'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='32' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
+
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -27,7 +29,7 @@ const ProductDetails = () => {
   const getUserInfo = () => {
     const stored = localStorage.getItem('userInfo');
     if (!stored) return null;
-    
+
     try {
       return JSON.parse(stored);
     } catch (error) {
@@ -121,6 +123,7 @@ const ProductDetails = () => {
       setShowReviewForm(false);
       setUserRating(0);
       setReviewComment('');
+      setCanReview(false);
       alert('Review submitted successfully!');
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Failed to submit review';
@@ -131,24 +134,22 @@ const ProductDetails = () => {
   };
 
   const handleAddToCart = async (productToAdd = null) => {
-    // If productToAdd is an event (synthetic event), treat it as null
     if (productToAdd && productToAdd.preventDefault) {
       productToAdd = null;
     }
 
     const ui = getUserInfo();
-    const itemToAdd = productToAdd || product; // Default to current product if no arg passed
+    const itemToAdd = productToAdd || product;
 
     if (!ui) {
       navigate(`/login?redirect=/product/${itemToAdd._id}`);
       return;
     }
 
-    // If adding the main product, show spinner on main button
     if (!productToAdd) {
       setAddingToCart(true);
     }
-    
+
     try {
       const config = { headers: { Authorization: `Bearer ${ui.token}` } };
       await axios.post(
@@ -413,123 +414,156 @@ const ProductDetails = () => {
             </div>
           )}
 
-          {/* Review section */}
-          {getUserInfo() && (
+          {/* ========== REVIEWS SECTION - INTEGRATED ========== */}
+
+          {/* Display all reviews (public) */}
+          {product.reviews && product.reviews.length > 0 && (
             <div className="border-t pt-8">
-              {canReview ? (
-                <>
-                  <button
-                    onClick={() => setShowReviewForm(!showReviewForm)}
-                    className="w-full border-2 border-dashed border-rose-200 bg-gradient-to-r from-rose-50 to-pink-50 p-6 rounded-2xl text-center hover:border-rose-300 hover:shadow-md transition-all duration-300 font-serif text-xl font-medium text-rose-700 mb-6"
-                  >
-                    ✨ {showReviewForm ? 'Cancel Review' : 'Write Your Review'} ✨
-                  </button>
+              <h3 className="font-serif text-2xl font-medium mb-6 text-gray-900">
+                Customer Reviews ({product.numReviews || 0})
+              </h3>
 
-                  {showReviewForm && (
-                    <motion.form
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      onSubmit={handleSubmitReview}
-                      className="bg-white border border-rose-100 rounded-2xl p-8 shadow-lg space-y-6"
-                    >
-                      <div>
-                        <label className="block font-serif text-lg font-medium text-gray-800 mb-4">
-                          Your Rating
-                        </label>
-                        <div className="flex gap-2 justify-center">
-                          {[5, 4, 3, 2, 1].map((star) => (
-                            <motion.div
-                              key={star}
-                              whileHover={{ scale: 1.3 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <FaStar
-                                className={`cursor-pointer text-3xl transition-all duration-200 ${
-                                  star <= userRating
-                                    ? 'text-yellow-400 fill-yellow-400 drop-shadow-lg'
-                                    : 'text-gray-300 hover:text-yellow-400 hover:fill-yellow-400 hover:drop-shadow-md'
-                                }`}
-                                onClick={() => setUserRating(star)}
-                              />
-                            </motion.div>
-                          ))}
-                        </div>
-                        {!userRating && (
-                          <p className="text-center text-gray-500 text-sm mt-2 font-medium">
-                            ⭐ Click a star to rate (1–5)
-                          </p>
-                        )}
+              <div className="space-y-6 mb-8">
+                {product.reviews.map((review, idx) => (
+                  <div key={idx} className="bg-gray-50 p-6 rounded-xl border-l-4 border-rose-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="flex text-yellow-400">
+                        {[...Array(5)].map((_, i) => (
+                          <FaStar
+                            key={i}
+                            className={i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
+                            size={16}
+                          />
+                        ))}
                       </div>
+                      <span className="font-medium text-gray-900">{review.rating}</span>
+                      <span className="text-sm text-gray-500">by {review.user?.name || 'Anonymous'}</span>
+                    </div>
+                    {review.comment && (
+                      <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-                      <div>
-                        <label className="block font-serif text-lg font-medium text-gray-800 mb-3">
-                          Share Your Experience (Optional)
-                        </label>
-                        <textarea
-                          value={reviewComment}
-                          onChange={(e) => setReviewComment(e.target.value)}
-                          rows={5}
-                          maxLength={1000}
-                          className="w-full p-5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-rose-400 focus:ring-4 focus:ring-rose-100 resize-vertical font-serif text-lg placeholder-gray-400 transition-all"
-                          placeholder="Tell us about your experience with this beautiful piece..."
-                        />
-                        <div className="flex justify-between items-center text-xs mt-2 text-gray-500">
-                          <span>{reviewComment.length}/1000 characters</span>
-                          <span
-                            className={
-                              reviewComment.length > 900
-                                ? 'text-rose-500 font-medium'
-                                : ''
-                            }
-                          >
-                            {reviewComment.length > 900 ? 'Shorten review' : ''}
-                          </span>
-                        </div>
-                      </div>
+          {/* Review Form - Only for eligible users */}
+          {getUserInfo() && canReview && (
+            <div className="border-t pt-8">
+              <button
+                onClick={() => setShowReviewForm(!showReviewForm)}
+                className="w-full border-2 border-dashed border-rose-200 bg-gradient-to-r from-rose-50 to-pink-50 p-6 rounded-2xl text-center hover:border-rose-300 hover:shadow-md transition-all duration-300 font-serif text-xl font-medium text-rose-700 mb-6"
+              >
+                ✨ {showReviewForm ? 'Cancel Review' : 'Write Your Review'} ✨
+              </button>
 
-                      <motion.button
-                        type="submit"
-                        disabled={reviewLoading || userRating === 0}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full bg-gradient-to-r from-rose-500 to-rose-600 text-white py-5 px-8 rounded-2xl uppercase tracking-wider font-semibold text-xl shadow-xl hover:shadow-2xl hover:from-rose-600 hover:to-rose-700 focus:outline-none focus:ring-4 focus:ring-rose-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-300 flex items-center justify-center gap-3 font-serif"
-                      >
-                        {reviewLoading ? (
-                          <>
-                            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            Publishing your review...
-                          </>
-                        ) : (
-                          <>
-                            <FaStar className="text-yellow-300" />
-                            Submit Review
-                          </>
-                        )}
-                      </motion.button>
-                    </motion.form>
-                  )}
-                </>
-              ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-12 bg-gradient-to-br from-rose-50 to-pink-50 rounded-2xl border-2 border-dashed border-rose-200"
+              {showReviewForm && (
+                <motion.form
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  onSubmit={handleSubmitReview}
+                  className="bg-white border border-rose-100 rounded-2xl p-8 shadow-lg space-y-6"
                 >
-                  <div className="text-4xl mb-4">💝</div>
-                  <h3 className="font-serif text-xl font-semibold text-gray-800 mb-2">
-                    Verified Purchase
-                  </h3>
-                  <p className="text-gray-600 mb-4 max-w-md mx-auto">
-                    You can share your review after your order is delivered.
-                  </p>
-                  <p className="text-sm text-rose-500 font-medium">
-                    {product.numReviews || 0} reviews already shared ✨
-                  </p>
-                </motion.div>
+                  {/* Star Rating */}
+                  <div>
+                    <label className="block font-serif text-lg font-medium text-gray-800 mb-4">
+                      Your Rating
+                    </label>
+                    <div className="flex gap-2 justify-center">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <motion.div
+                          key={star}
+                          whileHover={{ scale: 1.3 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <FaStar
+                            className={`cursor-pointer text-3xl transition-all duration-200 ${
+                              star <= userRating
+                                ? 'text-yellow-400 fill-yellow-400 drop-shadow-lg'
+                                : 'text-gray-300 hover:text-yellow-400 hover:fill-yellow-400 hover:drop-shadow-md'
+                            }`}
+                            onClick={() => setUserRating(star)}
+                          />
+                        </motion.div>
+                      ))}
+                    </div>
+                    {!userRating && (
+                      <p className="text-center text-gray-500 text-sm mt-2 font-medium">
+                        ⭐ Click a star to rate (1–5)
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Comment */}
+                  <div>
+                    <label className="block font-serif text-lg font-medium text-gray-800 mb-3">
+                      Share Your Experience (Optional)
+                    </label>
+                    <textarea
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      rows={5}
+                      maxLength={1000}
+                      className="w-full p-5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-rose-400 focus:ring-4 focus:ring-rose-100 resize-vertical font-serif text-lg placeholder-gray-400 transition-all"
+                      placeholder="Tell us about your experience with this beautiful piece..."
+                    />
+                    <div className="flex justify-between items-center text-xs mt-2 text-gray-500">
+                      <span>{reviewComment.length}/1000 characters</span>
+                      <span className={reviewComment.length > 900 ? 'text-rose-500 font-medium' : ''}>
+                        {reviewComment.length > 900 ? 'Shorten review' : ''}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <motion.button
+                    type="submit"
+                    disabled={reviewLoading || userRating === 0}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full bg-gradient-to-r from-rose-500 to-rose-600 text-white py-5 px-8 rounded-2xl uppercase tracking-wider font-semibold text-xl shadow-xl hover:shadow-2xl hover:from-rose-600 hover:to-rose-700 focus:outline-none focus:ring-4 focus:ring-rose-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-300 flex items-center justify-center gap-3 font-serif"
+                  >
+                    {reviewLoading ? (
+                      <>
+                        <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Publishing your review...
+                      </>
+                    ) : (
+                      <>
+                        <FaStar className="text-yellow-300" />
+                        Submit Review
+                      </>
+                    )}
+                  </motion.button>
+                </motion.form>
               )}
             </div>
           )}
+
+          {/* Non-eligible users message */}
+          {getUserInfo() && !canReview && (
+            <div className="border-t pt-8">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-12 bg-gradient-to-br from-rose-50 to-pink-50 rounded-2xl border-2 border-dashed border-rose-200"
+              >
+                <div className="text-4xl mb-4">💝</div>
+                <h3 className="font-serif text-xl font-semibold text-gray-800 mb-2">
+                  Verified Purchase Required
+                </h3>
+                <p className="text-gray-600 mb-4 max-w-md mx-auto">
+                  Share your review after your order is delivered. 
+                  <br />
+                  {product.numReviews || 0} reviews already shared ✨
+                </p>
+              </motion.div>
+            </div>
+          )}
+
+          {/* ========== END REVIEWS SECTION ========== */}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 text-sm text-gray-500">
             <div className="flex flex-col">

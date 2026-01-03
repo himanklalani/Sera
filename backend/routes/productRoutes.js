@@ -11,8 +11,6 @@ const { protect, admin } = require('../middleware/authMiddleware');
 const resolveProductNamesToIds = async (identifiers) => {
   if (!identifiers || identifiers.length === 0) return [];
   
-  // If identifiers are already ObjectIds (hex strings of length 24), keep them
-  // If they are names, find the products
   const resolvedIds = [];
   const namesToFind = [];
 
@@ -20,13 +18,13 @@ const resolveProductNamesToIds = async (identifiers) => {
     if (mongoose.Types.ObjectId.isValid(id)) {
       resolvedIds.push(id);
     } else {
-      namesToFind.push(id.trim()); // Assume it's a name
+      namesToFind.push(id.trim());
     }
   }
 
   if (namesToFind.length > 0) {
     const foundProducts = await Product.find({
-      name: { $in: namesToFind.map(n => new RegExp(`^${n}$`, 'i')) } // Case-insensitive exact match
+      name: { $in: namesToFind.map(n => new RegExp(`^${n}$`, 'i')) }
     }).select('_id');
     
     foundProducts.forEach(p => resolvedIds.push(p._id));
@@ -81,7 +79,6 @@ router.get('/', asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 12;
   const skip = (page - 1) * limit;
   
-  // Build query
   const query = {};
 
   if (req.query.keyword) {
@@ -120,8 +117,17 @@ router.get('/', asyncHandler(async (req, res) => {
 // @route   GET /api/products/:id
 // @access  Public
 router.get('/:id', asyncHandler(async (req, res) => {
+  if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid product ID');
+  }
+
   const product = await Product.findById(req.params.id)
-    .populate('reviews', 'rating comment name createdAt user')
+    .populate({
+      path: 'reviews',
+      select: 'rating comment name createdAt user',
+      populate: { path: 'user', select: 'name' }
+    })
     .populate('accentPairs', 'name price images category');
   
   if (product) {
@@ -154,7 +160,6 @@ router.post('/', protect, admin, validateProductInput, asyncHandler(async (req, 
 
   const createdProduct = await product.save();
 
-  // Bidirectional Update: Add this new product to the accentPairs of the referenced products
   if (resolvedAccentPairs.length > 0) {
     await Product.updateMany(
       { _id: { $in: resolvedAccentPairs } },
@@ -169,6 +174,11 @@ router.post('/', protect, admin, validateProductInput, asyncHandler(async (req, 
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 router.put('/:id', protect, admin, validateProductInput, asyncHandler(async (req, res) => {
+  if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid product ID');
+  }
+
   const product = await Product.findById(req.params.id);
 
   if (product) {
@@ -183,7 +193,6 @@ router.put('/:id', protect, admin, validateProductInput, asyncHandler(async (req
     if (req.body.accentPairs) {
       const oldPairs = (product.accentPairs || []).map(id => id.toString());
       
-      // Ensure we only process valid inputs
       const safeAccentPairs = Array.isArray(req.body.accentPairs) 
         ? req.body.accentPairs.filter(p => p && typeof p === 'string' && p.trim() !== '')
         : [];
@@ -191,11 +200,9 @@ router.put('/:id', protect, admin, validateProductInput, asyncHandler(async (req
       const newPairsIds = await resolveProductNamesToIds(safeAccentPairs);
       const newPairsStrings = newPairsIds.map(id => id.toString());
 
-      // Identify added and removed pairs
       const added = newPairsIds.filter(id => !oldPairs.includes(id.toString()));
       const removed = oldPairs.filter(id => !newPairsStrings.includes(id));
 
-      // Update added pairs: Add current product ID to them
       if (added.length > 0) {
         await Product.updateMany(
           { _id: { $in: added } },
@@ -203,7 +210,6 @@ router.put('/:id', protect, admin, validateProductInput, asyncHandler(async (req
         );
       }
 
-      // Update removed pairs: Remove current product ID from them
       if (removed.length > 0) {
         await Product.updateMany(
           { _id: { $in: removed } },
@@ -226,13 +232,16 @@ router.put('/:id', protect, admin, validateProductInput, asyncHandler(async (req
 // @route   DELETE /api/products/:id
 // @access  Private/Admin
 router.delete('/:id', protect, admin, asyncHandler(async (req, res) => {
+  if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid product ID');
+  }
+
   const product = await Product.findById(req.params.id);
 
   if (product) {
-    // Delete associated reviews
     await Review.deleteMany({ product: req.params.id });
     
-    // Remove this product from other products' accentPairs
     await Product.updateMany(
       { accentPairs: req.params.id },
       { $pull: { accentPairs: req.params.id } }
@@ -246,30 +255,43 @@ router.delete('/:id', protect, admin, asyncHandler(async (req, res) => {
   }
 }));
 
-// @desc    Get user's review eligibility for product (FIXED for your Order schema)
+// @desc    Get user's review eligibility for product
 // @route   GET /api/products/:id/review-eligibility
 // @access  Private
 router.get('/:id/review-eligibility', protect, asyncHandler(async (req, res) => {
+  if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid product ID');
+  }
+
   try {
     const orders = await Order.find({
       user: req.user._id,
-      'items.product': req.params.id,        // FIXED: 'items.product' (not orderItems)
-      status: { $in: ['delivered', 'exchanged'] }  // FIXED: lowercase matching your enum
+      'items.product': req.params.id,
+      status: { $in: ['delivered', 'exchanged'] }
     }).select('items status');
 
     const canReview = orders.length > 0;
     res.json({ canReview, eligibleOrders: orders.length });
   } catch (error) {
+    console.error('Review eligibility check error:', error);
     res.status(500);
     throw new Error('Failed to check review eligibility');
   }
 }));
 
-// @desc    Create new review with delivery verification (FIXED for your Order schema)
+// @desc    Create new review with delivery verification
 // @route   POST /api/products/:id/reviews
 // @access  Private
 router.post('/:id/reviews', protect, validateReviewInput, asyncHandler(async (req, res) => {
   const { rating, comment } = req.body;
+  
+  // FIXED: Validate product ID before any database operations
+  if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid product ID');
+  }
+
   const product = await Product.findById(req.params.id);
 
   if (!product) {
@@ -277,21 +299,22 @@ router.post('/:id/reviews', protect, validateReviewInput, asyncHandler(async (re
     throw new Error('Product not found');
   }
 
-  // Check if already reviewed
-  const alreadyReviewed = product.reviews.find(
-    (r) => r.user.toString() === req.user._id.toString()
-  );
+  // Check if user already reviewed
+  const existingReview = await Review.findOne({
+    user: req.user._id,
+    product: product._id
+  });
 
-  if (alreadyReviewed) {
+  if (existingReview) {
     res.status(400);
     throw new Error('You have already reviewed this product');
   }
 
-  // Check delivery eligibility (FIXED field names)
+  // Check delivery eligibility
   const deliveredOrders = await Order.find({
     user: req.user._id,
-    'items.product': req.params.id,        // FIXED: 'items.product'
-    status: { $in: ['delivered', 'exchanged'] }  // FIXED: lowercase enum values
+    'items.product': req.params.id,
+    status: { $in: ['delivered', 'exchanged'] }
   }).select('status');
 
   if (deliveredOrders.length === 0) {
@@ -299,7 +322,7 @@ router.post('/:id/reviews', protect, validateReviewInput, asyncHandler(async (re
     throw new Error('You can only review products that have been delivered to you');
   }
 
-  // Transaction for data consistency (with proper mongoose import)
+  // Transaction for data consistency
   const session = await mongoose.startSession();
   session.startTransaction();
   
@@ -312,35 +335,30 @@ router.post('/:id/reviews', protect, validateReviewInput, asyncHandler(async (re
       product: product._id
     }], { session });
 
-    // Add review reference to product
     product.reviews.push(review[0]._id);
     
-    // Calculate accurate average rating and count
-    const reviews = await Review.find({ product: product._id }).session(session);
-    product.numReviews = reviews.length;
-    product.rating = reviews.length > 0 
-      ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length 
+    // Calculate accurate average rating
+    const allReviews = await Review.find({ product: product._id }).session(session);
+    product.numReviews = allReviews.length;
+    product.rating = allReviews.length > 0 
+      ? allReviews.reduce((acc, r) => acc + r.rating, 0) / allReviews.length 
       : 0;
 
     await product.save({ session });
     await session.commitTransaction();
     
-    // Return created review with populated data
+    // Populate and return review
     const createdReview = await Review.findById(review[0]._id)
       .populate('user', 'name')
       .populate('product', 'name');
 
-    // Refresh product with updated rating for frontend
-    const updatedProduct = await Product.findById(req.params.id)
-      .populate('reviews', 'rating comment name');
-
     res.status(201).json({ 
       message: 'Review added successfully',
-      review: createdReview,
-      product: updatedProduct
+      review: createdReview
     });
   } catch (error) {
     await session.abortTransaction();
+    console.error('Review creation error:', error);
     throw error;
   } finally {
     session.endSession();

@@ -21,8 +21,10 @@ const AdminDashboard = () => {
       street: '',
       city: '',
       state: '',
-      pincode: '',
-      country: ''
+      postalCode: '',
+      country: 'India',
+      phone: '',
+      landmark: ''
     },
     status: '',
     items: []
@@ -322,8 +324,10 @@ const AdminDashboard = () => {
         street: order.shippingAddress?.street || '',
         city: order.shippingAddress?.city || '',
         state: order.shippingAddress?.state || '',
-        pincode: order.shippingAddress?.pincode || '',
-        country: order.shippingAddress?.country || ''
+        postalCode: order.shippingAddress?.postalCode || '',
+        country: order.shippingAddress?.country || 'India',
+        phone: order.shippingAddress?.phone || '',
+        landmark: order.shippingAddress?.landmark || ''
       },
       status: order.status || 'pending',
       items: order.items.map(item => ({
@@ -441,7 +445,6 @@ const AdminDashboard = () => {
     setIsModalOpen(true);
   };
 
-  // 🔥 FIXED: Proper Cloudinary image upload
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -457,13 +460,10 @@ const AdminDashboard = () => {
         },
       };
 
-      // ✅ FIXED: Access data.url (from backend response)
       const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/upload`, formDataUpload, config);
       
-      // ✅ FIXED: data.url is the Cloudinary secure URL
-      const imageUrl = data.url; // This is directly from Cloudinary
+      const imageUrl = data.url;
       
-      // ✅ FIXED: Store as array and append new images
       setFormData(prev => ({
         ...prev,
         images: [...prev.images, imageUrl]
@@ -493,7 +493,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // ✅ FIXED: Remove image from preview
   const removeImage = (index) => {
     setFormData(prev => ({
       ...prev,
@@ -520,11 +519,9 @@ const AdminDashboard = () => {
       description: formData.description,
       images: formData.images
         .map((img) => {
-          // If it's already a Cloudinary URL, return as-is
           if (img.includes('cloudinary.com') || img.includes('drive.google.com')) {
             return img;
           }
-          // Otherwise convert if it's a Google Drive link
           return convertDriveLink(img);
         })
         .filter((img) => img !== ''),
@@ -1024,132 +1021,132 @@ const AdminDashboard = () => {
       );
     }
     return (
-  <div className="bg-white shadow rounded-lg overflow-x-auto">
-    <table className="w-full text-left">
-      <thead className="bg-gray-50">
-        <tr>
-          <th className="px-6 py-3 font-medium text-gray-500">Order ID</th>
-          <th className="px-6 py-3 font-medium text-gray-500">User</th>
-          <th className="px-6 py-3 font-medium text-gray-500">Products</th>
-          <th className="px-6 py-3 font-medium text-gray-500">Date</th>
-          <th className="px-6 py-3 font-medium text-gray-500">Total</th>
-          <th className="px-6 py-3 font-medium text-gray-500">Status</th>
-          <th className="px-6 py-3 font-medium text-gray-500">Actions</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-gray-200">
-        {filteredOrders.map((order) => (
-          <tr key={order._id || Math.random()}>
-            <td className="px-6 py-4 font-mono text-sm">
-              {order._id?.substring(0, 8) || 'N/A'}...
-            </td>
-            <td className="px-6 py-4">{order.user?.name || 'Unknown'}</td>
-            
-            <td className="px-6 py-4">
-              <div className="text-sm space-y-1">
-                {order.items && order.items.length > 0 ? (
-                  order.items.map((item, idx) => (
-                    <div key={idx} className="text-gray-700">
-                      <span className="font-medium">
-                        {item.name || item.product?.name || 'Product'}
-                      </span>
-                      <span className="text-gray-500"> × {item.quantity}</span>
-                    </div>
-                  ))
-                ) : (
-                  <span className="text-gray-400">No items</span>
-                )}
-              </div>
-            </td>
-
-            <td className="px-6 py-4">
-              {order.createdAt
-                ? new Date(order.createdAt).toLocaleDateString()
-                : 'N/A'}
-            </td>
-            <td className="px-6 py-4">INR {order.totalPrice || 0}</td>
-            <td className="px-6 py-4">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  order.status === 'delivered'
-                    ? 'bg-green-100 text-green-700'
-                    : order.status === 'shipped'
-                    ? 'bg-blue-100 text-blue-700'
-                    : order.status === 'processing'
-                    ? 'bg-purple-100 text-purple-700'
-                    : order.status === 'cancelled'
-                    ? 'bg-red-100 text-red-700'
-                    : order.status === 'exchange_requested'
-                    ? 'bg-orange-100 text-orange-700'
-                    : order.status === 'exchange_approved'
-                    ? 'bg-teal-100 text-teal-700'
-                    : order.status === 'exchanged'
-                    ? 'bg-indigo-100 text-indigo-700'
-                    : 'bg-yellow-100 text-yellow-700'
-                }`}
-              >
-                {order.status
-                  ? order.status
-                      .replace('_', ' ')
-                      .split(' ')
-                      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                      .join(' ')
-                  : 'Unknown'}
-              </span>
-              {order.exchangeReason && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Reason: {order.exchangeReason.replace('_', ' ')}
-                </p>
-              )}
-            </td>
-            <td className="px-6 py-4">
-              <div className="flex items-center gap-2">
-                {order.status === 'exchange_requested' ? (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleExchangeApproval(order._id, true)}
-                      className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-colors flex items-center gap-1"
-                    >
-                      <FaCheck /> Approve
-                    </button>
-                    <button
-                      onClick={() => handleExchangeApproval(order._id, false)}
-                      className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors flex items-center gap-1"
-                    >
-                      <FaTimes /> Reject
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    {order.status !== 'cancelled' && order.status !== 'exchanged' && (
-                      <select
-                        value={order.status || 'pending'}
-                        onChange={(e) => handleOrderStatus(order._id, e.target.value)}
-                        className="border border-gray-300 rounded px-3 py-1 text-sm focus:ring-rose-500 focus:border-rose-500"
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                      </select>
+      <div className="bg-white shadow rounded-lg overflow-x-auto">
+        <table className="w-full text-left">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 font-medium text-gray-500">Order ID</th>
+              <th className="px-6 py-3 font-medium text-gray-500">User</th>
+              <th className="px-6 py-3 font-medium text-gray-500">Products</th>
+              <th className="px-6 py-3 font-medium text-gray-500">Date</th>
+              <th className="px-6 py-3 font-medium text-gray-500">Total</th>
+              <th className="px-6 py-3 font-medium text-gray-500">Status</th>
+              <th className="px-6 py-3 font-medium text-gray-500">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {filteredOrders.map((order) => (
+              <tr key={order._id || Math.random()}>
+                <td className="px-6 py-4 font-mono text-sm">
+                  {order._id?.substring(0, 8) || 'N/A'}...
+                </td>
+                <td className="px-6 py-4">{order.user?.name || 'Unknown'}</td>
+                
+                <td className="px-6 py-4">
+                  <div className="text-sm space-y-1">
+                    {order.items && order.items.length > 0 ? (
+                      order.items.map((item, idx) => (
+                        <div key={idx} className="text-gray-700">
+                          <span className="font-medium">
+                            {item.name || item.product?.name || 'Product'}
+                          </span>
+                          <span className="text-gray-500"> × {item.quantity}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <span className="text-gray-400">No items</span>
                     )}
-                    <button
-                      onClick={() => openOrderEditModal(order)}
-                      className="p-2 text-gray-600 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
-                      title="Edit Order Details"
-                    >
-                      <FaEdit />
-                    </button>
                   </div>
-                )}
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
+                </td>
+
+                <td className="px-6 py-4">
+                  {order.createdAt
+                    ? new Date(order.createdAt).toLocaleDateString()
+                    : 'N/A'}
+                </td>
+                <td className="px-6 py-4">INR {order.totalPrice || 0}</td>
+                <td className="px-6 py-4">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      order.status === 'delivered'
+                        ? 'bg-green-100 text-green-700'
+                        : order.status === 'shipped'
+                        ? 'bg-blue-100 text-blue-700'
+                        : order.status === 'processing'
+                        ? 'bg-purple-100 text-purple-700'
+                        : order.status === 'cancelled'
+                        ? 'bg-red-100 text-red-700'
+                        : order.status === 'exchange_requested'
+                        ? 'bg-orange-100 text-orange-700'
+                        : order.status === 'exchange_approved'
+                        ? 'bg-teal-100 text-teal-700'
+                        : order.status === 'exchanged'
+                        ? 'bg-indigo-100 text-indigo-700'
+                        : 'bg-yellow-100 text-yellow-700'
+                    }`}
+                  >
+                    {order.status
+                      ? order.status
+                          .replace('_', ' ')
+                          .split(' ')
+                          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                          .join(' ')
+                      : 'Unknown'}
+                  </span>
+                  {order.exchangeReason && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Reason: {order.exchangeReason.replace('_', ' ')}
+                    </p>
+                  )}
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    {order.status === 'exchange_requested' ? (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleExchangeApproval(order._id, true)}
+                          className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-colors flex items-center gap-1"
+                        >
+                          <FaCheck /> Approve
+                        </button>
+                        <button
+                          onClick={() => handleExchangeApproval(order._id, false)}
+                          className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors flex items-center gap-1"
+                        >
+                          <FaTimes /> Reject
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        {order.status !== 'cancelled' && order.status !== 'exchanged' && (
+                          <select
+                            value={order.status || 'pending'}
+                            onChange={(e) => handleOrderStatus(order._id, e.target.value)}
+                            className="border border-gray-300 rounded px-3 py-1 text-sm focus:ring-rose-500 focus:border-rose-500"
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                          </select>
+                        )}
+                        <button
+                          onClick={() => openOrderEditModal(order)}
+                          className="p-2 text-gray-600 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                          title="Edit Order Details"
+                        >
+                          <FaEdit />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
   };
 
   return (
@@ -1303,7 +1300,6 @@ const AdminDashboard = () => {
                    {uploading && <span className="text-sm text-gray-500 self-center">Uploading...</span>}
                 </div>
                 
-                {/* Image Preview - FIXED */}
                 {formData.images && formData.images.length > 0 && (
                   <div className="flex gap-2 mb-2 overflow-x-auto pb-2">
                     {formData.images.map((img, index) => {
@@ -1463,15 +1459,15 @@ const AdminDashboard = () => {
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="font-medium mb-3 text-gray-700">Shipping Address</h3>
                 <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Full Address"
+                  <textarea
+                    placeholder="House/Flat No., Building Name, Street, Area"
                     value={orderForm.shippingAddress.street}
                     onChange={(e) => setOrderForm({
                       ...orderForm,
                       shippingAddress: { ...orderForm.shippingAddress, street: e.target.value }
                     })}
                     className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
+                    rows="2"
                     required
                   />
                   <div className="grid grid-cols-2 gap-3">
@@ -1488,7 +1484,7 @@ const AdminDashboard = () => {
                     />
                     <input
                       type="text"
-                      placeholder="State"
+                      placeholder="State/Province"
                       value={orderForm.shippingAddress.state}
                       onChange={(e) => setOrderForm({
                         ...orderForm,
@@ -1501,11 +1497,11 @@ const AdminDashboard = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <input
                       type="text"
-                      placeholder="Pincode"
-                      value={orderForm.shippingAddress.pincode}
+                      placeholder="PIN/ZIP Code"
+                      value={orderForm.shippingAddress.postalCode}
                       onChange={(e) => setOrderForm({
                         ...orderForm,
-                        shippingAddress: { ...orderForm.shippingAddress, pincode: e.target.value }
+                        shippingAddress: { ...orderForm.shippingAddress, postalCode: e.target.value }
                       })}
                       className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
                       required
@@ -1520,6 +1516,29 @@ const AdminDashboard = () => {
                       })}
                       className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
                       required
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="tel"
+                      placeholder="Phone Number"
+                      value={orderForm.shippingAddress.phone}
+                      onChange={(e) => setOrderForm({
+                        ...orderForm,
+                        shippingAddress: { ...orderForm.shippingAddress, phone: e.target.value }
+                      })}
+                      className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Landmark (Optional)"
+                      value={orderForm.shippingAddress.landmark}
+                      onChange={(e) => setOrderForm({
+                        ...orderForm,
+                        shippingAddress: { ...orderForm.shippingAddress, landmark: e.target.value }
+                      })}
+                      className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
                     />
                   </div>
                 </div>

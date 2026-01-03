@@ -44,11 +44,13 @@ const orderSchema = new mongoose.Schema({
     default: 'pending' 
   },
   shippingAddress: {
-    address: String,
+    street: String,        // ✅ Changed from 'address' to 'street'
     city: String,
+    state: String,         // ✅ Added state field
     postalCode: String,
     country: String,
-    phone: String
+    phone: String,
+    landmark: String       // ✅ Optional landmark field
   },
   cancellationFee: { type: Number, default: 0, min: 0 },
   exchangeFee: { type: Number, default: 0, min: 0 },

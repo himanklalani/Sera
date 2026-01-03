@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
+
 const Checkout = () => {
   const [cartItems, setCartItems] = useState([]);
   const [addresses, setAddresses] = useState([]);
@@ -10,6 +11,7 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,6 +21,7 @@ const Checkout = () => {
           navigate('/login');
           return;
         }
+
 
         let userInfo;
         try {
@@ -30,11 +33,13 @@ const Checkout = () => {
           return;
         }
 
+
         const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
         
         // Fetch Cart
         const cartRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, config);
         setCartItems(cartRes.data.items || []);
+
 
         // Fetch Addresses (Profile)
         const profileRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/profile`, config);
@@ -53,11 +58,13 @@ const Checkout = () => {
     fetchData();
   }, [navigate]);
 
+
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
       toast.error('Please select or add a shipping address.');
       return;
     }
+
 
     try {
       const storedUserInfo = localStorage.getItem('userInfo');
@@ -65,6 +72,7 @@ const Checkout = () => {
         navigate('/login');
         return;
       }
+
 
       let userInfo;
       try {
@@ -75,6 +83,7 @@ const Checkout = () => {
         navigate('/login');
         return;
       }
+
 
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
       
@@ -89,10 +98,12 @@ const Checkout = () => {
         totalPrice: total
       };
 
+
       await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, orderData, config);
       
       // Optionally clear cart here if backend doesn't do it automatically
       // await axios.delete('`${import.meta.env.VITE_API_URL}`/api/cart', config); // If we implemented clear cart endpoint
+
 
       // alert('Order placed successfully!');
       navigate('/order-success');
@@ -102,11 +113,14 @@ const Checkout = () => {
     }
   };
 
+
   const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
   const shipping = subtotal > 999 ? 0 : 100;
   const total = subtotal + shipping;
 
+
   if (loading) return <div className="text-center py-20">Loading Checkout...</div>;
+
 
   return (
     <div className="container mx-auto px-6 py-24 min-h-screen">
@@ -143,13 +157,14 @@ const Checkout = () => {
                   >
                     <p className="font-bold">{addr.street}</p>
                     <p>{addr.city}, {addr.state}</p>
-                    <p>{addr.pincode}</p>
+                    <p>{addr.postalCode}</p>
                     <p>{addr.country}</p>
                   </div>
                 ))}
               </div>
             )}
           </div>
+
 
           {/* Payment Section */}
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -206,6 +221,7 @@ const Checkout = () => {
                 </div>
               </div>
 
+
               <button 
                 onClick={handlePlaceOrder}
                 disabled={cartItems.length === 0}
@@ -219,5 +235,6 @@ const Checkout = () => {
     </div>
   );
 };
+
 
 export default Checkout;

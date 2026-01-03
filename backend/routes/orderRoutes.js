@@ -17,6 +17,13 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     throw new Error('No order items');
   }
 
+  // ✅ VALIDATE SHIPPING ADDRESS
+  if (!shippingAddress || !shippingAddress.street || !shippingAddress.city || 
+      !shippingAddress.state || !shippingAddress.postalCode || !shippingAddress.phone) {
+    res.status(400);
+    throw new Error('Complete shipping address is required');
+  }
+
   // Validate stock for all items FIRST
   for (const item of orderItems) {
     const product = await Product.findById(item.product);
@@ -48,7 +55,15 @@ router.post('/', protect, asyncHandler(async (req, res) => {
       quantity: item.quantity,
       price: item.price
     })),
-    shippingAddress,
+    shippingAddress: {
+      street: shippingAddress.street,
+      city: shippingAddress.city,
+      state: shippingAddress.state,
+      postalCode: shippingAddress.postalCode,
+      country: shippingAddress.country || 'India',
+      phone: shippingAddress.phone,
+      landmark: shippingAddress.landmark || ''
+    },
     totalPrice,
     status: 'pending'
   });
@@ -291,11 +306,16 @@ router.put('/:id/update', protect, asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
 
   if (order) {
-    // Update shipping address
+    // ✅ UPDATE SHIPPING ADDRESS WITH VALIDATION
     if (req.body.shippingAddress) {
       order.shippingAddress = {
-        ...order.shippingAddress,
-        ...req.body.shippingAddress
+        street: req.body.shippingAddress.street || order.shippingAddress.street,
+        city: req.body.shippingAddress.city || order.shippingAddress.city,
+        state: req.body.shippingAddress.state || order.shippingAddress.state,
+        postalCode: req.body.shippingAddress.postalCode || order.shippingAddress.postalCode,
+        country: req.body.shippingAddress.country || order.shippingAddress.country,
+        phone: req.body.shippingAddress.phone || order.shippingAddress.phone,
+        landmark: req.body.shippingAddress.landmark || order.shippingAddress.landmark || ''
       };
     }
 

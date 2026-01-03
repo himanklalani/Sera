@@ -20,7 +20,16 @@ const Profile = () => {
   // Address Form States
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [newAddress, setNewAddress] = useState({ street: '', city: '', state: '', pincode: '', addressType: 'Home' });
+  const [newAddress, setNewAddress] = useState({ 
+    street: '', 
+    city: '', 
+    state: '', 
+    postalCode: '', 
+    country: 'India',
+    phone: '',
+    landmark: '',
+    addressType: 'Home' 
+  });
 
   // Profile Edit States
   const [profileData, setProfileData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
@@ -158,16 +167,28 @@ const Profile = () => {
     await updateAddresses(updatedAddresses);
     setIsAdding(false);
     setEditingId(null);
-    setNewAddress({ street: '', city: '', state: '', pincode: '', addressType: 'Home' });
+    setNewAddress({ 
+      street: '', 
+      city: '', 
+      state: '', 
+      postalCode: '', 
+      country: 'India',
+      phone: '',
+      landmark: '',
+      addressType: 'Home' 
+    });
   };
 
   const handleEditAddress = (addr) => {
     setNewAddress({
-      street: addr.street,
-      city: addr.city,
-      state: addr.state,
-      pincode: addr.pincode,
-      addressType: addr.addressType
+      street: addr.street || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      postalCode: addr.postalCode || '',
+      country: addr.country || 'India',
+      phone: addr.phone || '',
+      landmark: addr.landmark || '',
+      addressType: addr.addressType || 'Home'
     });
     setEditingId(addr._id || addr.id);
     setIsAdding(true);
@@ -176,7 +197,16 @@ const Profile = () => {
   const handleCancelEdit = () => {
     setIsAdding(false);
     setEditingId(null);
-    setNewAddress({ street: '', city: '', state: '', pincode: '', addressType: 'Home' });
+    setNewAddress({ 
+      street: '', 
+      city: '', 
+      state: '', 
+      postalCode: '', 
+      country: 'India',
+      phone: '',
+      landmark: '',
+      addressType: 'Home' 
+    });
   };
 
   const handleDelete = async (id) => {
@@ -283,7 +313,7 @@ const Profile = () => {
                   <h3 className="font-serif text-lg mb-4">{editingId ? 'Edit Address' : 'Add New Address'}</h3>
                   <form onSubmit={handleSaveAddress} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input 
-                      placeholder="Full Address" 
+                      placeholder="House/Flat No., Building Name, Street, Area" 
                       className="border p-2 rounded md:col-span-2 focus:ring-1 focus:ring-rose-500 outline-none" 
                       value={newAddress.street}
                       onChange={(e) => setNewAddress({...newAddress, street: e.target.value})}
@@ -297,18 +327,38 @@ const Profile = () => {
                       required
                     />
                     <input 
-                      placeholder="State" 
+                      placeholder="State/Province" 
                       className="border p-2 rounded focus:ring-1 focus:ring-rose-500 outline-none" 
                       value={newAddress.state}
                       onChange={(e) => setNewAddress({...newAddress, state: e.target.value})}
                       required
                     />
                     <input 
-                      placeholder="Pincode" 
+                      placeholder="PIN/ZIP Code" 
                       className="border p-2 rounded focus:ring-1 focus:ring-rose-500 outline-none" 
-                      value={newAddress.pincode}
-                      onChange={(e) => setNewAddress({...newAddress, pincode: e.target.value})}
+                      value={newAddress.postalCode}
+                      onChange={(e) => setNewAddress({...newAddress, postalCode: e.target.value})}
                       required
+                    />
+                    <input 
+                      placeholder="Phone Number" 
+                      className="border p-2 rounded focus:ring-1 focus:ring-rose-500 outline-none" 
+                      value={newAddress.phone}
+                      onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
+                      required
+                    />
+                    <input 
+                      placeholder="Country" 
+                      className="border p-2 rounded focus:ring-1 focus:ring-rose-500 outline-none" 
+                      value={newAddress.country}
+                      onChange={(e) => setNewAddress({...newAddress, country: e.target.value})}
+                      required
+                    />
+                    <input 
+                      placeholder="Nearby Landmark (Optional)" 
+                      className="border p-2 rounded md:col-span-2 focus:ring-1 focus:ring-rose-500 outline-none" 
+                      value={newAddress.landmark}
+                      onChange={(e) => setNewAddress({...newAddress, landmark: e.target.value})}
                     />
                     <select
                       className="border p-2 rounded focus:ring-1 focus:ring-rose-500 outline-none"
@@ -337,8 +387,11 @@ const Profile = () => {
                       <FaMapMarkerAlt className="text-rose-500 mt-1" />
                       <div>
                         <p className="font-medium text-gray-900">{addr.addressType}</p>
-                        <p className="text-gray-600">{addr.street}</p>
-                        <p className="text-gray-600">{addr.city}, {addr.state} - {addr.pincode}</p>
+                        <p className="text-gray-600 text-sm">{addr.street}</p>
+                        <p className="text-gray-600 text-sm">{addr.city}, {addr.state}</p>
+                        <p className="text-gray-600 text-sm">{addr.postalCode}, {addr.country}</p>
+                        <p className="text-gray-600 text-sm">📞 {addr.phone}</p>
+                        {addr.landmark && <p className="text-gray-500 text-xs italic">Near: {addr.landmark}</p>}
                       </div>
                     </div>
                     <div className="flex gap-4 mt-4 pt-4 border-t border-gray-100">

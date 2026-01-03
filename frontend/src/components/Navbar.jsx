@@ -91,9 +91,13 @@ export default function Navbar() {
 
 
           {/* Center: Logo */}
-          <Link to="/" className="text-3xl font-serif font-bold tracking-widest uppercase">
-            SERA
-          </Link>
+          <Link to="/" className="flex items-center">
+  <img 
+    src="/logo.png" 
+    alt="SERA Logo" 
+    className="h-10 md:h-12 w-auto object-contain" 
+  />
+</Link>
 
 
           {/* Right: Icons */}

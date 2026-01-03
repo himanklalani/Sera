@@ -3,7 +3,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-
 const Checkout = () => {
   const [cartItems, setCartItems] = useState([]);
   const [addresses, setAddresses] = useState([]);
@@ -11,7 +10,6 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +19,6 @@ const Checkout = () => {
           navigate('/login');
           return;
         }
-
 
         let userInfo;
         try {
@@ -33,20 +30,18 @@ const Checkout = () => {
           return;
         }
 
-
         const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
         
         // Fetch Cart
         const cartRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, config);
         setCartItems(cartRes.data.items || []);
 
-
         // Fetch Addresses (Profile)
         const profileRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/profile`, config);
         setAddresses(profileRes.data.addresses || []);
         
         if (profileRes.data.addresses && profileRes.data.addresses.length > 0) {
-            setSelectedAddress(profileRes.data.addresses[0]);
+          setSelectedAddress(profileRes.data.addresses);
         }
         
         setLoading(false);
@@ -58,13 +53,19 @@ const Checkout = () => {
     fetchData();
   }, [navigate]);
 
-
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
       toast.error('Please select or add a shipping address.');
       return;
     }
 
+    // ✅ VALIDATE ADDRESS HAS ALL REQUIRED FIELDS
+    if (!selectedAddress.street || !selectedAddress.city || !selectedAddress.state || 
+        !selectedAddress.postalCode || !selectedAddress.phone) {
+      toast.error('Shipping address is incomplete. Please update your address.');
+      console.error('Invalid address:', selectedAddress);
+      return;
+    }
 
     try {
       const storedUserInfo = localStorage.getItem('userInfo');
@@ -72,7 +73,6 @@ const Checkout = () => {
         navigate('/login');
         return;
       }
-
 
       let userInfo;
       try {
@@ -84,43 +84,46 @@ const Checkout = () => {
         return;
       }
 
-
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
       
+      // ✅ BUILD ORDER DATA WITH COMPLETE ADDRESS STRUCTURE
       const orderData = {
         orderItems: cartItems.map(item => ({
           product: item.product._id,
           quantity: item.quantity,
           price: item.product.price
         })),
-        shippingAddress: selectedAddress,
+        shippingAddress: {
+          street: selectedAddress.street,
+          city: selectedAddress.city,
+          state: selectedAddress.state,
+          postalCode: selectedAddress.postalCode,
+          country: selectedAddress.country || 'India',
+          phone: selectedAddress.phone,
+          landmark: selectedAddress.landmark || ''
+        },
         paymentMethod,
         totalPrice: total
       };
 
+      console.log('Sending order data:', orderData); // ✅ DEBUG LOG
 
       await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, orderData, config);
       
-      // Optionally clear cart here if backend doesn't do it automatically
-      // await axios.delete('`${import.meta.env.VITE_API_URL}`/api/cart', config); // If we implemented clear cart endpoint
-
-
-      // alert('Order placed successfully!');
+      toast.success('Order placed successfully!');
       navigate('/order-success');
     } catch (error) {
       console.error('Error placing order:', error);
-      toast.error('Failed to place order.');
+      const errorMsg = error.response?.data?.message || 'Failed to place order.';
+      toast.error(errorMsg);
     }
   };
-
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
   const shipping = subtotal > 999 ? 0 : 100;
   const total = subtotal + shipping;
 
-
   if (loading) return <div className="text-center py-20">Loading Checkout...</div>;
-
 
   return (
     <div className="container mx-auto px-6 py-24 min-h-screen">
@@ -137,7 +140,7 @@ const Checkout = () => {
               <div className="text-center py-6">
                 <p className="mb-4 text-gray-500">No addresses found.</p>
                 <button 
-                  onClick={() => navigate('/profile')}
+                  onClick={() => navigate('/profile?tab=addresses')}
                   className="text-rose-600 hover:underline"
                 >
                   Add an address in your profile
@@ -147,24 +150,24 @@ const Checkout = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {addresses.map((addr, index) => (
                   <div 
-                    key={index}
+                    key={addr._id || index}
                     onClick={() => setSelectedAddress(addr)}
                     className={`p-4 border rounded cursor-pointer transition-all ${
-                      selectedAddress === addr 
+                      selectedAddress?._id === addr._id || selectedAddress === addr
                         ? 'border-rose-500 bg-rose-50 ring-1 ring-rose-500' 
                         : 'border-gray-200 hover:border-rose-300'
                     }`}
                   >
                     <p className="font-bold">{addr.street}</p>
-                    <p>{addr.city}, {addr.state}</p>
-                    <p>{addr.postalCode}</p>
-                    <p>{addr.country}</p>
+                    <p className="text-sm text-gray-600">{addr.city}, {addr.state}</p>
+                    <p className="text-sm text-gray-600">{addr.postalCode}, {addr.country || 'India'}</p>
+                    <p className="text-sm text-gray-600">📞 {addr.phone}</p>
+                    {addr.landmark && <p className="text-xs text-gray-500 italic">Near: {addr.landmark}</p>}
                   </div>
                 ))}
               </div>
             )}
           </div>
-
 
           {/* Payment Section */}
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
@@ -181,7 +184,6 @@ const Checkout = () => {
                 />
                 <span className="font-medium">Cash on Delivery</span>
               </label>
-              {/* Add more payment methods here */}
               <label className="flex items-center gap-3 p-4 border rounded cursor-not-allowed opacity-50">
                  <input type="radio" name="payment" disabled />
                  <span>Credit/Debit Card (Coming Soon)</span>
@@ -221,10 +223,9 @@ const Checkout = () => {
                 </div>
               </div>
 
-
               <button 
                 onClick={handlePlaceOrder}
-                disabled={cartItems.length === 0}
+                disabled={cartItems.length === 0 || !selectedAddress}
                 className="w-full mt-8 bg-black text-white py-4 rounded uppercase tracking-widest hover:bg-gray-800 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Place Order
@@ -235,6 +236,5 @@ const Checkout = () => {
     </div>
   );
 };
-
 
 export default Checkout;

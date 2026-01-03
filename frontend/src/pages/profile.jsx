@@ -17,17 +17,17 @@ const Profile = () => {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [exchangeReason, setExchangeReason] = useState('');
   
-  // Address Form States
+  // ✅ Address Form States - CORRECT FIELDS
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [newAddress, setNewAddress] = useState({ 
     street: '', 
     city: '', 
     state: '', 
-    postalCode: '', 
-    country: 'India',
-    phone: '',
-    landmark: '',
+    postalCode: '',        // ✅ CORRECT: postalCode not pincode
+    country: 'India',      // ✅ Default to India
+    phone: '',             // ✅ MANDATORY
+    landmark: '',          // ✅ OPTIONAL
     addressType: 'Home' 
   });
 
@@ -94,6 +94,7 @@ const Profile = () => {
       };
       const { data } = await axios.put(`${import.meta.env.VITE_API_URL}/api/auth/profile`, { addresses: updatedAddresses }, config);
       setAddresses(data.addresses);
+      toast.success('Address saved successfully');
     } catch (error) {
       console.error('Error updating addresses:', error);
       toast.error('Failed to update addresses');
@@ -154,6 +155,14 @@ const Profile = () => {
 
   const handleSaveAddress = async (e) => {
     e.preventDefault();
+    
+    // ✅ VALIDATE ALL REQUIRED FIELDS
+    if (!newAddress.street || !newAddress.city || !newAddress.state || 
+        !newAddress.postalCode || !newAddress.phone) {
+      toast.error('Please fill in all required fields including phone number');
+      return;
+    }
+
     let updatedAddresses;
     
     if (editingId) {
@@ -210,13 +219,14 @@ const Profile = () => {
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this address?')) return;
     const updatedAddresses = addresses.filter(a => (a._id || a.id) !== id);
     await updateAddresses(updatedAddresses);
   };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
-    if (profileData.password !== profileData.confirmPassword) {
+    if (profileData.password && profileData.password !== profileData.confirmPassword) {
       setProfileMessage('Passwords do not match');
       return;
     }
@@ -342,6 +352,7 @@ const Profile = () => {
                     />
                     <input 
                       placeholder="Phone Number" 
+                      type="tel"
                       className="border p-2 rounded focus:ring-1 focus:ring-rose-500 outline-none" 
                       value={newAddress.phone}
                       onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
@@ -389,7 +400,7 @@ const Profile = () => {
                         <p className="font-medium text-gray-900">{addr.addressType}</p>
                         <p className="text-gray-600 text-sm">{addr.street}</p>
                         <p className="text-gray-600 text-sm">{addr.city}, {addr.state}</p>
-                        <p className="text-gray-600 text-sm">{addr.postalCode}, {addr.country}</p>
+                        <p className="text-gray-600 text-sm">{addr.postalCode}, {addr.country || 'India'}</p>
                         <p className="text-gray-600 text-sm">📞 {addr.phone}</p>
                         {addr.landmark && <p className="text-gray-500 text-xs italic">Near: {addr.landmark}</p>}
                       </div>
@@ -453,8 +464,8 @@ const Profile = () => {
                         {order.items.map((item, idx) => (
                           <div key={idx} className="flex items-center gap-4 py-3 border-b border-gray-100 last:border-0">
                             <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden">
-                              {item.product?.images?.[0] && (
-                                <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                              {item.product?.images?. && (
+                                <img src={item.product.images} alt={item.product.name} className="w-full h-full object-cover" />
                               )}
                             </div>
                             <div className="flex-1">
@@ -468,7 +479,7 @@ const Profile = () => {
                         ))}
                         
                         {/* Cancel/Exchange Buttons */}
-                        <div className="mt-4 pt-4 border-t border-gray-100 flex gap-3">
+                        <div className="mt-4 pt-4 border-t border-gray-100 flex gap-3 flex-wrap">
                           {canCancelOrder(order) && (
                             <button
                               onClick={() => handleCancelOrder(order._id)}
@@ -515,7 +526,7 @@ const Profile = () => {
                   {wishlist.map((item) => (
                     <div key={item._id} className="bg-white rounded-lg overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                       <div className="h-48 bg-gray-100 relative group">
-                        <img src={item.images?.[0] || 'https://via.placeholder.com/150'} alt={item.name} className="w-full h-full object-cover" />
+                        <img src={item.images?. || 'https://via.placeholder.com/150'} alt={item.name} className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <button onClick={() => navigate(`/product/${item._id}`)} className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-medium hover:bg-rose-500 hover:text-white transition-colors">
                             View Details
@@ -565,17 +576,8 @@ const Profile = () => {
                   </div>
 
                   <div className="border-t border-gray-100 pt-6">
-                    <h3 className="text-lg font-serif text-gray-900 mb-4">Password Change</h3>
+                    <h3 className="text-lg font-serif text-gray-900 mb-4">Change Password (Optional)</h3>
                     <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Current Password (required to set new password)</label>
-                        <input 
-                          type="password"
-                          className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-rose-500 outline-none"
-                          value={profileData.currentPassword}
-                          onChange={(e) => setProfileData({...profileData, currentPassword: e.target.value})}
-                        />
-                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
@@ -626,8 +628,7 @@ const Profile = () => {
               <option value="damaged">Received Damaged/ Defective Product (Free Exchange)</option>
               <option value="wrong_item">Wrong Item Received (Free Exchange)</option>
               <option value="changed_mind">Changed My Mind (INR 100 fee)</option>
-              <option value="other"> Others (INR 100 fee)</option>
-              
+              <option value="other">Others (INR 100 fee)</option>
             </select>
             <p className="text-xs text-gray-500 mb-6">
               * Exchange window: 3 days from delivery<br/>

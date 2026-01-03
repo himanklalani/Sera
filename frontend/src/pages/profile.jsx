@@ -282,7 +282,7 @@ const Profile = () => {
                   <h3 className="font-serif text-lg mb-4">{editingId ? 'Edit Address' : 'Add New Address'}</h3>
                   <form onSubmit={handleSaveAddress} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input 
-                      placeholder="Street Address" 
+                      placeholder="Full Address" 
                       className="border p-2 rounded md:col-span-2 focus:ring-1 focus:ring-rose-500 outline-none" 
                       value={newAddress.street}
                       onChange={(e) => setNewAddress({...newAddress, street: e.target.value})}

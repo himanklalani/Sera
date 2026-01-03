@@ -1474,7 +1474,7 @@ const AdminDashboard = () => {
                 <div className="space-y-3">
                   <input
                     type="text"
-                    placeholder="Street Address"
+                    placeholder="Full Address"
                     value={orderForm.shippingAddress.street}
                     onChange={(e) => setOrderForm({
                       ...orderForm,

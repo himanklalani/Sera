@@ -14,7 +14,7 @@ export default function NavOverlay({ isOpen, onClose }) {
 
   const menuItems = [
     { title: 'My Account', path: '/profile' },
-    { title: 'Wishlist', path: '/wishlist' }, // Placeholder route
+    { title: 'Wishlist', path: '/profile?tab=wishlist' }, // Placeholder route
     { 
       title: 'Products', 
       isExpandable: true,

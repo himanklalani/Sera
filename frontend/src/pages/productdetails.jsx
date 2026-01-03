@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -157,7 +158,8 @@ const ProductDetails = () => {
         { productId: itemToAdd._id, quantity: productToAdd ? 1 : quantity },
         config
       );
-      alert(`${itemToAdd.name} added to cart!`);
+      toast.success(`${itemToAdd.name} added to cart!`);
+
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to add to cart');
     } finally {

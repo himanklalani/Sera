@@ -3,6 +3,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 const Register = () => {
   const [step, setStep] = useState(1); // 1: Registration, 2: OTP Verification

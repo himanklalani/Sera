@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaFilter, FaSearch, FaShoppingCart, FaHeart, FaTimes, FaCheck } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 
 const Shop = () => {
@@ -174,10 +175,10 @@ const Shop = () => {
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
       await axios.post(`${import.meta.env.VITE_API_URL}/api/cart`, { productId, quantity: 1 }, config);
-      alert('Added to cart!');
+      toast.success('Added to cart!');
     } catch (error) {
       console.error('Add to cart error:', error);
-      alert('Failed to add to cart');
+      toast.error('Failed to add to cart');
     }
   };
 

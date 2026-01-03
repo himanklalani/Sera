@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaPlus, FaTrash, FaMapMarkerAlt, FaEdit, FaBox } from 'react-icons/fa';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const Profile = () => {
   const navigate = useNavigate();

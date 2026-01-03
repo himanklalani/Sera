@@ -125,7 +125,7 @@ const ProductDetails = () => {
       setUserRating(0);
       setReviewComment('');
       setCanReview(false);
-      alert('Review submitted successfully!');
+      toast.success('Review submitted successfully!');
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Failed to submit review';
       alert(errorMsg);
@@ -161,7 +161,7 @@ const ProductDetails = () => {
       toast.success(`${itemToAdd.name} added to cart!`);
 
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to add to cart');
+      toast.error(err.response?.data?.message || 'Failed to add to cart');
     } finally {
       if (!productToAdd) {
         setAddingToCart(false);
@@ -185,7 +185,7 @@ const ProductDetails = () => {
           config
         );
         setIsInWishlist(false);
-        alert('Removed from wishlist');
+        toast.success('Removed from wishlist');
       } else {
         await axios.post(
           `${import.meta.env.VITE_API_URL}/api/auth/wishlist`,
@@ -193,11 +193,11 @@ const ProductDetails = () => {
           config
         );
         setIsInWishlist(true);
-        alert('Added to wishlist');
+        toast.success('Added to wishlist');
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to update wishlist');
+      toast.error('Failed to update wishlist');
     }
   };
 

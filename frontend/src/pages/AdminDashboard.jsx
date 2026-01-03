@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaTimes, FaCheck, FaSearch, FaFilter } from 'react-icons/fa';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('products');

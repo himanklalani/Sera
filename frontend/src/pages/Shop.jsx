@@ -6,9 +6,9 @@ import { FaFilter, FaSearch, FaShoppingCart, FaTimes, FaCheck, FaChevronLeft, Fa
 import toast from 'react-hot-toast';
 
 const Shop = () => {
-  // ✅ NEW: Pagination state
+  // ✅ FIXED: Initialize currentPage from URL query parameter
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 12; // Shows 12 products per page
+  const ITEMS_PER_PAGE = 12;
 
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -31,7 +31,6 @@ const Shop = () => {
       const safeProducts = Array.isArray(data.products) ? data.products : Array.isArray(data) ? data : [];
       setProducts(safeProducts);
       setFilteredProducts(safeProducts);
-      setCurrentPage(1); // ✅ Reset to page 1 when products change
     } catch (error) {
       console.error('Error fetching products:', error);
       setProducts([]);
@@ -45,10 +44,20 @@ const Shop = () => {
     fetchProducts();
   }, [fetchProducts]);
 
+  // ✅ FIXED: Read page number from URL and restore it on navigation
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    const pageParam = params.get('page');
     const categoryParam = params.get('category');
     const tagsParam = params.get('tags');
+
+    // Set page from URL (or default to 1)
+    if (pageParam) {
+      const pageNum = Math.max(1, parseInt(pageParam, 10));
+      setCurrentPage(pageNum);
+    } else {
+      setCurrentPage(1);
+    }
 
     if (categoryParam) {
       const formattedCategory = categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1).toLowerCase();
@@ -62,8 +71,6 @@ const Shop = () => {
     } else {
       setSelectedTags([]);
     }
-    
-    setCurrentPage(1); // ✅ Reset pagination when filters change
   }, [location]);
 
   // ✅ OPTIMIZED: Use useMemo to prevent unnecessary filter recalculation
@@ -140,7 +147,6 @@ const Shop = () => {
     );
 
     setFilteredProducts(result);
-    setCurrentPage(1); // ✅ Reset to page 1 when filters change
     return result;
   }, [products, selectedCategory, searchQuery, priceRange, selectedTags, showInStock]);
 
@@ -150,14 +156,37 @@ const Shop = () => {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedProducts = filteredAndPaginatedProducts.slice(startIndex, endIndex);
 
+  // ✅ FIXED: Helper function to build query string with page number
+  const buildQueryString = (page = 1) => {
+    const params = new URLSearchParams();
+    if (page > 1) params.set('page', page);
+    if (selectedCategory !== 'All') params.set('category', selectedCategory.toLowerCase());
+    if (selectedTags.length > 0) params.set('tags', selectedTags.join(','));
+    return params.toString();
+  };
+
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
     setShowFilters(false);
-    setCurrentPage(1); // ✅ Reset pagination
+    // ✅ FIXED: Reset to page 1 and update URL
+    const newPage = 1;
+    setCurrentPage(newPage);
     if (category === 'All') {
       navigate('/shop');
     } else {
-      navigate(`/shop?category=${category.toLowerCase()}`);
+      const query = buildQueryString(newPage);
+      navigate(`/shop${query ? '?' + query : ''}`);
+    }
+  };
+
+  // ✅ FIXED: Update URL whenever currentPage changes
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      const query = buildQueryString(newPage);
+      navigate(`/shop${query ? '?' + query : ''}`);
+      // Scroll to top of products
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -248,7 +277,7 @@ const Shop = () => {
               src={product.images?.[0] || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'300\' viewBox=\'0 0 300 300\'%3E%3Crect fill=\'%23f3f4f6\' width=\'300\' height=\'300\'/%3E%3Ctext fill=\'%239ca3af\' font-family=\'sans-serif\' font-size=\'24\' dy=\'10.5\' font-weight=\'bold\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3ENo Image%3C/text%3E%3C/svg%3E'} 
               alt={product.name || 'Product'}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              loading="lazy" // ✅ NEW: Lazy load images
+              loading="lazy"
               onError={(e) => {
                 e.target.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'300\' viewBox=\'0 0 300 300\'%3E%3Crect fill=\'%23f3f4f6\' width=\'300\' height=\'300\'/%3E%3Ctext fill=\'%239ca3af\' font-family=\'sans-serif\' font-size=\'24\' dy=\'10.5\' font-weight=\'bold\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3ENo Image%3C/text%3E%3C/svg%3E';
               }}
@@ -294,7 +323,7 @@ const Shop = () => {
     ));
   };
 
-  // ✅ NEW: Pagination controls component
+  // ✅ FIXED: Updated pagination controls with URL sync
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
@@ -325,7 +354,7 @@ const Shop = () => {
     return (
       <div className="flex items-center justify-center gap-2 mt-8 flex-wrap">
         <button
-          onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+          onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
           className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           title="Previous page"
@@ -336,7 +365,7 @@ const Shop = () => {
         {pageNumbers.map((num, idx) => (
           <button
             key={idx}
-            onClick={() => typeof num === 'number' && setCurrentPage(num)}
+            onClick={() => typeof num === 'number' && handlePageChange(num)}
             disabled={num === '...'}
             className={`
               px-3 py-2 rounded-lg font-medium transition-colors
@@ -353,7 +382,7 @@ const Shop = () => {
         ))}
 
         <button
-          onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+          onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           title="Next page"
@@ -496,7 +525,6 @@ const Shop = () => {
           >
             <div className="mb-4 md:mb-8 flex items-center justify-between flex-wrap gap-2 md:gap-4">
               <div className="text-xs md:text-sm text-gray-600">
-                {/* ✅ NEW: Updated product count info */}
                 Showing {startIndex + 1}–{Math.min(endIndex, filteredAndPaginatedProducts.length)} of {filteredAndPaginatedProducts.length} products 
                 {filteredAndPaginatedProducts.length < products.length && ` (filtered from ${products.length})`}
               </div>
@@ -506,7 +534,6 @@ const Shop = () => {
               {renderProducts()}
             </div>
 
-            {/* ✅ NEW: Pagination controls */}
             {renderPagination()}
           </motion.div>
         </div>

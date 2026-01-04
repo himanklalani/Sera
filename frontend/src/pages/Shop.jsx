@@ -2,11 +2,10 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaFilter, FaSearch, FaShoppingCart, FaTimes, FaCheck, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaFilter, FaSearch, FaShoppingCart, FaTimes, FaCheck, FaChevronLeft, FaChevronRight, FaStar } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 
 const Shop = () => {
-  // ✅ FIXED: Initialize currentPage from URL query parameter
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
@@ -19,6 +18,7 @@ const Shop = () => {
   const [priceRange, setPriceRange] = useState(10000);
   const [showInStock, setShowInStock] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+  const [sortBy, setSortBy] = useState('relevance'); // ✅ NEW: Sort state
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -44,14 +44,12 @@ const Shop = () => {
     fetchProducts();
   }, [fetchProducts]);
 
-  // ✅ FIXED: Read page number from URL and restore it on navigation
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const pageParam = params.get('page');
     const categoryParam = params.get('category');
     const tagsParam = params.get('tags');
 
-    // Set page from URL (or default to 1)
     if (pageParam) {
       const pageNum = Math.max(1, parseInt(pageParam, 10));
       setCurrentPage(pageNum);
@@ -73,7 +71,7 @@ const Shop = () => {
     }
   }, [location]);
 
-  // ✅ OPTIMIZED: Use useMemo to prevent unnecessary filter recalculation
+  // ✅ UPDATED: Apply sorting after filtering
   const filteredAndPaginatedProducts = useMemo(() => {
     const safeProducts = Array.isArray(products) ? products : [];
     let result = safeProducts;
@@ -146,18 +144,33 @@ const Shop = () => {
       p.price && typeof p.price === 'number' && p.price <= priceRange
     );
 
+    // ✅ NEW: Apply sorting
+    switch(sortBy) {
+      case 'price-low':
+        result.sort((a, b) => (a.price || 0) - (b.price || 0));
+        break;
+      case 'price-high':
+        result.sort((a, b) => (b.price || 0) - (a.price || 0));
+        break;
+      case 'newest':
+        result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        break;
+      case 'best-selling':
+        result.sort((a, b) => (b.sales || 0) - (a.sales || 0));
+        break;
+      default: // 'relevance' - no sort
+        break;
+    }
+
     setFilteredProducts(result);
     return result;
-  }, [products, selectedCategory, searchQuery, priceRange, selectedTags, showInStock]);
+  }, [products, selectedCategory, searchQuery, priceRange, selectedTags, showInStock, sortBy]);
 
-  // ✅ NEW: Calculate pagination values
   const totalPages = Math.ceil(filteredAndPaginatedProducts.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedProducts = filteredAndPaginatedProducts.slice(startIndex, endIndex);
 
-  // ✅ FIXED: Helper function to build query string with page number
-  // Pass categoryOverride to ensure new category is used immediately (React state is async)
   const buildQueryString = (page = 1, categoryOverride = null) => {
     const params = new URLSearchParams();
     if (page > 1) params.set('page', page);
@@ -170,27 +183,33 @@ const Shop = () => {
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
     setShowFilters(false);
-    // ✅ FIXED: Reset to page 1 and update URL
     const newPage = 1;
     setCurrentPage(newPage);
     if (category === 'All') {
       navigate('/shop');
     } else {
-      // ✅ FIXED: Pass new category to buildQueryString to avoid async state timing issues
       const query = buildQueryString(newPage, category);
       navigate(`/shop${query ? '?' + query : ''}`);
     }
   };
 
-  // ✅ FIXED: Update URL whenever currentPage changes
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
       const query = buildQueryString(newPage);
       navigate(`/shop${query ? '?' + query : ''}`);
-      // Scroll to top of products
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  // ✅ NEW: Toggle bestseller tag
+  const handleBestsellersToggle = () => {
+    if (selectedTags.includes('bestseller')) {
+      setSelectedTags(selectedTags.filter(t => t !== 'bestseller'));
+    } else {
+      setSelectedTags([...selectedTags, 'bestseller']);
+    }
+    setCurrentPage(1);
   };
 
   const addToCart = async (e, productId) => {
@@ -213,7 +232,6 @@ const Shop = () => {
     }
   };
 
-  // ✅ OPTIMIZED: Only render paginated products
   const renderProducts = () => {
     if (loading) {
       return (
@@ -253,6 +271,8 @@ const Shop = () => {
               onClick={() => {
                 setSearchQuery('');
                 setSelectedCategory('All');
+                setSelectedTags([]);
+                setSortBy('relevance');
                 setCurrentPage(1);
                 navigate('/shop');
               }}
@@ -326,7 +346,6 @@ const Shop = () => {
     ));
   };
 
-  // ✅ FIXED: Updated pagination controls with URL sync
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
@@ -493,6 +512,45 @@ const Shop = () => {
                       In Stock Only
                     </span>
                   </label>
+                </div>
+
+                {/* ✅ NEW: Bestseller Toggle */}
+                <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border">
+                  <h3 className="text-base md:text-lg font-serif font-bold mb-4 md:mb-6 flex items-center gap-2">
+                    <FaStar className="text-rose-500" /> Bestsellers
+                  </h3>
+                  <label className="flex items-center gap-3 cursor-pointer group select-none">
+                    <div className="relative">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedTags.includes('bestseller')}
+                        onChange={handleBestsellersToggle}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                    </div>
+                    <span className="text-gray-700 font-medium group-hover:text-rose-600 transition-colors">
+                      Show Bestsellers Only
+                    </span>
+                  </label>
+                </div>
+
+                {/* ✅ NEW: Sort By Dropdown */}
+                <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border">
+                  <h3 className="text-base md:text-lg font-serif font-bold mb-4 md:mb-6 flex items-center gap-2">
+                    <FaFilter className="text-rose-500" /> Sort By
+                  </h3>
+                  <select 
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-sm md:text-base bg-white cursor-pointer"
+                  >
+                    <option value="relevance">Relevance</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="newest">Newest First</option>
+                    <option value="best-selling">Best Selling</option>
+                  </select>
                 </div>
 
                 {/* Search */}

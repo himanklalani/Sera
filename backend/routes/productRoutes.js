@@ -75,6 +75,28 @@ const validateReviewInput = (req, res, next) => {
 };
 
 
+// @desc    Fetch top-selling products (bestsellers) - ULTRA FAST
+// @route   GET /api/products/bestsellers
+// @access  Public
+// CHANGE: NEW endpoint for bestsellers - returns top 12 products by sales
+router.get('/bestsellers', asyncHandler(async (req, res) => {
+  const limit = 12; // Top 12 best-selling products
+  
+  // Simple query: sort by sales descending, only in-stock items
+  const products = await Product.find({ stock: { $gt: 0 } })
+    .sort({ sales: -1, createdAt: -1 })
+    .limit(limit)
+    .select('name price category images stock rating numReviews sales createdAt tags')
+    .lean();
+
+  res.json({
+    products,
+    total: products.length,
+    message: 'Top selling products'
+  });
+}));
+
+
 // @desc    Fetch all products with pagination and filtering (OPTIMIZED)
 // @route   GET /api/products
 // @access  Public
@@ -105,12 +127,12 @@ router.get('/', asyncHandler(async (req, res) => {
     query.tags = { $in: tagsArray };
   }
 
-  // Filter by price range (NEW)
+  // Filter by price range
   if (req.query.maxPrice) {
     query.price = { $lte: parseFloat(req.query.maxPrice) };
   }
 
-  // Filter by stock availability (NEW)
+  // Filter by stock availability
   if (req.query.inStock === 'true') {
     query.stock = { $gt: 0 };
   }
@@ -118,7 +140,7 @@ router.get('/', asyncHandler(async (req, res) => {
   // Get total count
   const total = await Product.countDocuments(query);
 
-  // Sorting (NEW)
+  // Sorting
   let sortOption = { createdAt: -1 }; // default
   if (req.query.sort) {
     switch(req.query.sort) {
@@ -137,13 +159,13 @@ router.get('/', asyncHandler(async (req, res) => {
     }
   }
 
-  // Fetch products with optimized select (NEW: only fetch necessary fields)
+  // Fetch products with optimized select
   const products = await Product.find(query)
     .sort(sortOption)
     .limit(limit)
     .skip(skip)
-    .select('name price category images stock rating numReviews sales createdAt tags') // Only needed fields
-    .lean(); // Returns plain JS objects, not Mongoose docs - faster
+    .select('name price category images stock rating numReviews sales createdAt tags')
+    .lean();
 
   res.json({
     products,

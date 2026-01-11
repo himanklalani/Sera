@@ -6,9 +6,11 @@ import { FaFilter, FaSearch, FaShoppingCart, FaTimes, FaCheck, FaChevronLeft, Fa
 import toast from 'react-hot-toast';
 
 
+
 const Shop = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
+
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,42 +28,53 @@ const Shop = () => {
   const navigate = useNavigate();
   const categories = ['All', 'Necklace', 'Earrings', 'Bracelet', 'Rings'];
 
+
   // CHANGE: Fetch products with backend filtering and pagination
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      params.set('page', currentPage);
-      params.set('limit', ITEMS_PER_PAGE);
-
-      // Pass filters to backend
-      if (selectedCategory !== 'All') {
-        params.set('category', selectedCategory.toLowerCase());
-      }
-      if (searchQuery.trim()) {
-        params.set('keyword', searchQuery);
-      }
-      if (priceRange < 10000) {
-        params.set('maxPrice', priceRange);
-      }
-      if (showInStock) {
-        params.set('inStock', 'true');
-      }
+      // NEW: Check if bestseller is selected - use special endpoint
       if (selectedTags.includes('bestseller')) {
-        params.set('tags', 'bestseller');
-      }
-      if (sortBy !== 'relevance') {
-        params.set('sort', sortBy);
-      }
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/products/bestsellers`
+        );
+        
+        const safeProducts = Array.isArray(data.products) ? data.products : [];
+        setProducts(safeProducts);
+        setTotalPages(1); // No pagination for bestsellers
+        setTotalProducts(safeProducts.length);
+      } else {
+        // Normal fetch with all filters
+        const params = new URLSearchParams();
+        params.set('page', currentPage);
+        params.set('limit', ITEMS_PER_PAGE);
 
-      const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/products?${params.toString()}`
-      );
+        // Pass filters to backend
+        if (selectedCategory !== 'All') {
+          params.set('category', selectedCategory.toLowerCase());
+        }
+        if (searchQuery.trim()) {
+          params.set('keyword', searchQuery);
+        }
+        if (priceRange < 10000) {
+          params.set('maxPrice', priceRange);
+        }
+        if (showInStock) {
+          params.set('inStock', 'true');
+        }
+        if (sortBy !== 'relevance') {
+          params.set('sort', sortBy);
+        }
 
-      const safeProducts = Array.isArray(data.products) ? data.products : [];
-      setProducts(safeProducts);
-      setTotalPages(data.pages || 1);
-      setTotalProducts(data.total || 0);
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/products?${params.toString()}`
+        );
+
+        const safeProducts = Array.isArray(data.products) ? data.products : [];
+        setProducts(safeProducts);
+        setTotalPages(data.pages || 1);
+        setTotalProducts(data.total || 0);
+      }
     } catch (error) {
       console.error('Error fetching products:', error);
       setProducts([]);
@@ -73,10 +86,12 @@ const Shop = () => {
     }
   }, [currentPage, selectedCategory, searchQuery, priceRange, showInStock, selectedTags, sortBy]);
 
+
   // Fetch products whenever filters change
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
 
   // Handle URL parameters
   useEffect(() => {
@@ -85,12 +100,14 @@ const Shop = () => {
     const categoryParam = params.get('category');
     const tagsParam = params.get('tags');
 
+
     if (pageParam) {
       const pageNum = Math.max(1, parseInt(pageParam, 10));
       setCurrentPage(pageNum);
     } else {
       setCurrentPage(1);
     }
+
 
     if (categoryParam) {
       const formattedCategory = categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1).toLowerCase();
@@ -99,12 +116,14 @@ const Shop = () => {
       setSelectedCategory('All');
     }
 
+
     if (tagsParam) {
       setSelectedTags(tagsParam.split(',').map(t => t.trim()));
     } else {
       setSelectedTags([]);
     }
   }, [location]);
+
 
   const buildQueryString = (page = 1, categoryOverride = null) => {
     const params = new URLSearchParams();
@@ -114,6 +133,7 @@ const Shop = () => {
     if (selectedTags.length > 0) params.set('tags', selectedTags.join(','));
     return params.toString();
   };
+
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
@@ -127,6 +147,7 @@ const Shop = () => {
     }
   };
 
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
@@ -136,6 +157,7 @@ const Shop = () => {
     }
   };
 
+
   const handleBestsellersToggle = () => {
     if (selectedTags.includes('bestseller')) {
       setSelectedTags(selectedTags.filter(t => t !== 'bestseller'));
@@ -144,6 +166,7 @@ const Shop = () => {
     }
     setCurrentPage(1);
   };
+
 
   const addToCart = async (e, productId) => {
     e.preventDefault();
@@ -155,6 +178,7 @@ const Shop = () => {
       return;
     }
 
+
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
       await axios.post(`${import.meta.env.VITE_API_URL}/api/cart`, { productId, quantity: 1 }, config);
@@ -164,6 +188,7 @@ const Shop = () => {
       toast.error('Failed to add to cart');
     }
   };
+
 
   const renderProducts = () => {
     if (loading) {
@@ -184,6 +209,7 @@ const Shop = () => {
         </div>
       );
     }
+
 
     if (products.length === 0) {
       return (
@@ -217,6 +243,7 @@ const Shop = () => {
         </div>
       );
     }
+
 
     return products.map(product => (
       <Link 
@@ -280,8 +307,10 @@ const Shop = () => {
     ));
   };
 
+
   const renderPagination = () => {
     if (totalPages <= 1) return null;
+
 
     const pageNumbers = [];
     const maxVisible = 5;
@@ -293,19 +322,23 @@ const Shop = () => {
       startPage = Math.max(1, endPage - maxVisible + 1);
     }
 
+
     if (startPage > 1) {
       pageNumbers.push(1);
       if (startPage > 2) pageNumbers.push('...');
     }
 
+
     for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(i);
     }
+
 
     if (endPage < totalPages) {
       if (endPage < totalPages - 1) pageNumbers.push('...');
       pageNumbers.push(totalPages);
     }
+
 
     return (
       <div className="flex items-center justify-center gap-2 mt-8 flex-wrap">
@@ -317,6 +350,7 @@ const Shop = () => {
         >
           <FaChevronLeft className="w-4 h-4" />
         </button>
+
 
         {pageNumbers.map((num, idx) => (
           <button
@@ -337,6 +371,7 @@ const Shop = () => {
           </button>
         ))}
 
+
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
@@ -349,6 +384,7 @@ const Shop = () => {
     );
   };
 
+
   return (
     <div className="min-h-screen bg-white pt-16 md:pt-20">
       {/* Header */}
@@ -358,7 +394,7 @@ const Shop = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-2xl md:text-4xl lg:text-5xl font-serif text-gray-900 mb-2 md:mb-4"
         >
-          {selectedCategory === 'All' ? 'Our Collection' : `${selectedCategory} Collection`}
+          {selectedTags.includes('bestseller') ? '⭐ Bestsellers' : selectedCategory === 'All' ? 'Our Collection' : `${selectedCategory} Collection`}
         </motion.h1>
         {selectedTags.length > 0 && (
           <p className="text-rose-500 font-medium mb-2 uppercase tracking-wide text-sm">
@@ -370,6 +406,7 @@ const Shop = () => {
         </p>
       </div>
 
+
       <div className="container mx-auto px-4 md:px-6 py-6 md:py-12">
         {/* Mobile Filter Button */}
         <button
@@ -378,6 +415,7 @@ const Shop = () => {
         >
           {showFilters ? <FaTimes className="w-5 h-5" /> : <FaFilter className="w-5 h-5" />}
         </button>
+
 
         <div className="flex flex-col lg:flex-row gap-6 md:gap-12">
           {/* Sidebar / Filters */}
@@ -404,6 +442,7 @@ const Shop = () => {
                   <FaTimes className="w-6 h-6" />
                 </button>
 
+
                 {/* Categories */}
                 <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border mt-12 lg:mt-0">
                   <h3 className="text-base md:text-lg font-serif font-bold mb-4 md:mb-6 flex items-center gap-2">
@@ -414,11 +453,12 @@ const Shop = () => {
                       <li key={cat}>
                         <button 
                           onClick={() => handleCategoryClick(cat)}
+                          disabled={selectedTags.includes('bestseller')}
                           className={`w-full text-left py-2 px-3 md:px-4 rounded-lg transition-colors text-sm md:text-base font-medium ${
                             selectedCategory === cat 
                               ? 'bg-rose-500 text-white shadow-md' 
                               : 'text-gray-600 hover:bg-rose-50 hover:text-rose-500'
-                          }`}
+                          } ${selectedTags.includes('bestseller') ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                           {cat}
                         </button>
@@ -426,6 +466,7 @@ const Shop = () => {
                     ))}
                   </ul>
                 </div>
+
 
                 {/* Stock Filter */}
                 <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border">
@@ -441,15 +482,17 @@ const Shop = () => {
                           setShowInStock(e.target.checked);
                           setCurrentPage(1);
                         }}
+                        disabled={selectedTags.includes('bestseller')}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500 ${selectedTags.includes('bestseller') ? 'opacity-50' : ''}`}></div>
                     </div>
-                    <span className="text-gray-700 font-medium group-hover:text-rose-600 transition-colors">
+                    <span className={`text-gray-700 font-medium group-hover:text-rose-600 transition-colors ${selectedTags.includes('bestseller') ? 'opacity-50' : ''}`}>
                       In Stock Only
                     </span>
                   </label>
                 </div>
+
 
                 {/* Bestseller Toggle */}
                 <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border">
@@ -472,6 +515,7 @@ const Shop = () => {
                   </label>
                 </div>
 
+
                 {/* Sort By Dropdown */}
                 <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border">
                   <h3 className="text-base md:text-lg font-serif font-bold mb-4 md:mb-6 flex items-center gap-2">
@@ -483,7 +527,8 @@ const Shop = () => {
                       setSortBy(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-sm md:text-base bg-white cursor-pointer"
+                    disabled={selectedTags.includes('bestseller')}
+                    className="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-sm md:text-base bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <option value="relevance">Relevance</option>
                     <option value="price-low">Price: Low to High</option>
@@ -492,6 +537,7 @@ const Shop = () => {
                     <option value="best-selling">Best Selling</option>
                   </select>
                 </div>
+
 
                 {/* Search */}
                 <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border">
@@ -506,12 +552,14 @@ const Shop = () => {
                       setSearchQuery(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-sm md:text-base"
+                    disabled={selectedTags.includes('bestseller')}
+                    className="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
+
 
           {/* Overlay for mobile */}
           {showFilters && (
@@ -521,6 +569,7 @@ const Shop = () => {
             />
           )}
 
+
           {/* Product Grid */}
           <motion.div 
             initial={{ opacity: 0 }}
@@ -529,20 +578,26 @@ const Shop = () => {
           >
             <div className="mb-4 md:mb-8 flex items-center justify-between flex-wrap gap-2 md:gap-4">
               <div className="text-xs md:text-sm text-gray-600">
-                Showing {products.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}–{Math.min(currentPage * ITEMS_PER_PAGE, totalProducts)} of {totalProducts} products
+                {selectedTags.includes('bestseller') 
+                  ? `Showing ${products.length} top-selling products`
+                  : `Showing ${products.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}–${Math.min(currentPage * ITEMS_PER_PAGE, totalProducts)} of ${totalProducts} products`
+                }
               </div>
             </div>
+
 
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
               {renderProducts()}
             </div>
 
-            {renderPagination()}
+
+            {!selectedTags.includes('bestseller') && renderPagination()}
           </motion.div>
         </div>
       </div>
     </div>
   );
 };
+
 
 export default Shop;

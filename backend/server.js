@@ -7,12 +7,14 @@ const app = express();
 
 // ✅ FIXED CORS - All Vercel + Local
 const allowedOrigins = [
-  'http://localhost:5173',
+ 'http://localhost:5173',
   'http://127.0.0.1:5173', 
   'http://192.168.29.61:5173',
+  'https://serastore.in',           // ✅ Production root
+  'https://www.serastore.in',       // ✅ Production www
   'https://seraweb.vercel.app',
   'https://serajewels.vercel.app',
-  'https://*.vercel.app'  // Preview deploys
+  'https://*.vercel.app'            // Preview deploys
 ];
 
 // Middleware

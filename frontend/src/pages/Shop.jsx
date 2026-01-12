@@ -131,13 +131,17 @@ const Shop = () => {
         }
       }
     } catch (error) {
-      if (error.name !== 'AbortError') {
-        console.error('Error fetching products:', error);
-        setProducts([]);
-        setTotalPages(0);
-        setTotalProducts(0);
-        toast.error('Failed to load products');
+      // FIXED: Properly ignore AbortError/CanceledError
+      if (axios.isCancel(error) || error.name === 'AbortError' || error.code === 'ERR_CANCELED') {
+        // Request was cancelled, don't show error
+        return;
       }
+      
+      console.error('Error fetching products:', error);
+      setProducts([]);
+      setTotalPages(0);
+      setTotalProducts(0);
+      toast.error('Failed to load products');
     } finally {
       setLoading(false);
     }

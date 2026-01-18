@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const asyncHandler = require('express-async-handler');
 const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const path = require('path');
 const { protect } = require('../middleware/authMiddleware');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
@@ -223,33 +225,46 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
 
   const invoiceNo = order.invoiceNumber || `INV-${order._id.toString().slice(-8)}`;
   const fileName = `Invoice-${invoiceNo}.pdf`;
+  const invoiceDate = new Date(order.createdAt);
 
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
 
   doc.pipe(res);
 
-  doc
-    .fontSize(20)
-    .text('Sera Jewelry', { align: 'left' });
+  const logoPath = path.join(__dirname, '..', '..', 'frontend', 'public', 'logo.png');
+  const hasLogo = fs.existsSync(logoPath);
+
+  if (hasLogo) {
+    doc.image(logoPath, 400, 40, { fit: [120, 120], align: 'right' });
+  }
 
   doc
-    .fontSize(10)
+    .font('Helvetica-Bold')
+    .fontSize(22)
+    .text('ORDER SUMMARY', 50, 50);
+
+  doc
+    .font('Helvetica')
+    .fontSize(11)
     .moveDown(0.5)
-    .text('Invoice', { align: 'right' });
+    .text('Sera JEwellery', 50, 80);
 
   doc
     .fontSize(10)
-    .text(`Invoice No: ${invoiceNo}`, { align: 'right' })
-    .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, {
-      align: 'right',
-    })
-    .moveDown(1);
+    .text(`Invoice No: ${invoiceNo}`, 50, 98)
+    .text(`Date: ${invoiceDate.toLocaleDateString()}`, 50, 110)
+    .moveDown(1.5);
 
   doc
+    .font('Helvetica-Bold')
+    .fontSize(11)
+    .text('Billed To:')
+    .moveDown(0.3);
+
+  doc
+    .font('Helvetica')
     .fontSize(10)
-    .text('Billed To:', { underline: true })
-    .moveDown(0.3)
     .text(order.user?.name || 'Customer')
     .text(order.shippingAddress.street || '')
     .text(
@@ -261,7 +276,7 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
       }`
     )
     .text(order.shippingAddress.phone || '')
-    .moveDown(1);
+    .moveDown(1.5);
 
   const tableTop = doc.y + 10;
 
@@ -303,8 +318,10 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
   );
   const discount = order.couponDiscount || 0;
   const grandTotal = order.totalPrice || subtotal - discount;
+  const shippingAmount = Math.max(0, grandTotal - (subtotal - discount));
 
   doc
+    .font('Helvetica')
     .fontSize(10)
     .text(`Subtotal: INR ${subtotal}`, totalX - 50, summaryY, {
       align: 'right',
@@ -323,17 +340,26 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
       );
   }
 
+  const shippingLabel =
+    shippingAmount > 0 ? `Shipping: INR ${shippingAmount}` : 'Shipping: Free';
+
+  doc.text(shippingLabel, totalX - 50, summaryY + (discount > 0 ? 50 : 15), {
+    align: 'right',
+  });
+
   doc
+    .font('Helvetica-Bold')
     .fontSize(11)
-    .text(`Total: INR ${grandTotal}`, totalX - 50, summaryY + 50, {
+    .text(`Total: INR ${grandTotal}`, totalX - 50, summaryY + (discount > 0 ? 70 : 35), {
       align: 'right',
     });
 
   doc
     .moveDown(3)
+    .font('Helvetica')
     .fontSize(9)
     .text(
-      'Thank you for shopping with Sera Jewelry.',
+      'Thank you for shopping with Sera JEwellery.',
       50,
       doc.y + 20,
       {

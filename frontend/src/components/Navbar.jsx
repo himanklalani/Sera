@@ -7,6 +7,7 @@ import NavOverlay from './NavOverlay';
 import SearchOverlay from './SearchOverlay';
 
 
+
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -16,6 +17,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const isHome = location.pathname === '/';
   const [userInfo, setUserInfo] = useState(null);
+
 
 
   useEffect(() => {
@@ -32,11 +34,13 @@ export default function Navbar() {
   }, [location]);
 
 
+
   useMotionValueEvent(scrollY, "change", (latest) => {
     if (isHome) {
       setIsScrolled(latest > 36);
     }
   });
+
 
 
   useEffect(() => {
@@ -48,11 +52,13 @@ export default function Navbar() {
   }, [isHome, scrollY]);
 
 
+
   const navbarClass = isHome
     ? (isScrolled 
         ? 'fixed top-0 left-0 right-0 bg-white shadow-sm text-gray-900' 
         : 'absolute top-[36px] left-0 right-0 bg-transparent text-white')
     : 'sticky top-0 left-0 right-0 bg-white shadow-sm text-gray-900';
+
 
 
   return (
@@ -70,9 +76,15 @@ export default function Navbar() {
             <div className="flex justify-between items-center w-full">
               {/* Left: Hamburger + Back Button */}
               <div className="flex items-center space-x-4 z-10 relative">
-                <button onClick={() => setIsNavOpen(true)} className="text-2xl focus:outline-none">
+                <motion.button 
+                  onClick={() => setIsNavOpen(true)} 
+                  className="text-2xl focus:outline-none"
+                  whileHover={{ color: '#f43f5e', scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
                   <FaBars />
-                </button>
+                </motion.button>
                 
                 {!isHome && (
                   <motion.button
@@ -90,6 +102,7 @@ export default function Navbar() {
                 )}
               </div>
 
+
               <Link 
                 to="/" 
                 className="absolute left-[calc(50%-54px)] md:left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 md:-translate-y-[calc(54%-8px)] z-20"
@@ -101,6 +114,7 @@ export default function Navbar() {
                 />
               </Link>
 
+
               {/* Right: Icons */}
               <div className="flex items-center space-x-4 md:space-x-6 text-xl z-10 relative">
                 <Link to="/shop" className="text-sm font-bold uppercase tracking-wider hidden md:block hover:text-rose-500 transition-colors">
@@ -111,7 +125,14 @@ export default function Navbar() {
                     Admin
                   </Link>
                 )}
-                <button onClick={() => setIsSearchOpen(true)}><FaSearch /></button>
+                <motion.button 
+                  onClick={() => setIsSearchOpen(true)}
+                  whileHover={{ color: '#f43f5e', scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <FaSearch />
+                </motion.button>
                 <Link to="/profile?tab=wishlist"><FaHeart className="hover:text-rose-500 transition-colors" /></Link>
                 <Link to="/profile"><FaUser className="hover:text-rose-500 transition-colors" /></Link>
                 <Link to="/cart" className="relative">
@@ -119,6 +140,7 @@ export default function Navbar() {
                 </Link>
               </div>
             </div>
+
 
             {/* Mobile Admin Button Row - Below Main Nav */}
             {userInfo && userInfo.role === 'admin' && (
@@ -131,6 +153,7 @@ export default function Navbar() {
           </div>
         </div>
       </motion.header>
+
 
       <NavOverlay isOpen={isNavOpen} onClose={() => setIsNavOpen(false)} />
       <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />

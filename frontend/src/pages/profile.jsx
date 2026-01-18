@@ -479,6 +479,9 @@ const Profile = () => {
                         <div>
                           <p className="text-xs text-gray-500 uppercase tracking-wider">Date</p>
                           <p className="text-gray-900">{new Date(order.createdAt).toLocaleDateString()}</p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(order.createdAt).toLocaleTimeString()}
+                          </p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-500 uppercase tracking-wider">Total</p>
@@ -497,6 +500,12 @@ const Profile = () => {
                           }`}>
                             {order.status.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                           </span>
+                          {order.status === 'cancelled' && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              Cancelled from{' '}
+                              {order.cancellationFee > 0 ? 'Processing' : 'Pending'}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="p-4">

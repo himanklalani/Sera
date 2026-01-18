@@ -1539,7 +1539,14 @@ const AdminDashboard = () => {
 
                   <td className="px-6 py-4">
                     {order.createdAt
-                      ? new Date(order.createdAt).toLocaleDateString()
+                      ? (
+                        <>
+                          {new Date(order.createdAt).toLocaleDateString()}
+                          <div className="text-xs text-gray-500">
+                            {new Date(order.createdAt).toLocaleTimeString()}
+                          </div>
+                        </>
+                      )
                       : 'N/A'}
                   </td>
                   <td className="px-6 py-4">INR {order.totalPrice || 0}</td>

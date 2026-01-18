@@ -2,11 +2,13 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 
+
 // Lazy load component for images
 const LazyImage = ({ src, alt, className, style }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const imgRef = useRef();
+
 
   useEffect(() => {
     if (!imgRef.current) return;
@@ -21,9 +23,11 @@ const LazyImage = ({ src, alt, className, style }) => {
       { rootMargin: '50px' }
     );
 
+
     observer.observe(imgRef.current);
     return () => observer.disconnect();
   }, []);
+
 
   return (
     <div ref={imgRef} className={className} style={style}>
@@ -46,6 +50,7 @@ const LazyImage = ({ src, alt, className, style }) => {
     </div>
   );
 };
+
 
 const HeroSection = () => {
   return (
@@ -111,6 +116,7 @@ const HeroSection = () => {
   );
 };
 
+
 const CategoriesSection = () => {
   const navigate = useNavigate();
   const categories = [
@@ -131,6 +137,7 @@ const CategoriesSection = () => {
       img: '/images/necklace.jpg',
     },
   ];
+
 
   return (
     <section className="py-16 px-4 md:px-6 bg-gradient-to-b from-white to-rose-50">
@@ -173,6 +180,7 @@ const CategoriesSection = () => {
                   </h3>
                 </div>
 
+
                 <div className="hidden md:flex absolute inset-0 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <button className="bg-white text-gray-900 px-4 md:px-6 py-2 rounded-full text-xs md:text-sm uppercase tracking-wider font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-lg">
                     Shop Now
@@ -182,6 +190,7 @@ const CategoriesSection = () => {
             </motion.div>
           ))}
         </div>
+
 
         <div className="md:hidden flex justify-center mt-8">
           <button 
@@ -202,6 +211,7 @@ const CategoriesSection = () => {
   );
 };
 
+
 const GiftingSection = () => {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -215,12 +225,14 @@ const GiftingSection = () => {
     '/images/gift5.jpg'
   ];
 
+
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % giftImages.length);
     }, 3000);
     return () => clearInterval(interval);
   }, [giftImages.length]);
+
 
   return (
     <section className="flex flex-col md:flex-row h-auto md:h-[600px]">
@@ -277,6 +289,7 @@ const GiftingSection = () => {
         </div>
       </div>
 
+
       <div className="w-full md:w-1/2 bg-pink-50 flex flex-col items-center justify-center p-8 md:p-12 text-center">
         <h2 className="text-3xl md:text-5xl font-serif mb-4 md:mb-6 text-gray-900">
           Ace the art of Gifting
@@ -288,6 +301,7 @@ const GiftingSection = () => {
     </section>
   );
 };
+
 
 const BentoCollectionsSection = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -335,6 +349,7 @@ const BentoCollectionsSection = () => {
     },
   ];
 
+
   const getSizeClasses = (size) => {
     switch(size) {
       case 'large':
@@ -351,6 +366,7 @@ const BentoCollectionsSection = () => {
         return 'col-span-1 row-span-1';
     }
   };
+
 
   return (
     <section className="py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-rose-50 via-white to-pink-50">
@@ -393,6 +409,7 @@ const BentoCollectionsSection = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               </div>
 
+
               <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-end">
                 <motion.div
                   animate={{
@@ -421,6 +438,7 @@ const BentoCollectionsSection = () => {
                 </motion.div>
               </div>
 
+
               <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-bl-full blur-2xl" />
             </motion.div>
           </Link>
@@ -429,6 +447,7 @@ const BentoCollectionsSection = () => {
     </section>
   );
 };
+
 
 const FloatingGallerySection = () => {
   const galleryItems = [
@@ -439,6 +458,7 @@ const FloatingGallerySection = () => {
     { img: '/images/gallery5.jpg', height: 'h-64', delay: 0.4 },
     { img: '/images/gallery6.jpg', height: 'h-88', delay: 0.5 },
   ];
+
 
   return (
     <section className="py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-pink-50 to-rose-100 overflow-hidden">
@@ -455,6 +475,7 @@ const FloatingGallerySection = () => {
         Catch the energy, feel the style 
       </p>
 
+
       <div className="max-w-7xl mx-auto columns-2 md:columns-3 gap-3 md:gap-4 space-y-3 md:space-y-4">
         {galleryItems.map((item, index) => (
           <motion.div
@@ -465,20 +486,48 @@ const FloatingGallerySection = () => {
             viewport={{ once: true }}
             className="break-inside-avoid group"
           >
-            <div className={`${item.height} relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300`}>
+            {/* OPTION 1: Soft White Glow (RECOMMENDED - Most Elegant) */}
+            <div className={`${item.height} relative overflow-hidden rounded-2xl shadow-lg group-hover:shadow-2xl transition-all duration-500`}>
               <LazyImage
                 src={item.img}
                 alt={`Gallery ${index + 1}`}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-rose-500/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6" />
+              {/* Soft white radial glow from center */}
+              <div className="absolute inset-0 bg-gradient-radial from-white/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              {/* Subtle brightness lift */}
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
+
+            {/* OPTION 2: Light Pink Bloom - Uncomment to use
+            <div className={`${item.height} relative overflow-hidden rounded-2xl shadow-lg group-hover:shadow-2xl transition-all duration-500`}>
+              <LazyImage
+                src={item.img}
+                alt={`Gallery ${index + 1}`}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-pink-200/30 via-rose-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-pink-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            </div>
+            */}
+
+            {/* OPTION 3: Subtle Shimmer with Scale - Uncomment to use
+            <div className={`${item.height} relative overflow-hidden rounded-2xl shadow-lg group-hover:shadow-2xl transition-all duration-500`}>
+              <LazyImage
+                src={item.img}
+                alt={`Gallery ${index + 1}`}
+                className="w-full h-full object-cover group-hover:scale-110 group-hover:brightness-110 transition-all duration-700 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-pink-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            </div>
+            */}
           </motion.div>
         ))}
       </div>
     </section>
   );
 };
+
 
 export default function Home() {
   return (

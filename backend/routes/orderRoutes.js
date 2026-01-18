@@ -226,6 +226,7 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
   const invoiceNo = order.invoiceNumber || `INV-${order._id.toString().slice(-8)}`;
   const fileName = `Invoice-${invoiceNo}.pdf`;
   const invoiceDate = new Date(order.createdAt);
+  const formatAmount = (value) => Number((Number(value || 0)).toFixed(1));
 
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
@@ -248,7 +249,7 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
     .font('Helvetica')
     .fontSize(11)
     .moveDown(0.5)
-    .text('Sera JEwellery', 50, 80);
+    .text('Sera Jewellery', 50, 80);
 
   doc
     .fontSize(10)
@@ -297,8 +298,10 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
   order.items.forEach((item) => {
     const name = item.name || item.product?.name || 'Product';
     const quantity = item.quantity || 1;
-    const price = item.price || item.product?.price || 0;
-    const lineTotal = price * quantity;
+    const priceRaw = item.price || item.product?.price || 0;
+    const lineTotalRaw = priceRaw * quantity;
+    const price = formatAmount(priceRaw);
+    const lineTotal = formatAmount(lineTotalRaw);
 
     doc.text(name, itemX, currentY, { width: 200 });
     doc.text(String(quantity), qtyX, currentY);
@@ -312,13 +315,18 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
 
   const summaryY = currentY + 10;
 
-  const subtotal = order.items.reduce(
+  const subtotalRaw = order.items.reduce(
     (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
     0
   );
-  const discount = order.couponDiscount || 0;
-  const grandTotal = order.totalPrice || subtotal - discount;
-  const shippingAmount = Math.max(0, grandTotal - (subtotal - discount));
+  const discountRaw = order.couponDiscount || 0;
+  const grandTotalRaw = order.totalPrice || subtotalRaw - discountRaw;
+  const shippingRaw = Math.max(0, grandTotalRaw - (subtotalRaw - discountRaw));
+
+  const subtotal = formatAmount(subtotalRaw);
+  const discount = formatAmount(discountRaw);
+  const grandTotal = formatAmount(grandTotalRaw);
+  const shippingAmount = formatAmount(shippingRaw);
 
   doc
     .font('Helvetica')
@@ -327,30 +335,31 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
       align: 'right',
     });
 
-  if (discount > 0) {
-    doc
-      .text(`Discount: - INR ${discount}`, totalX - 50, summaryY + 15, {
-        align: 'right',
-      })
-      .text(
-        `Coupon: ${order.couponCode || ''}`,
-        totalX - 50,
-        summaryY + 30,
-        { align: 'right' }
-      );
-  }
-
   const shippingLabel =
     shippingAmount > 0 ? `Shipping: INR ${shippingAmount}` : 'Shipping: Free';
 
-  doc.text(shippingLabel, totalX - 50, summaryY + (discount > 0 ? 50 : 15), {
+  doc.text(shippingLabel, totalX - 50, summaryY + 15, {
     align: 'right',
   });
+
+  if (discountRaw > 0) {
+    const discountLabel = order.couponCode
+      ? `Discount (${order.couponCode})`
+      : 'Discount';
+    doc.text(
+      `${discountLabel}: - INR ${discount}`,
+      totalX - 50,
+      summaryY + 30,
+      {
+        align: 'right',
+      }
+    );
+  }
 
   doc
     .font('Helvetica-Bold')
     .fontSize(11)
-    .text(`Total: INR ${grandTotal}`, totalX - 50, summaryY + (discount > 0 ? 70 : 35), {
+    .text(`Total: INR ${grandTotal}`, totalX - 50, summaryY + (discountRaw > 0 ? 50 : 30), {
       align: 'right',
     });
 

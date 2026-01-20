@@ -140,7 +140,7 @@ const Register = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Password (7 characters atleast)</label>
                         <input 
                           type="password" 
                           className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-colors"

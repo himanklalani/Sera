@@ -52,7 +52,7 @@ const ResetPassword = () => {
           className="w-full"
         >
           <h2 className="text-3xl font-serif text-gray-900 text-center mb-2">Reset Password</h2>
-          <p className="text-gray-500 text-center mb-8 font-light">Enter OTP sent to your email and new password</p>
+          <p className="text-gray-500 text-center mb-8 font-light">Enter OTP sent to your email and new password (Check spam if not received.)</p>
           
           {message && <div className="bg-green-50 text-green-600 p-3 rounded mb-6 text-sm text-center border border-green-100">{message}</div>}
           {error && <div className="bg-red-50 text-red-600 p-3 rounded mb-6 text-sm text-center border border-red-100">{error}</div>}

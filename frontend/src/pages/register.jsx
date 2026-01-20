@@ -162,7 +162,7 @@ const Register = () => {
               ) : (
                 <>
                   <h2 className="text-4xl font-serif text-gray-900 text-center mb-2">Verify Email</h2>
-                  <p className="text-gray-500 text-center mb-8 font-light">Enter the OTP sent to {email}</p>
+                  <p className="text-gray-500 text-center mb-8 font-light">Enter the OTP sent to {email}(Check spam if not received.)</p>
                   
                   {error && <div className="bg-red-50 text-red-600 p-3 rounded mb-6 text-sm text-center border border-red-100">{error}</div>}
                   

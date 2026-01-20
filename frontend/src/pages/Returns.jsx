@@ -94,8 +94,10 @@ const Returns = () => {
               <li>UNBOXING VIDEO required as proof</li>
             </ul>
             <ul className="space-y-3 list-disc list-inside">
+              <li>For orders to be cancelled on pending status no fees are applicable.</li>
+              <li>For orders to be cancelled on processing status a fee of 100 INR will be applicable.</li>
               <li>Orders cannot be cancelled once shipped</li>
-              <li>Exchange subject to availability</li>
+              <li>Exchange is subject to availability</li>
               <li>Persistent issues? We reach out proactively</li>
             </ul>
           </div>

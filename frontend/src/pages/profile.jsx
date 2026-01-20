@@ -102,7 +102,7 @@ const Profile = () => {
   };
 
   const handleCancelOrder = async (orderId) => {
-    if (!window.confirm('Are you sure you want to cancel this order? Cancellation fees may apply.')) return;
+    if (!window.confirm('Are you sure you want to cancel this order? Cancellation fees may apply (check returns & exchange section).')) return;
     
     try {
       const config = {

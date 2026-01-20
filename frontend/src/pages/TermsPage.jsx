@@ -27,7 +27,7 @@ const Terms = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-6 tracking-wide uppercase border-b-2 border-rose-200 pb-4">Pricing & Payments</h2>
             <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed space-y-4">
-              <p>Prices include GST. We accept UPI, cards, net banking, and wallets via Razorpay. All sales are final except as per our exchange policy. International orders may incur additional duties.</p>
+              <p>We accept UPI, cards, net banking, and wallets via Razorpay. All sales are final except as per our exchange policy.</p>
               <p>Prices reflect current market rates and may change. Final price shown at checkout is binding.</p>
             </div>
           </section>

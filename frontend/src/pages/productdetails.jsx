@@ -3,10 +3,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart } from 'react-icons/fa';
+import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShare2 } from 'react-icons/fa';
+
 
 
 const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500' viewBox='0 0 500 500'%3E%3Crect fill='%23f3f4f6' width='500' height='500'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='32' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
+
 
 
 const ProductDetails = () => {
@@ -19,6 +21,8 @@ const ProductDetails = () => {
   const [error, setError] = useState(null);
   const [addingToCart, setAddingToCart] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+
 
   // review states
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -27,9 +31,11 @@ const ProductDetails = () => {
   const [userRating, setUserRating] = useState(0);
   const [reviewComment, setReviewComment] = useState('');
 
+
   const getUserInfo = () => {
     const stored = localStorage.getItem('userInfo');
     if (!stored) return null;
+
 
     try {
       return JSON.parse(stored);
@@ -40,13 +46,16 @@ const ProductDetails = () => {
     }
   };
 
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${id}`);
         setProduct(data);
 
+
         const ui = getUserInfo();
+
 
         // wishlist status
         if (ui) {
@@ -66,10 +75,12 @@ const ProductDetails = () => {
           }
         }
 
+
         // review eligibility
         if (ui && data._id) {
           checkReviewEligibility(data._id, ui.token);
         }
+
 
         setLoading(false);
       } catch (err) {
@@ -78,8 +89,10 @@ const ProductDetails = () => {
       }
     };
 
+
     fetchProduct();
   }, [id]);
+
 
   const checkReviewEligibility = async (productId, token) => {
     try {
@@ -95,9 +108,11 @@ const ProductDetails = () => {
     }
   };
 
+
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     if (!userRating || userRating < 1) return;
+
 
     const ui = getUserInfo();
     if (!ui) {
@@ -105,9 +120,11 @@ const ProductDetails = () => {
       return;
     }
 
+
     setReviewLoading(true);
     try {
       const config = { headers: { Authorization: `Bearer ${ui.token}` } };
+
 
       await axios.post(
         `${import.meta.env.VITE_API_URL}/api/products/${id}/reviews`,
@@ -118,8 +135,10 @@ const ProductDetails = () => {
         config
       );
 
+
       const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${id}`);
       setProduct(data);
+
 
       setShowReviewForm(false);
       setUserRating(0);
@@ -134,22 +153,27 @@ const ProductDetails = () => {
     }
   };
 
+
   const handleAddToCart = async (productToAdd = null) => {
     if (productToAdd && productToAdd.preventDefault) {
       productToAdd = null;
     }
 
+
     const ui = getUserInfo();
     const itemToAdd = productToAdd || product;
+
 
     if (!ui) {
       navigate(`/login?redirect=/product/${itemToAdd._id}`);
       return;
     }
 
+
     if (!productToAdd) {
       setAddingToCart(true);
     }
+
 
     try {
       const config = { headers: { Authorization: `Bearer ${ui.token}` } };
@@ -160,6 +184,7 @@ const ProductDetails = () => {
       );
       toast.success(`${itemToAdd.name} added to cart!`);
 
+
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to add to cart');
     } finally {
@@ -169,6 +194,7 @@ const ProductDetails = () => {
     }
   };
 
+
   const handleWishlist = async () => {
     const ui = getUserInfo();
     if (!ui) {
@@ -176,8 +202,10 @@ const ProductDetails = () => {
       return;
     }
 
+
     try {
       const config = { headers: { Authorization: `Bearer ${ui.token}` } };
+
 
       if (isInWishlist) {
         await axios.delete(
@@ -201,12 +229,69 @@ const ProductDetails = () => {
     }
   };
 
+
+  const handleShare = async (platform) => {
+    const productUrl = `${window.location.origin}/product/${id}`;
+    const productName = product.name;
+    const shareText = `Check out this beautiful ${productName}!`;
+
+    try {
+      if (platform === 'copy') {
+        // Copy to clipboard
+        await navigator.clipboard.writeText(productUrl);
+        toast.success('Link copied to clipboard!');
+        setShowShareMenu(false);
+      } else if (platform === 'whatsapp') {
+        // WhatsApp share
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + productUrl)}`;
+        window.open(whatsappUrl, '_blank', 'width=600,height=400');
+        setShowShareMenu(false);
+      } else if (platform === 'facebook') {
+        // Facebook share
+        const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}`;
+        window.open(facebookUrl, '_blank', 'width=600,height=400');
+        setShowShareMenu(false);
+      } else if (platform === 'twitter') {
+        // Twitter/X share
+        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(productUrl)}`;
+        window.open(twitterUrl, '_blank', 'width=600,height=400');
+        setShowShareMenu(false);
+      } else if (platform === 'email') {
+        // Email share
+        const subject = `Check out: ${productName}`;
+        const body = `${shareText}\n\n${productUrl}`;
+        const emailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = emailUrl;
+        setShowShareMenu(false);
+      } else if (platform === 'native') {
+        // Native Web Share API
+        if (navigator.share) {
+          await navigator.share({
+            title: productName,
+            text: shareText,
+            url: productUrl,
+          });
+        } else {
+          toast.error('Share not supported on this device');
+        }
+        setShowShareMenu(false);
+      }
+    } catch (err) {
+      console.error('Share failed:', err);
+      if (err.name !== 'AbortError') {
+        toast.error('Failed to share');
+      }
+    }
+  };
+
+
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl text-gray-500">Loading product details...</div>
       </div>
     );
+
 
   if (error)
     return (
@@ -215,7 +300,9 @@ const ProductDetails = () => {
       </div>
     );
 
+
   if (!product) return null;
+
 
   return (
     <div className="container mx-auto px-6 py-24">
@@ -262,10 +349,11 @@ const ProductDetails = () => {
           )}
         </div>
 
+
         {/* Product Info */}
         <div className="w-full lg:w-1/2 space-y-6">
-          <div className="flex justify-between items-start">
-            <div>
+          <div className="flex justify-between items-start gap-4">
+            <div className="flex-1">
               <p className="text-rose-500 text-sm font-medium tracking-widest uppercase mb-2">
                 {product.category}
               </p>
@@ -273,18 +361,91 @@ const ProductDetails = () => {
                 {product.name}
               </h1>
             </div>
-            <button
-              onClick={handleWishlist}
-              className="p-3 rounded-full bg-white shadow-md hover:shadow-xl transition-all duration-300 hover:scale-110 text-2xl hover:bg-rose-50"
-              title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-            >
-              <FaHeart
-                className={
-                  isInWishlist ? 'text-rose-500 fill-rose-500' : 'text-gray-400'
-                }
-              />
-            </button>
+            <div className="flex gap-2 items-start">
+              {/* Share Button */}
+              <div className="relative">
+                <motion.button
+                  onClick={() => setShowShareMenu(!showShareMenu)}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="p-3 rounded-full bg-white/40 backdrop-blur-sm hover:bg-white/60 shadow-md hover:shadow-xl transition-all duration-300 text-2xl border border-white/50 hover:border-white/80"
+                  title="Share this product"
+                >
+                  <FaShare2 className="text-gray-600 hover:text-rose-500 transition-colors" />
+                </motion.button>
+
+                {/* Share Menu */}
+                {showShareMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full right-0 mt-2 bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 py-2 z-50 w-56"
+                  >
+                    <button
+                      onClick={() => handleShare('copy')}
+                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-rose-50 transition-colors text-gray-700 hover:text-rose-600 font-medium"
+                    >
+                      <span className="text-xl">🔗</span>
+                      Copy Link
+                    </button>
+                    <button
+                      onClick={() => handleShare('whatsapp')}
+                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-green-50 transition-colors text-gray-700 hover:text-green-600 font-medium"
+                    >
+                      <span className="text-xl">💬</span>
+                      WhatsApp
+                    </button>
+                    <button
+                      onClick={() => handleShare('facebook')}
+                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-600 font-medium"
+                    >
+                      <span className="text-xl">f</span>
+                      Facebook
+                    </button>
+                    <button
+                      onClick={() => handleShare('twitter')}
+                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-sky-50 transition-colors text-gray-700 hover:text-sky-600 font-medium"
+                    >
+                      <span className="text-xl">𝕏</span>
+                      Twitter/X
+                    </button>
+                    <button
+                      onClick={() => handleShare('email')}
+                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-orange-50 transition-colors text-gray-700 hover:text-orange-600 font-medium"
+                    >
+                      <span className="text-xl">✉️</span>
+                      Email
+                    </button>
+                    {navigator.share && (
+                      <button
+                        onClick={() => handleShare('native')}
+                        className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-purple-50 transition-colors text-gray-700 hover:text-purple-600 font-medium border-t border-gray-100"
+                      >
+                        <span className="text-xl">📱</span>
+                        More Options
+                      </button>
+                    )}
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Wishlist Button */}
+              <button
+                onClick={handleWishlist}
+                className="p-3 rounded-full bg-white/40 backdrop-blur-sm hover:bg-white/60 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-110 text-2xl border border-white/50 hover:border-white/80"
+                title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+              >
+                <FaHeart
+                  className={
+                    isInWishlist ? 'text-rose-500 fill-rose-500' : 'text-gray-400'
+                  }
+                />
+              </button>
+            </div>
           </div>
+
 
           {/* Price & Rating */}
           <div className="flex items-start gap-6">
@@ -298,6 +459,7 @@ const ProductDetails = () => {
                 </span>
               )}
             </div>
+
 
             <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm">
               <div className="flex text-yellow-400 -space-x-1">
@@ -324,6 +486,7 @@ const ProductDetails = () => {
             </div>
           </div>
 
+
           {product.description && (
             <div className="bg-gray-50 p-6 rounded-xl">
               <h3 className="font-serif text-xl font-medium mb-4 text-gray-900">
@@ -334,6 +497,7 @@ const ProductDetails = () => {
               </p>
             </div>
           )}
+
 
           {/* Quantity & Add to Cart */}
           <div className="bg-white p-6 rounded-xl shadow-sm border">
@@ -366,6 +530,7 @@ const ProductDetails = () => {
               </div>
             </div>
 
+
             <button
               onClick={handleAddToCart}
               disabled={addingToCart || product.stock === 0}
@@ -384,6 +549,7 @@ const ProductDetails = () => {
               )}
             </button>
           </div>
+
 
           {/* Accent Pairs Section */}
           {product.accentPairs && product.accentPairs.length > 0 && (
@@ -416,7 +582,9 @@ const ProductDetails = () => {
             </div>
           )}
 
+
           {/* ========== REVIEWS SECTION - INTEGRATED ========== */}
+
 
           {/* Display all reviews (public) */}
           {product.reviews && product.reviews.length > 0 && (
@@ -424,6 +592,7 @@ const ProductDetails = () => {
               <h3 className="font-serif text-2xl font-medium mb-6 text-gray-900">
                 Customer Reviews ({product.numReviews || 0})
               </h3>
+
 
               <div className="space-y-6 mb-8">
                 {product.reviews.map((review, idx) => (
@@ -450,6 +619,7 @@ const ProductDetails = () => {
             </div>
           )}
 
+
           {/* Review Form - Only for eligible users */}
           {getUserInfo() && canReview && (
             <div className="border-t pt-8">
@@ -459,6 +629,7 @@ const ProductDetails = () => {
               >
                 ✨ {showReviewForm ? 'Cancel Review' : 'Write Your Review'} ✨
               </button>
+
 
               {showReviewForm && (
                 <motion.form
@@ -498,6 +669,7 @@ const ProductDetails = () => {
                     )}
                   </div>
 
+
                   {/* Comment */}
                   <div>
                     <label className="block font-serif text-lg font-medium text-gray-800 mb-3">
@@ -518,6 +690,7 @@ const ProductDetails = () => {
                       </span>
                     </div>
                   </div>
+
 
                   {/* Submit Button */}
                   <motion.button
@@ -544,6 +717,7 @@ const ProductDetails = () => {
             </div>
           )}
 
+
           {/* Non-eligible users message */}
           {getUserInfo() && !canReview && (
             <div className="border-t pt-8">
@@ -565,7 +739,9 @@ const ProductDetails = () => {
             </div>
           )}
 
+
           {/* ========== END REVIEWS SECTION ========== */}
+
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 text-sm text-gray-500">
             <div className="flex flex-col">
@@ -602,5 +778,6 @@ const ProductDetails = () => {
     </div>
   );
 };
+
 
 export default ProductDetails;

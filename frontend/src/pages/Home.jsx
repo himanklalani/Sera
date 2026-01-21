@@ -177,9 +177,10 @@ const GiftingSection = () => {
   }, [giftImages.length, resetAutoplay]);
 
   return (
-    <section className="flex flex-col md:flex-row h-auto md:h-[600px]">
+    <section className="flex flex-col md:flex-row min-h-[600px] md:h-[600px]">
+      {/* ✅ FIXED: iOS viewport height issue */}
       <div 
-        className="w-full md:w-1/2 h-[400px] md:h-full relative bg-gradient-to-br from-rose-50 to-pink-100 flex items-center justify-center overflow-hidden"
+        className="w-full md:w-1/2 min-h-[400px] md:h-full relative bg-gradient-to-br from-rose-50 to-pink-100 flex items-center justify-center overflow-hidden"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onTouchStart={handleTouchStart}
@@ -248,7 +249,8 @@ const GiftingSection = () => {
         )}
       </div>
 
-      <div className="w-full md:w-1/2 bg-pink-50 flex flex-col items-center justify-center p-8 md:p-12 text-center">
+      {/* ✅ FIXED: Added min-h for mobile */}
+      <div className="w-full md:w-1/2 min-h-[300px] md:h-full bg-pink-50 flex flex-col items-center justify-center p-8 md:p-12 text-center">
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -273,32 +275,36 @@ const GiftingSection = () => {
 };
 
 // ============================================
-// HeroSection (Unchanged from before)
+// HeroSection (FIXED for iOS)
 // ============================================
 const HeroSection = () => {
   const heroImage = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=75&w=1920&auto=format&fit=crop&fm=webp';
   
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-gray-900">
+    <div className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gray-900 safe-area">
+      {/* ✅ FIXED: Using min-h-screen with safe area for iOS */}
       <link rel="preload" as="image" href={heroImage} />
       
+      {/* ✅ FIXED: Removed fixed positioning, use absolute for better iOS support */}
       <div 
-        className="absolute inset-0 bg-cover bg-center z-0"
+        className="absolute inset-0 w-full h-full bg-cover bg-center z-0"
         style={{ 
           backgroundImage: `url("${heroImage}")`,
           filter: 'brightness(0.6)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundAttachment: 'fixed'
+          WebkitBackgroundAttachment: 'scroll', // ✅ FIXED: iOS doesn't support fixed backgrounds well
+          backgroundAttachment: 'scroll'
         }}
       />
       
-      <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-4">
+      {/* ✅ FIXED: Changed to relative positioning with padding for safe area */}
+      <div className="relative z-10 flex flex-col items-center justify-center flex-1 text-white text-center px-4 py-16 sm:py-8">
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-5xl md:text-7xl font-serif mb-4 tracking-wide will-change-transform"
+          className="text-4xl sm:text-5xl md:text-7xl font-serif mb-4 tracking-wide will-change-transform"
         >
           Welcome to Sera
         </motion.h1>
@@ -306,13 +312,13 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg md:text-2xl lg:text-3xl font-light tracking-widest uppercase drop-shadow-lg mb-12"
+          className="text-base sm:text-lg md:text-2xl lg:text-3xl font-light tracking-widest uppercase drop-shadow-lg mb-12"
         >
           timeless elegance <span className="block md:inline font-serif italic text-rose-200">meets</span> modern intention
         </motion.p>
         
         <motion.div 
-          className="absolute bottom-[25%] left-1/2 transform -translate-x-1/2"
+          className="absolute bottom-[15%] sm:bottom-[20%] left-1/2 transform -translate-x-1/2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ 
             opacity: 1, 

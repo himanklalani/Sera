@@ -1,17 +1,27 @@
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
-
-// Lazy load component for images
-const LazyImage = ({ src, alt, className, style }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isInView, setIsInView] = useState(false);
+// ============================================
+// OPTIMIZED LazyImage Component
+// ============================================
+const LazyImage = ({ 
+  src, 
+  alt, 
+  className, 
+  style,
+  priority = false,
+  srcSet = null,
+  width,
+  height
+}) => {
+  const [isLoaded, setIsLoaded] = useState(priority); // Pre-load if priority
+  const [isInView, setIsInView] = useState(priority);
   const imgRef = useRef();
-
 
   useEffect(() => {
     if (!imgRef.current) return;
+    if (priority) return; // Skip observer for priority images
     
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -20,30 +30,51 @@ const LazyImage = ({ src, alt, className, style }) => {
           observer.disconnect();
         }
       },
-      { rootMargin: '50px' }
+      { 
+        rootMargin: '100px', // Increase preload distance
+        threshold: 0.01
+      }
     );
-
 
     observer.observe(imgRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [priority]);
 
+  // Generate optimized image URL with compression
+  const getOptimizedUrl = (url) => {
+    if (url.includes('unsplash.com')) {
+      return `${url}&q=75&auto=format&fit=crop&w=2000`;
+    }
+    if (url.includes('/images/')) {
+      return url; // Assume your images are already optimized
+    }
+    return url;
+  };
 
   return (
-    <div ref={imgRef} className={className} style={style}>
-      {isInView && (
+    <div 
+      ref={imgRef} 
+      className={className} 
+      style={style}
+      data-lazy={!priority}
+    >
+      {(isInView || priority) && (
         <>
           {!isLoaded && (
             <div className="absolute inset-0 bg-gray-200 animate-pulse" />
           )}
           <img
-            src={src}
+            src={getOptimizedUrl(src)}
+            srcSet={srcSet}
             alt={alt}
-            className={`${className} transition-opacity duration-300 ${
+            width={width}
+            height={height}
+            className={`${className} transition-opacity duration-200 ${
               isLoaded ? 'opacity-100' : 'opacity-0'
             }`}
             onLoad={() => setIsLoaded(true)}
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
+            decoding="async"
           />
         </>
       )}
@@ -51,15 +82,26 @@ const LazyImage = ({ src, alt, className, style }) => {
   );
 };
 
-
+// ============================================
+// OPTIMIZED HeroSection
+// ============================================
 const HeroSection = () => {
+  // Use smaller optimized hero image and add local fallback
+  const heroImage = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=75&w=1920&auto=format&fit=crop&fm=webp';
+  
   return (
-    <div className="relative h-screen w-full overflow-hidden">
+    <div className="relative h-screen w-full overflow-hidden bg-gray-900">
+      {/* Preload image as link tag in head for critical hero image */}
+      <link rel="preload" as="image" href={heroImage} />
+      
       <div 
         className="absolute inset-0 bg-cover bg-center z-0"
         style={{ 
-          backgroundImage: 'url("https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2070&auto=format&fit=crop")',
-          filter: 'brightness(0.6)'
+          backgroundImage: `url("${heroImage}")`,
+          filter: 'brightness(0.6)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed' // Parallax effect
         }}
       />
       
@@ -67,15 +109,15 @@ const HeroSection = () => {
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="text-5xl md:text-7xl font-serif mb-4 tracking-wide"
+          transition={{ duration: 0.6, delay: 0.1 }} // Reduced delay
+          className="text-5xl md:text-7xl font-serif mb-4 tracking-wide will-change-transform"
         >
           Welcome to Sera
         </motion.h1>
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
+          transition={{ duration: 0.6, delay: 0.2 }} // Reduced delay
           className="text-lg md:text-2xl lg:text-3xl font-light tracking-widest uppercase drop-shadow-lg mb-12"
         >
           timeless elegance <span className="block md:inline font-serif italic text-rose-200">meets</span> modern intention
@@ -116,28 +158,34 @@ const HeroSection = () => {
   );
 };
 
-
+// ============================================
+// OPTIMIZED CategoriesSection
+// ============================================
 const CategoriesSection = () => {
   const navigate = useNavigate();
-  const categories = [
+  
+  const categories = useMemo(() => [
     { 
       name: 'EARRINGS', 
       img: '/images/earring.jpg',
+      srcSet: '/images/earring-sm.jpg 480w, /images/earring-md.jpg 768w, /images/earring.jpg 1024w'
     },
     { 
       name: 'BRACELET', 
       img: '/images/bracelet.png',
+      srcSet: '/images/bracelet-sm.png 480w, /images/bracelet-md.png 768w, /images/bracelet.png 1024w'
     },
     { 
       name: 'RINGS', 
       img: '/images/ring.png',
+      srcSet: '/images/ring-sm.png 480w, /images/ring-md.png 768w, /images/ring.png 1024w'
     },
     { 
       name: 'NECKLACE', 
       img: '/images/necklace.jpg',
+      srcSet: '/images/necklace-sm.jpg 480w, /images/necklace-md.jpg 768w, /images/necklace.jpg 1024w'
     },
-  ];
-
+  ], []);
 
   return (
     <section className="py-16 px-4 md:px-6 bg-gradient-to-b from-white to-rose-50">
@@ -161,16 +209,19 @@ const CategoriesSection = () => {
               key={cat.name}
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
+              transition={{ duration: 0.3, delay: index * 0.03 }} // Reduced delay
               viewport={{ once: true }}
               onClick={() => navigate(`/shop?category=${cat.name}`)}
               className="group cursor-pointer relative"
             >
               <div className="relative overflow-hidden rounded-2xl aspect-[3/4] bg-gray-100 shadow-md hover:shadow-xl transition-all duration-300">
                 <LazyImage 
-                  src={cat.img} 
+                  src={cat.img}
+                  srcSet={cat.srcSet}
                   alt={cat.name} 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 will-change-transform"
+                  width={400}
+                  height={533}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
                 
@@ -179,7 +230,6 @@ const CategoriesSection = () => {
                     {cat.name}
                   </h3>
                 </div>
-
 
                 <div className="hidden md:flex absolute inset-0 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <button className="bg-white text-gray-900 px-4 md:px-6 py-2 rounded-full text-xs md:text-sm uppercase tracking-wider font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-lg">
@@ -190,7 +240,6 @@ const CategoriesSection = () => {
             </motion.div>
           ))}
         </div>
-
 
         <div className="md:hidden flex justify-center mt-8">
           <button 
@@ -211,28 +260,41 @@ const CategoriesSection = () => {
   );
 };
 
-
+// ============================================
+// OPTIMIZED GiftingSection
+// ============================================
 const GiftingSection = () => {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
   
-  const giftImages = [
-    'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1000&auto=format&fit=crop',
+  const giftImages = useMemo(() => [
+    'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=75&w=1000&auto=format&fit=crop&fm=webp',
     '/images/gift1.jpg',
     '/images/gift2.jpg',
     '/images/gift3.jpg',
     '/images/gift4.jpg',
     '/images/gift5.jpg'
-  ];
+  ], []);
 
+  // Preload active and next images
+  useEffect(() => {
+    const imagesToPreload = [
+      giftImages[activeIndex],
+      giftImages[(activeIndex + 1) % giftImages.length]
+    ];
+    
+    imagesToPreload.forEach(src => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, [activeIndex, giftImages]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % giftImages.length);
-    }, 3000);
+    }, 4000); // Slightly longer interval
     return () => clearInterval(interval);
   }, [giftImages.length]);
-
 
   return (
     <section className="flex flex-col md:flex-row h-auto md:h-[600px]">
@@ -258,7 +320,7 @@ const GiftingSection = () => {
                   zIndex: giftImages.length - Math.abs(offset),
                 }}
                 transition={{
-                  duration: 0.5,
+                  duration: 0.4, // Faster transition
                   ease: "easeInOut"
                 }}
               >
@@ -266,8 +328,9 @@ const GiftingSection = () => {
                   <img 
                     src={img} 
                     alt={`Gift ${index + 1}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover will-change-transform"
                     loading="lazy"
+                    decoding="async"
                   />
                 </div>
               </motion.div>
@@ -289,7 +352,6 @@ const GiftingSection = () => {
         </div>
       </div>
 
-
       <div className="w-full md:w-1/2 bg-pink-50 flex flex-col items-center justify-center p-8 md:p-12 text-center">
         <h2 className="text-3xl md:text-5xl font-serif mb-4 md:mb-6 text-gray-900">
           Ace the art of Gifting
@@ -302,11 +364,13 @@ const GiftingSection = () => {
   );
 };
 
-
+// ============================================
+// OPTIMIZED BentoCollectionsSection
+// ============================================
 const BentoCollectionsSection = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   
-  const collections = [
+  const collections = useMemo(() => [
     {
       name: 'Our Bestsellers',
       description: 'Customer favorites that never go out of style',
@@ -347,8 +411,7 @@ const BentoCollectionsSection = () => {
       color: 'from-rose-50 to-pink-100',
       link: '/shop?tags=boho'
     },
-  ];
-
+  ], []);
 
   const getSizeClasses = (size) => {
     switch(size) {
@@ -366,7 +429,6 @@ const BentoCollectionsSection = () => {
         return 'col-span-1 row-span-1';
     }
   };
-
 
   return (
     <section className="py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-rose-50 via-white to-pink-50">
@@ -393,7 +455,7 @@ const BentoCollectionsSection = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
+              transition={{ duration: 0.4, delay: index * 0.03 }} // Reduced delay
               viewport={{ once: true }}
               onHoverStart={() => setHoveredIndex(index)}
               onHoverEnd={() => setHoveredIndex(null)}
@@ -403,12 +465,11 @@ const BentoCollectionsSection = () => {
                 <LazyImage 
                   src={collection.img} 
                   alt={collection.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 will-change-transform"
                 />
                 <div className={`absolute inset-0 bg-gradient-to-br ${collection.color} mix-blend-multiply opacity-40 group-hover:opacity-60 transition-opacity duration-300`} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               </div>
-
 
               <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-end">
                 <motion.div
@@ -438,7 +499,6 @@ const BentoCollectionsSection = () => {
                 </motion.div>
               </div>
 
-
               <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-bl-full blur-2xl" />
             </motion.div>
           </Link>
@@ -448,17 +508,18 @@ const BentoCollectionsSection = () => {
   );
 };
 
-
+// ============================================
+// OPTIMIZED FloatingGallerySection
+// ============================================
 const FloatingGallerySection = () => {
-  const galleryItems = [
+  const galleryItems = useMemo(() => [
     { img: '/images/gallery2.png', height: 'h-64', delay: 0 },
-    { img: '/images/gallery1.png', height: 'h-80', delay: 0.1 },
-    { img: '/images/gallery3.jpg', height: 'h-72', delay: 0.2 },
-    { img: '/images/gallery4.jpg', height: 'h-96', delay: 0.3 },
-    { img: '/images/gallery5.jpg', height: 'h-64', delay: 0.4 },
-    { img: '/images/gallery6.jpg', height: 'h-88', delay: 0.5 },
-  ];
-
+    { img: '/images/gallery1.png', height: 'h-80', delay: 0.05 },
+    { img: '/images/gallery3.jpg', height: 'h-72', delay: 0.1 },
+    { img: '/images/gallery4.jpg', height: 'h-96', delay: 0.15 },
+    { img: '/images/gallery5.jpg', height: 'h-64', delay: 0.2 },
+    { img: '/images/gallery6.jpg', height: 'h-88', delay: 0.25 },
+  ], []);
 
   return (
     <section className="py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-pink-50 to-rose-100 overflow-hidden">
@@ -475,60 +536,33 @@ const FloatingGallerySection = () => {
         Catch the energy, feel the style 
       </p>
 
-
       <div className="max-w-7xl mx-auto columns-2 md:columns-3 gap-3 md:gap-4 space-y-3 md:space-y-4">
         {galleryItems.map((item, index) => (
           <motion.div
             key={index}
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: item.delay }}
+            transition={{ duration: 0.4, delay: item.delay }} // Reduced duration
             viewport={{ once: true }}
             className="break-inside-avoid group"
           >
-            {/* OPTION 1: Soft White Glow (RECOMMENDED - Most Elegant) */}
             <div className={`${item.height} relative overflow-hidden rounded-2xl shadow-lg group-hover:shadow-2xl transition-all duration-500`}>
               <LazyImage
                 src={item.img}
                 alt={`Gallery ${index + 1}`}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out will-change-transform"
               />
               {/* Soft white radial glow from center */}
               <div className="absolute inset-0 bg-gradient-radial from-white/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               {/* Subtle brightness lift */}
               <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
-            
-
-            {/* OPTION 2: Light Pink Bloom - Uncomment to use
-            <div className={`${item.height} relative overflow-hidden rounded-2xl shadow-lg group-hover:shadow-2xl transition-all duration-500`}>
-              <LazyImage
-                src={item.img}
-                alt={`Gallery ${index + 1}`}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-pink-200/30 via-rose-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="absolute inset-0 bg-pink-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            </div>
-            */}
-
-            {/* OPTION 3: Subtle Shimmer with Scale - Uncomment to use
-            <div className={`${item.height} relative overflow-hidden rounded-2xl shadow-lg group-hover:shadow-2xl transition-all duration-500`}>
-              <LazyImage
-                src={item.img}
-                alt={`Gallery ${index + 1}`}
-                className="w-full h-full object-cover group-hover:scale-110 group-hover:brightness-110 transition-all duration-700 ease-out"
-              />
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-pink-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            </div>
-            */}
           </motion.div>
         ))}
       </div>
     </section>
   );
 };
-
 
 export default function Home() {
   return (

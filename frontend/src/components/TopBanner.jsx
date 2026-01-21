@@ -62,7 +62,7 @@ export default function TopBanner() {
       {/* Subtle decorative gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-50 pointer-events-none" />
       
-      <ParallaxText baseVelocity={1.4}>
+      <ParallaxText baseVelocity={0.8}>
   <span className="font-bold">Welcome to Sera - Handcrafted with Love - Free Shipping on Orders Above INR 999 - Use 'FIRST10' for 10% discount on first orders.</span>
 </ParallaxText>
 

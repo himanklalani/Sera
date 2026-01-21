@@ -50,45 +50,35 @@ router.post('/', protect, asyncHandler(async (req, res) => {
   if (couponCode) {
     const normalizedCode = couponCode.toUpperCase().trim();
 
-    // ✅ FIXED: ATOMIC coupon validation with correct $and/$or structure
-    // This ensures ALL conditions are checked before incrementing usageCount
-    const coupon = await Coupon.findOneAndUpdate(
-      {
-        code: normalizedCode,
-        isActive: true,
-        $and: [
-          // Check expiry date (null = never expires, or future date)
-          {
-            $or: [
-              { expiryDate: null },
-              { expiryDate: { $gte: new Date() } }
-            ]
-          },
-          // Check usage limit (null = unlimited, or usageCount < usageLimit)
-          {
-            $or: [
-              { usageLimit: null },
-              { $expr: { $lt: ['$usageCount', '$usageLimit'] } }
-            ]
-          }
-        ]
-      },
-      { $inc: { usageCount: 1 } },
-      { new: true }
-    );
+    // ✅ STEP 1: FETCH COUPON (WITHOUT incrementing yet)
+    const coupon = await Coupon.findOne({ code: normalizedCode });
 
-    if (!coupon) {
+    if (!coupon || !coupon.isActive) {
       res.status(400);
-      throw new Error('Invalid, expired, or usage limit reached for coupon');
+      throw new Error('Invalid or inactive coupon');
+    }
+
+    // ✅ STEP 2: VALIDATE ALL CONDITIONS BEFORE ANY INCREMENT
+    const now = new Date();
+
+    // Check expiry
+    if (coupon.expiryDate && coupon.expiryDate < now) {
+      res.status(400);
+      throw new Error('Coupon has expired');
+    }
+
+    // ✅ Check global usage limit BEFORE incrementing
+    if (
+      typeof coupon.usageLimit === 'number' &&
+      coupon.usageLimit > 0 &&
+      coupon.usageCount >= coupon.usageLimit
+    ) {
+      res.status(400);
+      throw new Error('Coupon usage limit reached. This coupon is no longer available');
     }
 
     // ✅ VALIDATE MINIMUM ORDER VALUE
     if (coupon.minOrderValue && totalPrice < coupon.minOrderValue) {
-      // Rollback: decrement usage count since this order will fail
-      await Coupon.findByIdAndUpdate(
-        coupon._id,
-        { $inc: { usageCount: -1 } }
-      );
       res.status(400);
       throw new Error(
         `Minimum order value for this coupon is INR ${coupon.minOrderValue}`
@@ -103,11 +93,6 @@ router.post('/', protect, asyncHandler(async (req, res) => {
         (u) => u.toString() === req.user._id.toString()
       )
     ) {
-      // Rollback: decrement usage count
-      await Coupon.findByIdAndUpdate(
-        coupon._id,
-        { $inc: { usageCount: -1 } }
-      );
       res.status(400);
       throw new Error('This coupon is not valid for your account');
     }
@@ -117,17 +102,12 @@ router.post('/', protect, asyncHandler(async (req, res) => {
 
     if (coupon.isFirstOrderOnly) {
       if (userOrderCount > 0) {
-        // Rollback: decrement usage count
-        await Coupon.findByIdAndUpdate(
-          coupon._id,
-          { $inc: { usageCount: -1 } }
-        );
         res.status(400);
         throw new Error('This coupon is only valid on your first order');
       }
     }
 
-    // ✅ VALIDATE PER USER LIMIT
+    // ✅ VALIDATE PER USER LIMIT BEFORE incrementing
     if (coupon.perUserLimit && coupon.perUserLimit > 0) {
       const userCouponUsage = await Order.countDocuments({
         user: req.user._id,
@@ -135,21 +115,23 @@ router.post('/', protect, asyncHandler(async (req, res) => {
       });
 
       if (userCouponUsage >= coupon.perUserLimit) {
-        // Rollback: decrement usage count
-        await Coupon.findByIdAndUpdate(
-          coupon._id,
-          { $inc: { usageCount: -1 } }
-        );
         res.status(400);
         throw new Error('You have already used this coupon the maximum number of times');
       }
     }
 
+    // ✅ STEP 3: ALL VALIDATIONS PASSED - NOW INCREMENT
+    const updatedCoupon = await Coupon.findByIdAndUpdate(
+      coupon._id,
+      { $inc: { usageCount: 1 } },
+      { new: true }
+    );
+
     // ✅ CALCULATE DISCOUNT
-    if (coupon.discountType === 'percentage') {
-      couponDiscount = (totalPrice * coupon.discountValue) / 100;
+    if (updatedCoupon.discountType === 'percentage') {
+      couponDiscount = (totalPrice * updatedCoupon.discountValue) / 100;
     } else {
-      couponDiscount = coupon.discountValue;
+      couponDiscount = updatedCoupon.discountValue;
     }
 
     if (couponDiscount > totalPrice) {
@@ -157,7 +139,7 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     }
 
     finalTotalPrice = totalPrice - couponDiscount;
-    appliedCoupon = coupon;
+    appliedCoupon = updatedCoupon;
   }
 
   // All validations passed - now update stock and sales

@@ -117,7 +117,7 @@ router.put(
       isFirstOrderOnly,
       restrictedToUserEmail,
       description,
-      resetUsageCount, // ✅ NEW: Allow admins to reset usage count
+      resetUsageCount, // ✅ Allow admins to reset usage count
     } = req.body;
 
     const coupon = await Coupon.findById(req.params.id);
@@ -216,7 +216,8 @@ router.delete(
 // @desc    Validate coupon for current user and cart value
 // @route   POST /api/coupons/validate
 // @access  Private
-// ✅ UPDATED: Now accepts cartValue (excluding shipping) separately from orderTotal
+// ✅ UPDATED: Read-only validation - DOES NOT increment usageCount
+// Increment happens ONLY during order creation (orderRoutes.js)
 router.post(
   '/validate',
   protect,
@@ -250,7 +251,7 @@ router.post(
       throw new Error('Coupon has expired');
     }
 
-    // ✅ FIXED: Check global usage limit (usageCount vs usageLimit)
+    // ✅ FIXED: Check global usage limit
     if (
       typeof coupon.usageLimit === 'number' &&
       coupon.usageLimit > 0 &&
@@ -260,7 +261,7 @@ router.post(
       throw new Error('Coupon usage limit reached');
     }
 
-    // ✅ FIXED: Check minimum order value against cartValue ONLY, not orderTotal with shipping
+    // ✅ Check minimum order value against cartValue ONLY
     if (coupon.minOrderValue && cartValue < coupon.minOrderValue) {
       res.status(400);
       throw new Error(
@@ -268,6 +269,7 @@ router.post(
       );
     }
 
+    // ✅ Check allowed users
     if (
       coupon.allowedUsers &&
       coupon.allowedUsers.length > 0 &&
@@ -279,6 +281,7 @@ router.post(
       throw new Error('This coupon is not valid for your account');
     }
 
+    // ✅ Check first order only
     const userOrderCount = await Order.countDocuments({ user: req.user._id });
 
     if (coupon.isFirstOrderOnly) {
@@ -288,7 +291,7 @@ router.post(
       }
     }
 
-    // ✅ FIXED: Check per-user usage limit
+    // ✅ FIXED: Check per-user usage limit (READ-ONLY - no increment here)
     if (coupon.perUserLimit && coupon.perUserLimit > 0) {
       const userCouponUsage = await Order.countDocuments({
         user: req.user._id,
@@ -301,7 +304,7 @@ router.post(
       }
     }
 
-    // ✅ FIXED: Calculate discount ONLY on cartValue, NOT on orderTotal with shipping
+    // ✅ Calculate discount ONLY on cartValue
     let discountAmount = 0;
     if (coupon.discountType === 'percentage') {
       discountAmount = (cartValue * coupon.discountValue) / 100;
@@ -309,14 +312,13 @@ router.post(
       discountAmount = coupon.discountValue;
     }
 
-    // ✅ FIXED: Cap discount to cartValue only
+    // Cap discount to cartValue only
     if (discountAmount > cartValue) {
       discountAmount = cartValue;
     }
 
-    // ✅ FIXED: Final total = (cartValue - discount) + shipping
-    // The frontend already calculated shipping based on cartValue
-    const shippingCost = orderTotal - cartValue; // This will be 0 if free, 100 if paid
+    // Final total = (cartValue - discount) + shipping
+    const shippingCost = orderTotal - cartValue;
     const discountedCartValue = cartValue - discountAmount;
     const finalTotal = discountedCartValue + shippingCost;
 
@@ -324,17 +326,17 @@ router.post(
       code: coupon.code,
       discountType: coupon.discountType,
       discountValue: coupon.discountValue,
-      discountAmount, // ✅ Discount applied to cart only
-      originalCartValue: cartValue, // ✅ Original cart subtotal
-      shippingCost, // ✅ Shipping cost (separate)
-      originalTotal: orderTotal, // ✅ Original total with shipping
-      finalTotal, // ✅ (cartValue - discount) + shipping
+      discountAmount,
+      originalCartValue: cartValue,
+      shippingCost,
+      originalTotal: orderTotal,
+      finalTotal,
       minOrderValue: coupon.minOrderValue,
       isFirstOrderOnly: coupon.isFirstOrderOnly,
       isActive: coupon.isActive,
-      usageCount: coupon.usageCount, // ✅ Show usage count in validation
-      usageLimit: coupon.usageLimit, // ✅ Show usage limit in validation
-      perUserLimit: coupon.perUserLimit, // ✅ Show per-user limit
+      usageCount: coupon.usageCount,
+      usageLimit: coupon.usageLimit,
+      perUserLimit: coupon.perUserLimit,
     });
   })
 );

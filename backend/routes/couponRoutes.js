@@ -6,7 +6,6 @@ const Coupon = require('../models/Coupon');
 const User = require('../models/User');
 const Order = require('../models/Order');
 
-
 // @desc    Get all coupons (Admin)
 // @route   GET /api/coupons
 // @access  Private/Admin
@@ -21,7 +20,6 @@ router.get(
     res.json(coupons);
   })
 );
-
 
 // @desc    Create coupon (Admin)
 // @route   POST /api/coupons
@@ -45,13 +43,27 @@ router.post(
       description,
     } = req.body;
 
+    // ✅ VALIDATE REQUIRED FIELDS
+    if (!code || !discountType || discountValue === undefined) {
+      res.status(400);
+      throw new Error('Coupon code, discount type, and discount value are required');
+    }
+
+    if (!['percentage', 'fixed'].includes(discountType)) {
+      res.status(400);
+      throw new Error('Discount type must be "percentage" or "fixed"');
+    }
+
+    if (discountValue < 0) {
+      res.status(400);
+      throw new Error('Discount value cannot be negative');
+    }
 
     const existing = await Coupon.findOne({ code: code.toUpperCase().trim() });
     if (existing) {
       res.status(400);
       throw new Error('Coupon code already exists');
     }
-
 
     let allowedUsers = [];
     if (restrictedToUserEmail) {
@@ -65,27 +77,25 @@ router.post(
       allowedUsers = [user._id];
     }
 
-
     const coupon = await Coupon.create({
       code: code.toUpperCase().trim(),
       discountType,
-      discountValue,
-      minOrderValue: minOrderValue || 0,
-      expiryDate: expiryDate || null,
-      usageLimit: usageLimit || null,
-      perUserLimit: perUserLimit || 1,
+      discountValue: Number(discountValue),
+      minOrderValue: minOrderValue ? Number(minOrderValue) : 0,
+      expiryDate: expiryDate ? new Date(expiryDate) : null,
+      usageLimit: usageLimit ? Number(usageLimit) : null,
+      perUserLimit: perUserLimit ? Number(perUserLimit) : 1,
       isActive: typeof isActive === 'boolean' ? isActive : true,
       isFirstOrderOnly: Boolean(isFirstOrderOnly),
       allowedUsers,
-      description,
+      description: description || '',
+      usageCount: 0, // ✅ Initialize usage count to 0
     });
-
 
     const created = await coupon.populate('allowedUsers', 'email');
     res.status(201).json(created);
   })
 );
-
 
 // @desc    Update coupon (Admin)
 // @route   PUT /api/coupons/:id
@@ -107,18 +117,17 @@ router.put(
       isFirstOrderOnly,
       restrictedToUserEmail,
       description,
+      resetUsageCount, // ✅ NEW: Allow admins to reset usage count
     } = req.body;
 
-
     const coupon = await Coupon.findById(req.params.id);
-
 
     if (!coupon) {
       res.status(404);
       throw new Error('Coupon not found');
     }
 
-
+    // ✅ VALIDATE CODE UNIQUENESS if changing code
     if (code && code.toUpperCase().trim() !== coupon.code) {
       const existing = await Coupon.findOne({ code: code.toUpperCase().trim() });
       if (existing) {
@@ -128,11 +137,25 @@ router.put(
       coupon.code = code.toUpperCase().trim();
     }
 
+    // ✅ VALIDATE DISCOUNT TYPE and VALUE
+    if (discountType) {
+      if (!['percentage', 'fixed'].includes(discountType)) {
+        res.status(400);
+        throw new Error('Discount type must be "percentage" or "fixed"');
+      }
+      coupon.discountType = discountType;
+    }
 
-    if (discountType) coupon.discountType = discountType;
-    if (typeof discountValue === 'number') coupon.discountValue = discountValue;
+    if (typeof discountValue === 'number') {
+      if (discountValue < 0) {
+        res.status(400);
+        throw new Error('Discount value cannot be negative');
+      }
+      coupon.discountValue = discountValue;
+    }
+
     if (typeof minOrderValue === 'number') coupon.minOrderValue = minOrderValue;
-    coupon.expiryDate = expiryDate || null;
+    coupon.expiryDate = expiryDate ? new Date(expiryDate) : null;
     coupon.usageLimit = typeof usageLimit === 'number' ? usageLimit : coupon.usageLimit;
     coupon.perUserLimit =
       typeof perUserLimit === 'number' && perUserLimit > 0
@@ -146,6 +169,10 @@ router.put(
       coupon.description = description;
     }
 
+    // ✅ RESET USAGE COUNT if admin requests
+    if (resetUsageCount === true) {
+      coupon.usageCount = 0;
+    }
 
     if (restrictedToUserEmail !== undefined) {
       if (restrictedToUserEmail) {
@@ -162,13 +189,11 @@ router.put(
       }
     }
 
-
     const updated = await coupon.save();
     const populated = await updated.populate('allowedUsers', 'email');
     res.json(populated);
   })
 );
-
 
 // @desc    Delete coupon (Admin)
 // @route   DELETE /api/coupons/:id
@@ -187,7 +212,6 @@ router.delete(
     res.json({ message: 'Coupon removed' });
   })
 );
-
 
 // @desc    Validate coupon for current user and cart value
 // @route   POST /api/coupons/validate
@@ -226,9 +250,10 @@ router.post(
       throw new Error('Coupon has expired');
     }
 
+    // ✅ FIXED: Check global usage limit (usageCount vs usageLimit)
     if (
       typeof coupon.usageLimit === 'number' &&
-      coupon.usageLimit >= 0 &&
+      coupon.usageLimit > 0 &&
       coupon.usageCount >= coupon.usageLimit
     ) {
       res.status(400);
@@ -263,6 +288,7 @@ router.post(
       }
     }
 
+    // ✅ FIXED: Check per-user usage limit
     if (coupon.perUserLimit && coupon.perUserLimit > 0) {
       const userCouponUsage = await Order.countDocuments({
         user: req.user._id,
@@ -306,9 +332,11 @@ router.post(
       minOrderValue: coupon.minOrderValue,
       isFirstOrderOnly: coupon.isFirstOrderOnly,
       isActive: coupon.isActive,
+      usageCount: coupon.usageCount, // ✅ Show usage count in validation
+      usageLimit: coupon.usageLimit, // ✅ Show usage limit in validation
+      perUserLimit: coupon.perUserLimit, // ✅ Show per-user limit
     });
   })
 );
-
 
 module.exports = router;

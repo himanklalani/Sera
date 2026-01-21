@@ -10,7 +10,6 @@ const Product = require('../models/Product');
 const Cart = require('../models/Cart');
 const Coupon = require('../models/Coupon');
 
-
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
@@ -51,20 +50,27 @@ router.post('/', protect, asyncHandler(async (req, res) => {
   if (couponCode) {
     const normalizedCode = couponCode.toUpperCase().trim();
 
-    // ✅ ATOMIC: Check AND increment coupon usage in one operation
+    // ✅ FIXED: ATOMIC coupon validation with correct $and/$or structure
+    // This ensures ALL conditions are checked before incrementing usageCount
     const coupon = await Coupon.findOneAndUpdate(
       {
         code: normalizedCode,
         isActive: true,
-        // Check expiry date
-        $or: [
-          { expiryDate: null },
-          { expiryDate: { $gte: new Date() } }
-        ],
-        // Check usage limit
-        $or: [
-          { usageLimit: null },
-          { $expr: { $lt: ['$usageCount', '$usageLimit'] } }
+        $and: [
+          // Check expiry date (null = never expires, or future date)
+          {
+            $or: [
+              { expiryDate: null },
+              { expiryDate: { $gte: new Date() } }
+            ]
+          },
+          // Check usage limit (null = unlimited, or usageCount < usageLimit)
+          {
+            $or: [
+              { usageLimit: null },
+              { $expr: { $lt: ['$usageCount', '$usageLimit'] } }
+            ]
+          }
         ]
       },
       { $inc: { usageCount: 1 } },
@@ -196,7 +202,6 @@ router.post('/', protect, asyncHandler(async (req, res) => {
   res.status(201).json(createdOrder);
 }));
 
-
 // @desc    Get logged in user orders
 // @route   GET /api/orders
 // @access  Private
@@ -206,7 +211,6 @@ router.get('/', protect, asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 });
   res.json(orders);
 }));
-
 
 // @desc    Get order by ID
 // @route   GET /api/orders/:id
@@ -228,7 +232,6 @@ router.get('/:id', protect, asyncHandler(async (req, res) => {
     throw new Error('Order not found');
   }
 }));
-
 
 // @desc    Generate invoice PDF for an order
 // @route   GET /api/orders/:id/invoice
@@ -410,7 +413,6 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
   doc.end();
 }));
 
-
 // @desc    Get all orders (Admin)
 // @route   GET /api/orders/all/admin
 // @access  Private/Admin
@@ -426,7 +428,6 @@ router.get('/all/admin', protect, asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 });
   res.json(orders);
 }));
-
 
 // @desc    Update order status (Admin)
 // @route   PUT /api/orders/:id/status
@@ -455,7 +456,6 @@ router.put('/:id/status', protect, asyncHandler(async (req, res) => {
     throw new Error('Order not found');
   }
 }));
-
 
 // @desc    Cancel order (User or Admin)
 // @route   PUT /api/orders/:id/cancel
@@ -515,7 +515,6 @@ router.put('/:id/cancel', protect, asyncHandler(async (req, res) => {
   res.json(updatedOrder);
 }));
 
-
 // @desc    Request exchange (User only - within 3 days of delivery)
 // @route   PUT /api/orders/:id/exchange
 // @access  Private
@@ -563,7 +562,6 @@ router.put('/:id/exchange', protect, asyncHandler(async (req, res) => {
   res.json(updatedOrder);
 }));
 
-
 // @desc    Approve/Reject exchange (Admin)
 // @route   PUT /api/orders/:id/exchange/approve
 // @access  Private/Admin
@@ -606,7 +604,6 @@ router.put('/:id/exchange/approve', protect, asyncHandler(async (req, res) => {
   const updatedOrder = await order.save();
   res.json(updatedOrder);
 }));
-
 
 // @desc    Update order details (Admin)
 // @route   PUT /api/orders/:id/update
@@ -714,6 +711,5 @@ router.put('/:id/update', protect, asyncHandler(async (req, res) => {
     throw new Error('Order not found');
   }
 }));
-
 
 module.exports = router;

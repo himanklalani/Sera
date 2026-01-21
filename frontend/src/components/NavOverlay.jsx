@@ -26,7 +26,7 @@ export default function NavOverlay({ isOpen, onClose }) {
         { name: 'All Products', path: '/shop' }, // Added "All Products" option
         { name: 'Necklace', path: '/shop?category=Necklace' }, 
         { name: 'Earrings', path: '/shop?category=Earrings' },
-        { name: 'Bracelets', path: '/shop?category=Bracelets' },
+        { name: 'Bracelets', path: '/shop?category=Bracelet' },
         { name: 'Rings', path: '/shop?category=Rings' },
       ]
     },

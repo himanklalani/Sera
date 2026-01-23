@@ -312,7 +312,7 @@ const AdminDashboard = () => {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    setCurrentPage(1); // Reset pagination when fetching new data
+    // setCurrentPage(1); // Removed to persist page number on update
     try {
       const ui = getUserInfo();
       if (!ui || ui.role !== 'admin') {
@@ -1120,8 +1120,8 @@ const AdminDashboard = () => {
     }
     return (
       <>
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <table className="w-full text-left">
+        <div className="bg-white shadow rounded-lg overflow-x-auto">
+          <table className="w-full text-left min-w-[800px]">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 font-medium text-gray-500">Name</th>
@@ -1185,8 +1185,8 @@ const AdminDashboard = () => {
     }
     return (
       <>
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <table className="w-full text-left">
+        <div className="bg-white shadow rounded-lg overflow-x-auto">
+          <table className="w-full text-left min-w-[600px]">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 font-medium text-gray-500">Name</th>
@@ -1229,29 +1229,31 @@ const AdminDashboard = () => {
           <div className="p-4 border-b flex justify-between items-center">
             <h3 className="font-serif text-lg">Categories</h3>
           </div>
-          <table className="w-full text-left">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 font-medium text-gray-500">Name</th>
-                <th className="px-6 py-3 font-medium text-gray-500">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {paginatedCategories.map((cat) => (
-                <tr key={cat._id || Math.random()}>
-                  <td className="px-6 py-4">{cat.name || 'N/A'}</td>
-                  <td className="px-6 py-4">
-                    <button
-                      onClick={() => handleCategoryDelete(cat._id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <FaTrash />
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left min-w-[500px]">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 font-medium text-gray-500">Name</th>
+                  <th className="px-6 py-3 font-medium text-gray-500">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {paginatedCategories.map((cat) => (
+                  <tr key={cat._id || Math.random()}>
+                    <td className="px-6 py-4">{cat.name || 'N/A'}</td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleCategoryDelete(cat._id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         <PaginationControls 
           currentPage={currentPage} 

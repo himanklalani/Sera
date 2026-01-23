@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt } from 'react-icons/fa';
+import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt, FaInstagram } from 'react-icons/fa';
 
 
 
@@ -246,22 +246,16 @@ const ProductDetails = () => {
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + productUrl)}`;
         window.open(whatsappUrl, '_blank', 'width=600,height=400');
         setShowShareMenu(false);
-      } else if (platform === 'facebook') {
-        // Facebook share
-        const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}`;
-        window.open(facebookUrl, '_blank', 'width=600,height=400');
-        setShowShareMenu(false);
-      } else if (platform === 'twitter') {
-        // Twitter/X share
-        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(productUrl)}`;
-        window.open(twitterUrl, '_blank', 'width=600,height=400');
-        setShowShareMenu(false);
       } else if (platform === 'email') {
         // Email share
         const subject = `Check out: ${productName}`;
         const body = `${shareText}\n\n${productUrl}`;
         const emailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         window.location.href = emailUrl;
+        setShowShareMenu(false);
+      } else if (platform === 'instagram') {
+        // Instagram share
+        window.open('https://www.instagram.com/', '_blank');
         setShowShareMenu(false);
       } else if (platform === 'native') {
         // Native Web Share API
@@ -381,7 +375,7 @@ const ProductDetails = () => {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute top-full right-0 mt-2 bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 py-2 z-50 w-56"
+                    className="absolute bottom-full right-0 mb-2 md:top-full md:bottom-auto md:mt-2 md:mb-0 bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 py-2 z-50 w-56"
                   >
                     <button
                       onClick={() => handleShare('copy')}
@@ -398,25 +392,18 @@ const ProductDetails = () => {
                       WhatsApp
                     </button>
                     <button
-                      onClick={() => handleShare('facebook')}
-                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-blue-50 transition-colors text-gray-700 hover:text-blue-600 font-medium"
-                    >
-                      <span className="text-xl">f</span>
-                      Facebook
-                    </button>
-                    <button
-                      onClick={() => handleShare('twitter')}
-                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-sky-50 transition-colors text-gray-700 hover:text-sky-600 font-medium"
-                    >
-                      <span className="text-xl">𝕏</span>
-                      Twitter/X
-                    </button>
-                    <button
                       onClick={() => handleShare('email')}
                       className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-orange-50 transition-colors text-gray-700 hover:text-orange-600 font-medium"
                     >
                       <span className="text-xl">✉️</span>
                       Email
+                    </button>
+                    <button
+                      onClick={() => handleShare('instagram')}
+                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-pink-50 transition-colors text-gray-700 hover:text-pink-600 font-medium"
+                    >
+                      <span className="text-xl"><FaInstagram /></span>
+                      Instagram
                     </button>
                     {navigator.share && (
                       <button

@@ -41,14 +41,17 @@ const useURLSync = () => {
 
 
 const Shop = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const { getURLParams, updateURLParams } = useURLSync();
+  const initialParams = getURLParams();
+
+  const [currentPage, setCurrentPage] = useState(initialParams.page);
   const ITEMS_PER_PAGE = 12;
 
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(initialParams.category);
+  const [selectedTags, setSelectedTags] = useState(initialParams.tags);
   const [searchQuery, setSearchQuery] = useState('');
   const [priceRange, setPriceRange] = useState(10000);
   const [showInStock, setShowInStock] = useState(true);
@@ -56,9 +59,6 @@ const Shop = () => {
   const [sortBy, setSortBy] = useState('relevance');
   const [totalPages, setTotalPages] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
-
-
-  const { getURLParams, updateURLParams } = useURLSync();
   const navigate = useNavigate();
   const categories = ['All', 'Necklace', 'Earrings', 'Bracelet', 'Rings'];
   
@@ -106,6 +106,7 @@ const Shop = () => {
           setProducts(safeProducts);
           setTotalPages(1);
           setTotalProducts(safeProducts.length);
+          setLoading(false);
         }
       } else {
         const params = new URLSearchParams();
@@ -145,6 +146,7 @@ const Shop = () => {
           setProducts(safeProducts);
           setTotalPages(data.pages || 1);
           setTotalProducts(data.total || 0);
+          setLoading(false);
         }
       }
     } catch (error) {
@@ -159,7 +161,6 @@ const Shop = () => {
       setTotalPages(0);
       setTotalProducts(0);
       toast.error('Failed to load products');
-    } finally {
       setLoading(false);
     }
   }, [currentPage, selectedCategory, searchQuery, priceRange, showInStock, selectedTags, sortBy, fetchParams]);

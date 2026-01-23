@@ -7,6 +7,7 @@ const { protect } = require('../middleware/authMiddleware');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
+const Coupon = require('../models/Coupon');
 
 router.post(
   '/create-order',
@@ -146,6 +147,13 @@ router.post(
       await Product.findByIdAndUpdate(item.product, {
         $inc: { stock: -item.quantity, sales: item.quantity },
       });
+    }
+
+    if (couponCode) {
+      await Coupon.findOneAndUpdate(
+        { code: couponCode.toUpperCase().trim() },
+        { $inc: { usageCount: 1 } }
+      );
     }
 
     const order = new Order({

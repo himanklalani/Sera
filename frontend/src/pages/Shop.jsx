@@ -116,6 +116,9 @@ const Shop = () => {
         if (selectedCategory !== 'All') {
           params.set('category', selectedCategory.toLowerCase());
         }
+        if (selectedTags.length > 0) {
+          params.set('tags', selectedTags.join(','));
+        }
         if (searchQuery.trim()) {
           params.set('keyword', searchQuery);
         }

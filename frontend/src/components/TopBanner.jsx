@@ -42,8 +42,8 @@ export default function TopBanner() {
       {/* Subtle decorative gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-50 pointer-events-none" />
       
-      <ParallaxText baseVelocity={0.8}>
-        <span className="font-bold">Welcome to Sera - Handcrafted with Love - Use 'VALENTINE20' for 20% Off this Valentine's Day - Free Shipping on Orders Above INR 999 - Use 'FIRST10' for 10% discount on first orders.</span>
+      <ParallaxText baseVelocity={0.4}>
+        <span className="font-bold">Welcome to Sera  -  Handcrafted with Love  -  Use 'VALENTINE20' for 20% Off this Valentine's Day  -  Free Shipping on Orders Above INR 999  -  Use 'FIRST10' for 10% discount on first orders.</span>
       </ParallaxText>
     </div>
   );

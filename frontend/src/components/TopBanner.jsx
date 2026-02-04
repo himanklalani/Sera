@@ -1,11 +1,8 @@
 import { useRef } from "react";
 import {
   motion,
-  useScroll,
-  useSpring,
-  useTransform,
   useMotionValue,
-  useVelocity,
+  useTransform,
   useAnimationFrame,
 } from "framer-motion";
 
@@ -16,36 +13,19 @@ const wrap = (min, max, v) => {
 
 function ParallaxText({ children, baseVelocity = 100 }) {
   const baseX = useMotionValue(0);
-  const { scrollY } = useScroll();
-  const scrollVelocity = useVelocity(scrollY);
-  const smoothVelocity = useSpring(scrollVelocity, {
-    damping: 50,
-    stiffness: 400,
-  });
-  const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], {
-    clamp: false,
-  });
 
   const x = useTransform(baseX, (v) => `${wrap(-20, -45, v)}%`);
 
-  const directionFactor = useRef(1);
   useAnimationFrame((t, delta) => {
-    let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
-
-    if (velocityFactor.get() < 0) {
-      directionFactor.current = -1;
-    } else if (velocityFactor.get() > 0) {
-      directionFactor.current = 1;
-    }
-
-    moveBy += directionFactor.current * moveBy * velocityFactor.get();
+    // Always left to right only - positive moveBy
+    let moveBy = baseVelocity * (delta / 1000);
     baseX.set(baseX.get() + moveBy);
   });
 
   return (
     <div className="overflow-hidden m-0 whitespace-nowrap flex flex-nowrap">
-      <motion.div 
-        className="font-serif text-[13px] md:text-sm font-medium tracking-[0.15em] flex flex-nowrap whitespace-nowrap" 
+      <motion.div
+        className="font-serif text-[13px] md:text-sm font-medium tracking-[0.15em] flex flex-nowrap whitespace-nowrap"
         style={{ x }}
       >
         {[...Array(8)].map((_, i) => (
@@ -63,9 +43,8 @@ export default function TopBanner() {
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-50 pointer-events-none" />
       
       <ParallaxText baseVelocity={0.8}>
-  <span className="font-bold">Welcome to Sera - Handcrafted with Love - Free Shipping on Orders Above INR 999 - Use 'FIRST10' for 10% discount on first orders.</span>
-</ParallaxText>
-
+        <span className="font-bold">Welcome to Sera - Handcrafted with Love - Use 'VALENTINE20' for 20% Off this Valentine's Day - Free Shipping on Orders Above INR 999 - Use 'FIRST10' for 10% discount on first orders.</span>
+      </ParallaxText>
     </div>
   );
 }

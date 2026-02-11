@@ -439,7 +439,7 @@ const FloatingCouponDrawer = ({ shouldShow }) => {
               className="group relative flex items-center gap-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full px-3 py-2 shadow-lg hover:shadow-xl transition-all duration-300"
             >
               <div className="flex items-center gap-2">
-                <span className="text-white text-xs md:text-sm font-medium tracking-wide drop-shadow-lg whitespace-nowrap">
+                <span className="text-black text-xs md:text-sm font-medium tracking-wide drop-shadow-lg whitespace-nowrap">
                   Offers
                 </span>
                 

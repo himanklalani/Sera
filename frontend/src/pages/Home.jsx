@@ -448,7 +448,7 @@ const FloatingCouponDrawer = ({ shouldShow }) => {
                   height="15"
                   viewBox="0 0 24 24"
                   fill="none"
-                  className="text-white drop-shadow-lg"
+                  className="text-black drop-shadow-lg"
                   animate={{ 
                     rotate: isOpen ? 180 : 0
                   }}

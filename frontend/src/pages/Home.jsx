@@ -1,6 +1,7 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+
 
 // ============================================
 // OPTIMIZED LazyImage Component (Shared)
@@ -19,6 +20,7 @@ const LazyImage = ({
   const [isInView, setIsInView] = useState(priority);
   const imgRef = useRef();
 
+
   useEffect(() => {
     if (!imgRef.current) return;
     if (priority) return;
@@ -36,9 +38,11 @@ const LazyImage = ({
       }
     );
 
+
     observer.observe(imgRef.current);
     return () => observer.disconnect();
   }, [priority]);
+
 
   const getOptimizedUrl = (url) => {
     if (url.includes('unsplash.com')) {
@@ -46,6 +50,7 @@ const LazyImage = ({
     }
     return url;
   };
+
 
   return (
     <div 
@@ -78,8 +83,512 @@ const LazyImage = ({
   );
 };
 
+
 // ============================================
-// ULTRA-OPTIMIZED GiftingSection v2
+// NEW: Ultra Cutesy Demure Pink Flying Flyer with Multiple Offers
+// ============================================
+const FlyingOfferBanner = ({ onComplete }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [hasEntered, setHasEntered] = useState(false);
+  const [currentOfferIndex, setCurrentOfferIndex] = useState(0);
+
+  const offers = useMemo(() => [
+        {
+      code: 'VALENTINE20',
+      title: '💝 Valentine Special 💝',
+      discount: '20%',
+      description: 'Flat 20% off till Valentine\'s Day',
+      icon: (
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="text-white drop-shadow-md">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" />
+        </svg>
+      )
+    },
+    {
+      code: 'FIRST10',
+      title: '✨ First Order Special ✨',
+      discount: '10%',
+      description: 'Save 10% on your first order',
+      icon: (
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="text-white drop-shadow-md">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )
+    }
+  ], []);
+
+  useEffect(() => {
+    // Show flyer immediately when component mounts (no internal delay)
+    setIsVisible(true);
+    setHasEntered(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hasEntered) return;
+
+    // Auto-rotate offers every 2.5 seconds
+    const rotateTimer = setInterval(() => {
+      setCurrentOfferIndex((prev) => (prev + 1) % offers.length);
+    }, 2500);
+
+    // Hide flyer after 6 seconds total (shows both offers)
+    const hideTimer = setTimeout(() => {
+      setIsVisible(false);
+      if (onComplete) {
+        setTimeout(() => onComplete(), 800);
+      }
+    }, 6000);
+
+    return () => {
+      clearInterval(rotateTimer);
+      clearTimeout(hideTimer);
+    };
+  }, [hasEntered, onComplete, offers.length]);
+
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <>
+          {/* Background blur overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black/20 backdrop-blur-md z-[99]"
+          />
+
+          {/* Flying flyer */}
+          <motion.div
+            initial={{ x: 400, y: 400, opacity: 0, rotate: 20, scale: 0.7 }}
+            animate={{ 
+              x: 0, 
+              y: 0, 
+              opacity: 1, 
+              rotate: 0,
+              scale: 1
+            }}
+            exit={{ 
+              x: -420, 
+              y: window.innerHeight < 768 ? 55 : 280,
+              opacity: 0,
+              scale: 0.4,
+              rotate: -8,
+              transition: { duration: 0.8, ease: [0.4, 0, 0.2, 1] }
+            }}
+            transition={{ 
+              duration: 1, 
+              ease: [0.34, 1.56, 0.64, 1],
+              delay: 0
+            }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] pointer-events-none"
+          >
+            {/* Flyer with smooth transitions */}
+            <div className="relative bg-gradient-to-br from-pink-50/90 via-rose-50/85 to-pink-100/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border-2 border-white/60 overflow-hidden px-8 py-8 pointer-events-auto w-[360px] will-change-transform">
+              {/* Dreamy decorative blobs */}
+              <div className="absolute top-0 left-0 w-32 h-32 bg-rose-200/25 rounded-full blur-2xl" />
+              <div className="absolute bottom-0 right-0 w-40 h-40 bg-pink-300/25 rounded-full blur-3xl" />
+              <div className="absolute top-1/2 left-1/2 w-28 h-28 bg-rose-100/35 rounded-full blur-2xl" />
+              
+              {/* Floating sparkles with enhanced cuteness */}
+              <motion.div
+                className="absolute top-4 right-4"
+                animate={{
+                  scale: [1, 1.5, 1],
+                  opacity: [0.7, 1, 0.7],
+                  rotate: [0, 180, 360],
+                }}
+                transition={{
+                  duration: 2.5,
+                  repeat: Infinity,
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-rose-300 drop-shadow-md">
+                  <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="currentColor" />
+                </svg>
+              </motion.div>
+
+              <motion.div
+                className="absolute top-6 left-6"
+                animate={{
+                  scale: [1, 1.4, 1],
+                  opacity: [0.6, 1, 0.6],
+                  rotate: [0, -180, -360],
+                }}
+                transition={{
+                  duration: 2.8,
+                  repeat: Infinity,
+                  delay: 0.3
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-pink-300 drop-shadow-md">
+                  <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="currentColor" />
+                </svg>
+              </motion.div>
+
+              <motion.div
+                className="absolute bottom-6 right-6"
+                animate={{
+                  scale: [1, 1.3, 1],
+                  opacity: [0.5, 0.9, 0.5],
+                  rotate: [0, 180, 360],
+                }}
+                transition={{
+                  duration: 3.2,
+                  repeat: Infinity,
+                  delay: 0.6
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-rose-200 drop-shadow-md">
+                  <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="currentColor" />
+                </svg>
+              </motion.div>
+
+              {/* Multiple heart decorations for extra cuteness */}
+              <motion.div
+                className="absolute top-3 left-4"
+                animate={{
+                  scale: [1, 1.3, 1],
+                  opacity: [0.5, 0.8, 0.5],
+                }}
+                transition={{
+                  duration: 2.2,
+                  repeat: Infinity,
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-rose-300 drop-shadow-sm">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" />
+                </svg>
+              </motion.div>
+
+              <motion.div
+                className="absolute bottom-4 left-8"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.4, 0.7, 0.4],
+                }}
+                transition={{
+                  duration: 2.6,
+                  repeat: Infinity,
+                  delay: 0.8
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-pink-300 drop-shadow-sm">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" />
+                </svg>
+              </motion.div>
+
+              {/* Content with offer rotation */}
+              <div className="relative flex flex-col items-center text-center gap-4">
+                {/* Cute icon with subtle pulse */}
+                <AnimatePresence mode="wait">
+                  <motion.div 
+                    key={currentOfferIndex}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="bg-gradient-to-br from-rose-300/70 to-pink-400/70 backdrop-blur-sm rounded-2xl p-5 shadow-xl"
+                  >
+                    {offers[currentOfferIndex].icon}
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Text with smooth transitions */}
+                <div className="min-h-[140px] flex flex-col justify-center">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentOfferIndex}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.4, ease: "easeInOut" }}
+                    >
+                      <h3 className="text-xl font-bold text-gray-800 tracking-wide mb-2 drop-shadow-sm">
+                        {offers[currentOfferIndex].title}
+                      </h3>
+                      <p className="text-sm font-mono font-bold text-rose-600 tracking-wider mb-2">
+                        {offers[currentOfferIndex].code}
+                      </p>
+                      <p className="text-lg text-gray-700 font-semibold leading-relaxed">
+                        Save <span className="text-2xl font-extrabold text-rose-500">{offers[currentOfferIndex].discount}</span>
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1.5">
+                        {offers[currentOfferIndex].description}
+                      </p>
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+
+                {/* Free shipping banner */}
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="bg-gradient-to-r from-emerald-100/60 to-teal-100/60 px-4 py-2 rounded-full border border-emerald-200/50"
+                >
+                  <p className="text-xs text-emerald-700 font-semibold">
+                    🎁 Free Shipping above ₹999
+                  </p>
+                </motion.div>
+
+                {/* Offer indicator dots */}
+                <div className="flex gap-2 mt-2">
+                  {offers.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        index === currentOfferIndex 
+                          ? 'w-6 bg-rose-500' 
+                          : 'w-1.5 bg-rose-200'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                {/* Close button */}
+                <button
+                  onClick={() => setIsVisible(false)}
+                  className="absolute -top-2 -right-2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg text-gray-400 hover:text-gray-600 hover:scale-110 transition-all"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Dreamy bottom gradient bar */}
+              <motion.div
+                className="absolute bottom-0 left-0 h-2 bg-gradient-to-r from-rose-300/70 via-pink-300/70 to-rose-300/70 rounded-full"
+                initial={{ width: "0%" }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 6, ease: "linear" }}
+              />
+
+              {/* Soft glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent pointer-events-none rounded-[2.5rem]" />
+              
+              {/* Extra shimmer overlay */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none"
+                animate={{
+                  x: ['-100%', '200%'],
+                }}
+                transition={{
+                  duration: 2.5,
+                  repeat: Infinity,
+                  repeatDelay: 1,
+                  ease: "easeInOut"
+                }}
+              />
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
+
+
+// ============================================
+// Updated: Floating Coupon Drawer with Multiple Coupons
+// ============================================
+const FloatingCouponDrawer = ({ shouldShow }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const coupons = useMemo(() => [
+    {
+      code: 'FIRST10',
+      discount: '10% OFF',
+      description: 'Get 10% discount on your first order',
+      color: 'from-purple-50/60 via-indigo-50/60 to-purple-50/60',
+      borderColor: 'border-purple-300/60',
+      textColor: 'text-purple-600',
+      badgeColor: 'bg-purple-500'
+    },
+    {
+      code: 'VALENTINE20',
+      discount: '20% OFF',
+      description: 'Flat 20% off till Valentine\'s Day',
+      color: 'from-rose-50/60 via-pink-50/60 to-rose-50/60',
+      borderColor: 'border-rose-300/60',
+      textColor: 'text-rose-600',
+      badgeColor: 'bg-rose-500'
+    }
+  ], []);
+
+  return (
+    <>
+      <AnimatePresence>
+        {shouldShow && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5, x: -50 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            transition={{ 
+              duration: 0.6, 
+              ease: [0.34, 1.56, 0.64, 1],
+              delay: 0.2 
+            }}
+            className="fixed left-4 top-[13%] md:top-[32%] z-50"
+          >
+            <motion.button
+              onClick={() => setIsOpen(!isOpen)}
+              whileHover={{ scale: 1.05, x: 5 }}
+              whileTap={{ scale: 0.95 }}
+              className="group relative flex items-center gap-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full px-3 py-2 shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-white text-xs md:text-sm font-medium tracking-wide drop-shadow-lg whitespace-nowrap">
+                  Offers
+                </span>
+                
+                <motion.svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="text-white drop-shadow-lg"
+                  animate={{ 
+                    rotate: isOpen ? 180 : 0
+                  }}
+                  transition={{
+                    rotate: {
+                      duration: 0.3,
+                      ease: "easeInOut"
+                    }
+                  }}
+                >
+                  <path
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </motion.svg>
+              </div>
+
+
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            </motion.button>
+
+
+            {!isOpen && (
+              <motion.div
+                className="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full shadow-lg"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [1, 0.8, 1]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+
+      <AnimatePresence>
+        {isOpen && shouldShow && (
+          <motion.div
+            initial={{ opacity: 0, x: -100, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -100, scale: 0.9 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="fixed left-4 top-[19%] md:top-[39%] z-40 w-72 bg-white/70 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/40 overflow-hidden"
+          >
+            <div className="bg-gradient-to-r from-rose-400/80 to-pink-400/80 backdrop-blur-sm p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <h3 className="text-sm font-bold text-white tracking-wide drop-shadow">Active Coupons</h3>
+              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-white/90 hover:text-white hover:rotate-90 transition-all duration-300"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="p-4 space-y-3 max-h-[400px] overflow-y-auto">
+              {coupons.map((coupon, index) => (
+                <motion.div
+                  key={coupon.code}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + index * 0.1 }}
+                  className={`relative bg-gradient-to-r ${coupon.color} backdrop-blur-sm p-4 rounded-xl border-2 border-dashed ${coupon.borderColor} overflow-hidden group cursor-pointer hover:shadow-md transition-all`}
+                >
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-rose-200/20 rounded-full blur-2xl" />
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className={`text-base font-mono font-bold ${coupon.textColor} tracking-wider drop-shadow-sm`}>
+                        {coupon.code}
+                      </p>
+                      <div className={`${coupon.badgeColor} text-white text-[10px] px-2 py-1 rounded-full font-semibold shadow-sm`}>
+                        {coupon.discount}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-800 leading-relaxed font-medium">
+                      {coupon.description}
+                    </p>
+                    <div className="mt-2 flex items-center gap-1 text-[10px] text-gray-600">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                        <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                      <span>Valid till {index === 1 ? '14 Feb 2026' : '28 Feb 2026'}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+
+              {/* Free shipping banner */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="relative bg-gradient-to-r from-emerald-50/60 via-teal-50/60 to-emerald-50/60 backdrop-blur-sm p-3 rounded-xl border border-emerald-200/60"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="bg-emerald-500 text-white p-1.5 rounded-full">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-emerald-700">Free Shipping 🎁</p>
+                    <p className="text-[10px] text-gray-600">On all orders above ₹999</p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+
+
+            <div className="bg-gradient-to-r from-gray-50/50 to-rose-50/50 backdrop-blur-sm p-3 border-t border-white/40">
+              <p className="text-[10px] text-center text-gray-700 font-medium">
+                💝 Apply at checkout to save more!
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+
+// ============================================
+// GiftingSection
 // ============================================
 const GiftingSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -88,6 +597,7 @@ const GiftingSection = () => {
   const touchStartRef = useRef(null);
   const touchEndRef = useRef(null);
   const imageCache = useRef({});
+
 
   const giftImages = useMemo(() => [
     'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=65&w=1200&auto=format&fit=crop&fm=webp',
@@ -98,7 +608,7 @@ const GiftingSection = () => {
     '/images/gift5.jpg'
   ], []);
 
-  // AGGRESSIVE PRELOADING: Load active, next 2, and previous
+
   useEffect(() => {
     const imagesToPreload = [
       giftImages[activeIndex],
@@ -107,7 +617,9 @@ const GiftingSection = () => {
       giftImages[(activeIndex - 1 + giftImages.length) % giftImages.length],
     ];
 
+
     const uniqueImages = [...new Set(imagesToPreload)];
+
 
     uniqueImages.forEach((src) => {
       if (!imageCache.current[src]) {
@@ -120,40 +632,48 @@ const GiftingSection = () => {
     });
   }, [activeIndex, giftImages]);
 
-  // Smart autoplay with reset
+
   const resetAutoplay = useCallback(() => {
     if (autoplayRef.current) clearInterval(autoplayRef.current);
+
 
     autoplayRef.current = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % giftImages.length);
     }, 4500);
   }, [giftImages.length]);
 
+
   useEffect(() => {
     setCarouselReady(true);
     resetAutoplay();
+
 
     return () => {
       if (autoplayRef.current) clearInterval(autoplayRef.current);
     };
   }, [resetAutoplay]);
 
+
   const handleDotClick = useCallback((index) => {
     setActiveIndex(index);
     resetAutoplay();
   }, [resetAutoplay]);
 
+
   const handleMouseEnter = useCallback(() => {
     if (autoplayRef.current) clearInterval(autoplayRef.current);
   }, []);
+
 
   const handleMouseLeave = useCallback(() => {
     resetAutoplay();
   }, [resetAutoplay]);
 
+
   const handleTouchStart = useCallback((e) => {
     touchStartRef.current = e.changedTouches[0].clientX;
   }, []);
+
 
   const handleTouchEnd = useCallback((e) => {
     touchEndRef.current = e.changedTouches[0].clientX;
@@ -162,6 +682,7 @@ const GiftingSection = () => {
     
     const distance = touchStartRef.current - touchEndRef.current;
     const threshold = 50;
+
 
     if (Math.abs(distance) > threshold) {
       if (distance > 0) {
@@ -172,13 +693,14 @@ const GiftingSection = () => {
       resetAutoplay();
     }
 
+
     touchStartRef.current = null;
     touchEndRef.current = null;
   }, [giftImages.length, resetAutoplay]);
 
+
   return (
     <section className="flex flex-col md:flex-row min-h-[600px] md:h-[600px]">
-      {/* ✅ FIXED: iOS viewport height issue */}
       <div 
         className="w-full md:w-1/2 min-h-[400px] md:h-full relative bg-gradient-to-br from-rose-50 to-pink-100 flex items-center justify-center overflow-hidden"
         onMouseEnter={handleMouseEnter}
@@ -242,6 +764,7 @@ const GiftingSection = () => {
           ))}
         </div>
 
+
         {!carouselReady && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/20 backdrop-blur-sm">
             <div className="w-12 h-12 border-4 border-rose-200 border-t-rose-500 rounded-full animate-spin" />
@@ -249,7 +772,7 @@ const GiftingSection = () => {
         )}
       </div>
 
-      {/* ✅ FIXED: Added min-h for mobile */}
+
       <div className="w-full md:w-1/2 min-h-[300px] md:h-full bg-pink-50 flex flex-col items-center justify-center p-8 md:p-12 text-center">
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
@@ -274,31 +797,63 @@ const GiftingSection = () => {
   );
 };
 
+
 // ============================================
-// HeroSection (FIXED for iOS)
+// HeroSection (WITH Transformation Magic + Background Loading + Delayed Flyer)
 // ============================================
 const HeroSection = () => {
+  const [showButton, setShowButton] = useState(false);
+  const [backgroundLoaded, setBackgroundLoaded] = useState(false);
+  const [showFlyer, setShowFlyer] = useState(false);
   const heroImage = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=75&w=1920&auto=format&fit=crop&fm=webp';
   
+  // Preload hero image
+  useEffect(() => {
+    const img = new Image();
+    img.src = heroImage;
+    img.onload = () => setBackgroundLoaded(true);
+  }, [heroImage]);
+
+  // Show flyer after hero content loads (text animations complete + 0.5s)
+  useEffect(() => {
+    // Text animations complete at 0.8s (0.6s duration + 0.2s delay)
+    // Add 0.5s wait = 1.3s total
+    const flyerTimer = setTimeout(() => {
+      setShowFlyer(true);
+    }, 1300);
+
+    return () => clearTimeout(flyerTimer);
+  }, []);
+
   return (
     <div className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gray-900 safe-area">
-      {/* ✅ FIXED: Using min-h-screen with safe area for iOS */}
-      <link rel="preload" as="image" href={heroImage} />
       
-      {/* ✅ FIXED: Removed fixed positioning, use absolute for better iOS support */}
       <div 
-        className="absolute inset-0 w-full h-full bg-cover bg-center z-0"
+        className={`absolute inset-0 w-full h-full bg-cover bg-center z-0 transition-opacity duration-500 ${
+          backgroundLoaded ? 'opacity-100' : 'opacity-0'
+        }`}
         style={{ 
           backgroundImage: `url("${heroImage}")`,
           filter: 'brightness(0.6)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          WebkitBackgroundAttachment: 'scroll', // ✅ FIXED: iOS doesn't support fixed backgrounds well
-          backgroundAttachment: 'scroll'
+          WebkitBackgroundAttachment: 'scroll',
+          backgroundAttachment: 'scroll',
+          willChange: 'opacity'
         }}
       />
+
+      {/* Loading placeholder */}
+      {!backgroundLoaded && (
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 z-0" />
+      )}
       
-      {/* ✅ FIXED: Changed to relative positioning with padding for safe area */}
+      {/* Flying Offer Banner - only shows after hero content loads */}
+      {showFlyer && <FlyingOfferBanner onComplete={() => setShowButton(true)} />}
+      
+      {/* Floating Coupon Drawer appears after flyer disappears */}
+      <FloatingCouponDrawer shouldShow={showButton} />
+      
       <div className="relative z-10 flex flex-col items-center justify-center flex-1 text-white text-center px-4 py-16 sm:py-8">
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
@@ -352,8 +907,9 @@ const HeroSection = () => {
   );
 };
 
+
 // ============================================
-// CategoriesSection (Unchanged)
+// CategoriesSection
 // ============================================
 const CategoriesSection = () => {
   const navigate = useNavigate();
@@ -380,6 +936,7 @@ const CategoriesSection = () => {
       srcSet: '/images/necklace-sm.jpg 480w, /images/necklace-md.jpg 768w, /images/necklace.jpg 1024w'
     },
   ], []);
+
 
   return (
     <section className="py-16 px-4 md:px-6 bg-gradient-to-b from-white to-rose-50">
@@ -425,6 +982,7 @@ const CategoriesSection = () => {
                   </h3>
                 </div>
 
+
                 <div className="hidden md:flex absolute inset-0 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <button className="bg-white text-gray-900 px-4 md:px-6 py-2 rounded-full text-xs md:text-sm uppercase tracking-wider font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-lg">
                     Shop Now
@@ -434,6 +992,7 @@ const CategoriesSection = () => {
             </motion.div>
           ))}
         </div>
+
 
         <div className="md:hidden flex justify-center mt-8">
           <button 
@@ -454,8 +1013,9 @@ const CategoriesSection = () => {
   );
 };
 
+
 // ============================================
-// BentoCollectionsSection (Unchanged)
+// BentoCollectionsSection
 // ============================================
 const BentoCollectionsSection = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -503,6 +1063,7 @@ const BentoCollectionsSection = () => {
     },
   ], []);
 
+
   const getSizeClasses = (size) => {
     switch(size) {
       case 'large':
@@ -519,6 +1080,7 @@ const BentoCollectionsSection = () => {
         return 'col-span-1 row-span-1';
     }
   };
+
 
   return (
     <section className="py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-rose-50 via-white to-pink-50">
@@ -561,6 +1123,7 @@ const BentoCollectionsSection = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               </div>
 
+
               <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-end">
                 <motion.div
                   animate={{
@@ -589,6 +1152,7 @@ const BentoCollectionsSection = () => {
                 </motion.div>
               </div>
 
+
               <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-bl-full blur-2xl" />
             </motion.div>
           </Link>
@@ -598,8 +1162,9 @@ const BentoCollectionsSection = () => {
   );
 };
 
+
 // ============================================
-// FloatingGallerySection (Unchanged)
+// FloatingGallerySection
 // ============================================
 const FloatingGallerySection = () => {
   const galleryItems = useMemo(() => [
@@ -610,6 +1175,7 @@ const FloatingGallerySection = () => {
     { img: '/images/gallery5.jpg', height: 'h-64', delay: 0.2 },
     { img: '/images/gallery6.jpg', height: 'h-88', delay: 0.25 },
   ], []);
+
 
   return (
     <section className="py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-pink-50 to-rose-100 overflow-hidden">
@@ -625,6 +1191,7 @@ const FloatingGallerySection = () => {
       <p className="text-center text-gray-700 mb-12 md:mb-16 max-w-xl mx-auto text-sm md:text-base">
         Catch the energy, feel the style 
       </p>
+
 
       <div className="max-w-7xl mx-auto columns-2 md:columns-3 gap-3 md:gap-4 space-y-3 md:space-y-4">
         {galleryItems.map((item, index) => (
@@ -651,6 +1218,7 @@ const FloatingGallerySection = () => {
     </section>
   );
 };
+
 
 // ============================================
 // Main Home Component

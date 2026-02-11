@@ -84,6 +84,7 @@ const Footer = () => {
                   <FaPinterest className="w-4 h-4" />
                   <span>Follow us</span>
                 </a>
+                
               </div>
             </div>
           </div>
@@ -95,9 +96,12 @@ const Footer = () => {
       <div className="container mx-auto mt-16 pt-12 border-t border-rose-200">
         <div className="flex flex-col md:flex-row justify-between items-center text-xs tracking-widest text-gray-600 gap-6 md:gap-0">
           <div className="flex flex-wrap gap-4 md:gap-8">
+            
             <Link to="/privacy-policy" className="hover:text-rose-600 transition-colors uppercase hover:underline">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-rose-600 transition-colors uppercase hover:underline">Terms of Service</Link>
+            <a><span>~developed by himanklalani@gmail.com</span></a>
             <span>© 2025 SERA. All rights reserved.</span>
+            
           </div>
         </div>
       </div>

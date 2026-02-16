@@ -93,27 +93,21 @@ const FlyingOfferBanner = ({ onComplete }) => {
   const [currentOfferIndex, setCurrentOfferIndex] = useState(0);
 
   const offers = useMemo(() => [
-        {
-      code: 'VALENTINE20',
-      title: '💝 Valentine Special 💝',
-      discount: '20%',
-      description: 'Flat 20% off till Valentine\'s Day',
-      icon: (
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="text-white drop-shadow-md">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" />
-        </svg>
-      )
-    },
+  
     {
       code: 'FIRST10',
       title: '✨ First Order Special ✨',
       discount: '10%',
       description: 'Save 10% on your first order',
-      icon: (
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="text-white drop-shadow-md">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      )
+     icon: (
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="text-white drop-shadow-md">
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  
+  </svg>
+  
+)
+
     }
   ], []);
 
@@ -189,7 +183,7 @@ const FlyingOfferBanner = ({ onComplete }) => {
               {/* Dreamy decorative blobs */}
               <div className="absolute top-0 left-0 w-32 h-32 bg-rose-200/25 rounded-full blur-2xl" />
               <div className="absolute bottom-0 right-0 w-40 h-40 bg-pink-300/25 rounded-full blur-3xl" />
-              <div className="absolute top-1/2 left-1/2 w-28 h-28 bg-rose-100/35 rounded-full blur-2xl" />
+              <div className="absolute top-1/2 left-1/2 w-h-28 bg-rose-100/35 rounded-full blur-2xl" />
               
               {/* Floating sparkles with enhanced cuteness */}
               <motion.div
@@ -398,24 +392,25 @@ const FloatingCouponDrawer = ({ shouldShow }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const coupons = useMemo(() => [
-    {
-      code: 'FIRST10',
-      discount: '10% OFF',
-      description: 'Get 10% discount on your first order',
-      color: 'from-purple-50/60 via-indigo-50/60 to-purple-50/60',
-      borderColor: 'border-purple-300/60',
-      textColor: 'text-purple-600',
-      badgeColor: 'bg-purple-500'
-    },
-    {
-      code: 'VALENTINE20',
-      discount: '20% OFF',
-      description: 'Flat 20% off till Valentine\'s Day',
-      color: 'from-rose-50/60 via-pink-50/60 to-rose-50/60',
-      borderColor: 'border-rose-300/60',
-      textColor: 'text-rose-600',
-      badgeColor: 'bg-rose-500'
-    }
+   {
+  code: 'FIRST10',
+  discount: '10% OFF',
+  description: 'Get 10% discount on your first order',
+  validTill: (
+    <span className="flex items-center gap-1 text-xs text-gray-500">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="inline-block">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      Valid only for first order
+    </span>
+  ),
+  color: 'from-purple-50/60 via-indigo-50/60 to-purple-50/60',
+  borderColor: 'border-purple-300/60',
+  textColor: 'text-purple-600',
+  badgeColor: 'bg-purple-500'
+}
+
   ], []);
 
   return (
@@ -541,13 +536,10 @@ const FloatingCouponDrawer = ({ shouldShow }) => {
                     <p className="text-xs text-gray-800 leading-relaxed font-medium">
                       {coupon.description}
                     </p>
-                    <div className="mt-2 flex items-center gap-1 text-[10px] text-gray-600">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                        <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      </svg>
-                      <span>Valid till {index === 1 ? '14 Feb 2026' : '28 Feb 2026'}</span>
-                    </div>
+                    <div className="mt-2">
+  {coupon.validTill}
+</div>
+                    
                   </div>
                 </motion.div>
               ))}

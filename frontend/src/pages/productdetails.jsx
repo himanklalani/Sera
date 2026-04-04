@@ -231,19 +231,36 @@ const ProductDetails = () => {
     try {
       if (platform === 'copy') {
         // Advanced Copy: Text + Link + Image (if supported)
-        const canCopyImage = !!(window.ClipboardItem && navigator.clipboard.writeUint8Array);
+        const canCopyImage = !!(window.ClipboardItem && navigator.clipboard);
         
         try {
-          if (canCopyImage && product.images?.[selectedImage]) {
-            // Attempt to copy image + text
-            const response = await fetch(product.images[selectedImage]);
-            const blob = await response.blob();
+          if (canCopyImage && product.images?.[0]) {
+            // Function to convert image to PNG for clipboard compatibility
+            const getPngBlob = async (url) => {
+              return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous'; // Handle CORS
+                img.onload = () => {
+                  const canvas = document.createElement('canvas');
+                  canvas.width = img.width;
+                  canvas.height = img.height;
+                  const ctx = canvas.getContext('2d');
+                  ctx.drawImage(img, 0, 0);
+                  canvas.toBlob((blob) => {
+                    if (blob) resolve(blob);
+                    else reject(new Error('Canvas toBlob failed'));
+                  }, 'image/png');
+                };
+                img.onerror = () => reject(new Error('Image load failed'));
+                img.src = url;
+              });
+            };
+
+            const pngBlob = await getPngBlob(product.images[0]);
             
-            // Only PNG is reliably supported for clipboard images in most browsers
-            // If the source is JPG, we might need to convert it, but for now we'll try direct
             const item = new ClipboardItem({
               'text/plain': new Blob([fullShareContent], { type: 'text/plain' }),
-              [blob.type]: blob
+              'image/png': pngBlob
             });
             await navigator.clipboard.write([item]);
             toast.success('Product details and image copied!');

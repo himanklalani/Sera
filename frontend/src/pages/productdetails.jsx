@@ -5,6 +5,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt, FaInstagram } from 'react-icons/fa';
 import { useCart } from '../components/CartContext';
+import { copyToClipboard, nativeShare } from '../utils/shareUtils';
 
 const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500' viewBox='0 0 500 500'%3E%3Crect fill='%23f3f4f6' width='500' height='500'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='32' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
 
@@ -257,102 +258,44 @@ const ProductDetails = () => {
     const productName = product.name;
     const shareText = `Hey checkout: ${productName}! This might just be made for you!!`;
     const fullShareContent = `${shareText}\n\n${productUrl}`;
-
+    const imageUrl = product.images?.[0];
 
     try {
-      if (platform === 'copy') {
-        // Advanced Copy: Text + Link + Image (if supported)
-        const canCopyImage = !!(window.ClipboardItem && navigator.clipboard);
-        
-        try {
-          if (canCopyImage && product.images?.[0]) {
-            // Function to convert image to PNG for clipboard compatibility
-            const getPngBlob = async (url) => {
-              return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.crossOrigin = 'anonymous'; // Handle CORS
-                img.onload = () => {
-                  const canvas = document.createElement('canvas');
-                  canvas.width = img.width;
-                  canvas.height = img.height;
-                  const ctx = canvas.getContext('2d');
-                  ctx.drawImage(img, 0, 0);
-                  canvas.toBlob((blob) => {
-                    if (blob) resolve(blob);
-                    else reject(new Error('Canvas toBlob failed'));
-                  }, 'image/png');
-                };
-                img.onerror = () => reject(new Error('Image load failed'));
-                img.src = url;
-              });
-            };
-
-
-            const pngBlob = await getPngBlob(product.images[0]);
-            
-            const item = new ClipboardItem({
-              'text/plain': new Blob([fullShareContent], { type: 'text/plain' }),
-              'image/png': pngBlob
-            });
-            await navigator.clipboard.write([item]);
-            toast.success('Product details and image copied!');
-          } else {
-            // Fallback to text only
-            await navigator.clipboard.writeText(fullShareContent);
-            toast.success('Product link and text copied!');
+      // For all non-native platforms, attempt to copy rich content to clipboard first
+      if (platform !== 'native') {
+        const result = await copyToClipboard(fullShareContent, imageUrl);
+        if (result.success) {
+          if (platform === 'copy') {
+            toast.success(result.type === 'rich' ? 'Product details and image copied!' : 'Product link and text copied!');
+            setShowShareMenu(false);
+            return;
           }
-        } catch (copyErr) {
-          console.error('Advanced copy failed, falling back to text:', copyErr);
-          await navigator.clipboard.writeText(fullShareContent);
-          toast.success('Product link and text copied!');
+          // For other platforms, show a brief notification that content is copied for pasting
+          toast.success(result.type === 'rich' ? 'Image and link copied! Paste it in the app.' : 'Link copied! Paste it in the app.', { duration: 2000 });
         }
-        setShowShareMenu(false);
-      } else if (platform === 'whatsapp') {
-        // WhatsApp share
+      }
+
+      if (platform === 'whatsapp') {
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(fullShareContent)}`;
         window.open(whatsappUrl, '_blank', 'width=600,height=400');
-        setShowShareMenu(false);
       } else if (platform === 'email') {
-        // Email share
         const subject = `Check out: ${productName}`;
-        const body = `${fullShareContent}`;
-        const emailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        const emailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fullShareContent)}`;
         window.location.href = emailUrl;
-        setShowShareMenu(false);
       } else if (platform === 'instagram') {
-        // Instagram share
         window.open('https://www.instagram.com/', '_blank');
-        setShowShareMenu(false);
       } else if (platform === 'native') {
-        // Native Web Share API with Image support
-        if (navigator.share) {
-          const shareData = {
-            title: productName,
-            text: shareText,
-            url: productUrl,
-          };
-
-          // Try to include image if supported and available
-          if (product.images?.[0] && navigator.canShare) {
-            try {
-              const response = await fetch(product.images[0]);
-              const blob = await response.blob();
-              const file = new File([blob], 'product-image.jpg', { type: blob.type });
-              
-              if (navigator.canShare({ files: [file] })) {
-                shareData.files = [file];
-              }
-            } catch (imageErr) {
-              console.error('Failed to include image in native share:', imageErr);
-            }
-          }
-
-          await navigator.share(shareData);
-        } else {
+        const shared = await nativeShare({
+          title: productName,
+          text: shareText,
+          url: productUrl,
+          imageUrl: imageUrl
+        });
+        if (!shared && !navigator.share) {
           toast.error('Share not supported on this device');
         }
-        setShowShareMenu(false);
       }
+      setShowShareMenu(false);
     } catch (err) {
       console.error('Share failed:', err);
       if (err.name !== 'AbortError') {

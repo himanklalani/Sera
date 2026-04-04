@@ -437,7 +437,7 @@ const ProductDetails = () => {
                         className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-purple-50 transition-colors text-gray-700 hover:text-purple-600 font-medium border-t border-gray-100"
                       >
                         <span className="text-xl">📱</span>
-                        More Options
+                        Share with an Image
                       </button>
                     )}
                   </motion.div>

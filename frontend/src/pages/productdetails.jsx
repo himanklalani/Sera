@@ -47,6 +47,36 @@ const ProductDetails = () => {
 
 
   useEffect(() => {
+    if (product) {
+      document.title = `${product.name} | Sera`;
+
+      // Helper for dynamic OG/Twitter meta tags
+      const updateMeta = (key, content, attr = 'name') => {
+        let el = document.querySelector(`meta[${attr}="${key}"]`);
+        if (!el) {
+          el = document.createElement('meta');
+          el.setAttribute(attr, key);
+          document.head.appendChild(el);
+        }
+        el.setAttribute('content', content);
+      };
+
+      // Set meta tags for link previews (OG/Twitter)
+      updateMeta('description', product.description?.substring(0, 160) || '');
+      updateMeta('og:title', product.name, 'property');
+      updateMeta('og:description', product.description?.substring(0, 160) || '', 'property');
+      updateMeta('og:image', product.images?.[0] || '', 'property');
+      updateMeta('og:url', window.location.href, 'property');
+      updateMeta('og:type', 'product', 'property');
+      updateMeta('twitter:card', 'summary_large_image', 'name');
+      updateMeta('twitter:title', product.name, 'name');
+      updateMeta('twitter:description', product.description?.substring(0, 160) || '', 'name');
+      updateMeta('twitter:image', product.images?.[0] || '', 'name');
+    }
+  }, [product, id]);
+
+
+  useEffect(() => {
     const fetchProduct = async () => {
       try {
         const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${id}`);
@@ -225,8 +255,9 @@ const ProductDetails = () => {
   const handleShare = async (platform) => {
     const productUrl = `${window.location.origin}/product/${id}`;
     const productName = product.name;
-    const shareText = `Hey checkout this product! This might just be made for you!!`;
-    const fullShareContent = `${shareText}\n\n${productName}\n${productUrl}`;
+    const shareText = `Hey checkout: ${productName}! This might just be made for you!!`;
+    const fullShareContent = `${shareText}\n\n${productUrl}`;
+
 
     try {
       if (platform === 'copy') {
@@ -255,6 +286,7 @@ const ProductDetails = () => {
                 img.src = url;
               });
             };
+
 
             const pngBlob = await getPngBlob(product.images[0]);
             
@@ -292,13 +324,30 @@ const ProductDetails = () => {
         window.open('https://www.instagram.com/', '_blank');
         setShowShareMenu(false);
       } else if (platform === 'native') {
-        // Native Web Share API
+        // Native Web Share API with Image support
         if (navigator.share) {
-          await navigator.share({
+          const shareData = {
             title: productName,
             text: shareText,
             url: productUrl,
-          });
+          };
+
+          // Try to include image if supported and available
+          if (product.images?.[0] && navigator.canShare) {
+            try {
+              const response = await fetch(product.images[0]);
+              const blob = await response.blob();
+              const file = new File([blob], 'product-image.jpg', { type: blob.type });
+              
+              if (navigator.canShare({ files: [file] })) {
+                shareData.files = [file];
+              }
+            } catch (imageErr) {
+              console.error('Failed to include image in native share:', imageErr);
+            }
+          }
+
+          await navigator.share(shareData);
         } else {
           toast.error('Share not supported on this device');
         }

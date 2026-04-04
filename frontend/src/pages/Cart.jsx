@@ -28,9 +28,11 @@ const Cart = () => {
     }
   };
 
-  const handleRemoveItem = async (productId) => {
+  const handleRemoveItem = async (item) => {
     try {
-      await removeFromCart(productId);
+      // Use product ID if available, otherwise use cart item _id (for deleted products)
+      const idToRemove = item.product?._id || item._id;
+      await removeFromCart(idToRemove);
     } catch (error) {
       console.error('Error removing item:', error);
     }
@@ -75,60 +77,85 @@ const Cart = () => {
                 className="flex flex-col sm:flex-row items-center bg-white p-6 rounded-lg shadow-sm border border-gray-100"
               >
                 {/* Clickable Image */}
-                <Link
-                  to={`/product/${item.product?._id}`}
-                  className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded overflow-hidden mb-4 sm:mb-0 sm:mr-6 hover:opacity-75 transition-opacity"
-                >
-                  <img
-                    src={item.product?.images?.[0] || FALLBACK_IMAGE}
-                    alt={item.product?.name || 'Product'}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = FALLBACK_IMAGE;
-                    }}
-                  />
-                </Link>
+                {item.product ? (
+                  <Link
+                    to={`/product/${item.product._id}`}
+                    className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded overflow-hidden mb-4 sm:mb-0 sm:mr-6 hover:opacity-75 transition-opacity"
+                  >
+                    <img
+                      src={item.product.images?.[0] || FALLBACK_IMAGE}
+                      alt={item.product.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_IMAGE;
+                      }}
+                    />
+                  </Link>
+                ) : (
+                  <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded overflow-hidden mb-4 sm:mb-0 sm:mr-6">
+                    <img
+                      src={FALLBACK_IMAGE}
+                      alt="Product Unavailable"
+                      className="w-full h-full object-cover opacity-50"
+                    />
+                  </div>
+                )}
 
                 <div className="flex-grow text-center sm:text-left">
                   {/* Clickable Product Name */}
-                  <Link
-                    to={`/product/${item.product?._id}`}
-                    className="hover:text-rose-600 transition-colors"
-                  >
-                    <h3 className="font-serif text-xl mb-1">
-                      {item.product?.name || 'Unnamed Product'}
-                    </h3>
-                  </Link>
-                  <p className="text-gray-500 mb-2">
-                    {item.product?.category || 'Uncategorized'}
-                  </p>
-                  <p className="font-medium text-rose-600">
-                    INR {item.product?.price || 0}
-                  </p>
+                  {item.product ? (
+                    <>
+                      <Link
+                        to={`/product/${item.product._id}`}
+                        className="hover:text-rose-600 transition-colors"
+                      >
+                        <h3 className="font-serif text-xl mb-1">
+                          {item.product.name}
+                        </h3>
+                      </Link>
+                      <p className="text-gray-500 mb-2">
+                        {item.product.category || 'Uncategorized'}
+                      </p>
+                      <p className="font-medium text-rose-600">
+                        INR {item.product.price || 0}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="font-serif text-xl mb-1 text-gray-400">
+                        Product Unavailable
+                      </h3>
+                      <p className="text-xs text-red-400 mb-2 italic">
+                        This product has been removed from the catalog.
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-4 mt-4 sm:mt-0">
-                  <div className="flex items-center border border-gray-300 rounded">
+                  <div className={`flex items-center border border-gray-300 rounded ${!item.product ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <button
                       onClick={() =>
-                        handleQuantityChange(item.product?._id, item.quantity - 1)
+                        item.product && handleQuantityChange(item.product._id, item.quantity - 1)
                       }
-                      className="p-2 hover:bg-gray-100 text-gray-600"
+                      disabled={!item.product}
+                      className="p-2 hover:bg-gray-100 text-gray-600 disabled:cursor-not-allowed"
                     >
                       <FaMinus size={12} />
                     </button>
                     <span className="px-4 font-medium">{item.quantity}</span>
                     <button
                       onClick={() =>
-                        handleQuantityChange(item.product?._id, item.quantity + 1)
+                        item.product && handleQuantityChange(item.product._id, item.quantity + 1)
                       }
-                      className="p-2 hover:bg-gray-100 text-gray-600"
+                      disabled={!item.product}
+                      className="p-2 hover:bg-gray-100 text-gray-600 disabled:cursor-not-allowed"
                     >
                       <FaPlus size={12} />
                     </button>
                   </div>
                   <button
-                    onClick={() => handleRemoveItem(item.product?._id)}
+                    onClick={() => handleRemoveItem(item)}
                     className="text-gray-400 hover:text-red-500 transition-colors p-2"
                   >
                     <FaTrash />

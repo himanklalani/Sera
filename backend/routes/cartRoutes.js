@@ -71,7 +71,12 @@ router.delete('/:productId', protect, asyncHandler(async (req, res) => {
   let cart = await Cart.findOne({ user: req.user._id });
   
   if (cart) {
-    cart.items = cart.items.filter(item => item.product.toString() !== req.params.productId);
+    // MODIFIED: Handle both direct product ID and object with _id (for null product cases)
+    cart.items = cart.items.filter(item => {
+      const itemProductId = item.product ? item.product.toString() : null;
+      return itemProductId !== req.params.productId && item._id.toString() !== req.params.productId;
+    });
+    
     await cart.save();
     cart = await cart.populate('items.product');
     res.json(cart);

@@ -5,17 +5,39 @@ const { protect } = require('../middleware/authMiddleware');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product'); // ADD THIS IMPORT
 
+// Helper to clean and populate cart
+const getCleanCart = async (cartId) => {
+  let cart = await Cart.findById(cartId).populate('items.product');
+  if (!cart) return { cart: null, itemsRemoved: false };
+
+  const initialCount = cart.items.length;
+  cart.items = cart.items.filter(item => item.product !== null);
+  
+  let itemsRemoved = false;
+  if (cart.items.length !== initialCount) {
+    itemsRemoved = true;
+    await cart.save();
+    // Re-populate after filtering to ensure consistency
+    cart = await Cart.findById(cartId).populate('items.product');
+  }
+
+  const cartObj = cart.toObject();
+  cartObj.itemsRemoved = itemsRemoved;
+  return cartObj;
+};
+
 // @desc    Get user cart
 // @route   GET /api/cart
 // @access  Private
 router.get('/', protect, asyncHandler(async (req, res) => {
-  let cart = await Cart.findOne({ user: req.user._id }).populate('items.product');
+  let cart = await Cart.findOne({ user: req.user._id });
   
   if (!cart) {
     cart = await Cart.create({ user: req.user._id, items: [] });
   }
 
-  res.json(cart);
+  const cleanedCart = await getCleanCart(cart._id);
+  res.json(cleanedCart);
 }));
 
 // @desc    Add item to cart
@@ -43,7 +65,7 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     cart = await Cart.create({ user: req.user._id, items: [] });
   }
 
-  const itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
+  const itemIndex = cart.items.findIndex(item => item.product && item.product.toString() === productId);
 
   if (itemIndex > -1) {
     // MODIFIED: Check if new total quantity exceeds stock
@@ -60,8 +82,8 @@ router.post('/', protect, asyncHandler(async (req, res) => {
   }
 
   await cart.save();
-  cart = await cart.populate('items.product');
-  res.json(cart);
+  const cleanedCart = await getCleanCart(cart._id);
+  res.json(cleanedCart);
 }));
 
 // @desc    Remove item from cart
@@ -78,8 +100,8 @@ router.delete('/:productId', protect, asyncHandler(async (req, res) => {
     });
     
     await cart.save();
-    cart = await cart.populate('items.product');
-    res.json(cart);
+    const cleanedCart = await getCleanCart(cart._id);
+    res.json(cleanedCart);
   } else {
     res.status(404);
     throw new Error('Cart not found');
@@ -95,6 +117,7 @@ router.put('/:productId', protect, asyncHandler(async (req, res) => {
   // ADDED: Validate product and stock before updating
   const product = await Product.findById(req.params.productId);
   if (!product) {
+    // If we're trying to update quantity of a missing product, let cleanup handle it later or fail now
     res.status(404);
     throw new Error('Product not found');
   }
@@ -108,7 +131,7 @@ router.put('/:productId', protect, asyncHandler(async (req, res) => {
   let cart = await Cart.findOne({ user: req.user._id });
 
   if (cart) {
-    const itemIndex = cart.items.findIndex(item => item.product.toString() === req.params.productId);
+    const itemIndex = cart.items.findIndex(item => item.product && item.product.toString() === req.params.productId);
     if (itemIndex > -1) {
       // ADDED: Remove item if quantity is 0 or less
       if (quantity <= 0) {
@@ -118,8 +141,8 @@ router.put('/:productId', protect, asyncHandler(async (req, res) => {
       }
       
       await cart.save();
-      cart = await cart.populate('items.product');
-      res.json(cart);
+      const cleanedCart = await getCleanCart(cart._id);
+      res.json(cleanedCart);
     } else {
       res.status(404);
       throw new Error('Item not found in cart');

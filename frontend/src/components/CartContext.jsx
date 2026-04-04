@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const CartContext = createContext();
 
@@ -34,6 +35,13 @@ export const CartProvider = ({ children }) => {
       };
       const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, config);
       setCartItems(Array.isArray(data.items) ? data.items : []);
+      
+      if (data.itemsRemoved) {
+        toast('Some unavailable items were removed from your cart.', {
+          icon: 'ℹ️',
+          duration: 4000
+        });
+      }
     } catch (error) {
       console.error('Error fetching cart:', error);
       if (error.response && error.response.status === 401) {
@@ -59,6 +67,9 @@ export const CartProvider = ({ children }) => {
         config
       );
       setCartItems(Array.isArray(data.items) ? data.items : []);
+      if (data.itemsRemoved) {
+        toast('Some unavailable items were removed from your cart.', { icon: 'ℹ️' });
+      }
       return true;
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -80,6 +91,9 @@ export const CartProvider = ({ children }) => {
         config
       );
       setCartItems(Array.isArray(data.items) ? data.items : []);
+      if (data.itemsRemoved) {
+        toast('Some unavailable items were removed from your cart.', { icon: 'ℹ️' });
+      }
     } catch (error) {
       console.error('Error updating quantity:', error);
       throw error;
@@ -99,6 +113,9 @@ export const CartProvider = ({ children }) => {
         config
       );
       setCartItems(Array.isArray(data.items) ? data.items : []);
+      if (data.itemsRemoved) {
+        toast('Some unavailable items were removed from your cart.', { icon: 'ℹ️' });
+      }
     } catch (error) {
       console.error('Error removing item:', error);
       throw error;

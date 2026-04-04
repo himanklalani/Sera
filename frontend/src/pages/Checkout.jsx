@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { FloatingCouponDrawer } from './Home';
 
 
 const Checkout = () => {
@@ -375,7 +376,8 @@ const Checkout = () => {
 
 
   return (
-    <div className="container mx-auto px-6 py-24 min-h-screen">
+    <div className="container mx-auto px-6 py-24 min-h-screen relative">
+      <FloatingCouponDrawer shouldShow={true} />
       <h1 className="text-4xl font-serif text-center mb-12">Checkout</h1>
       
       <div className="flex flex-col lg:flex-row gap-12">

@@ -4,16 +4,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt, FaInstagram } from 'react-icons/fa';
-
-
+import { useCart } from '../components/CartContext';
 
 const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500' viewBox='0 0 500 500'%3E%3Crect fill='%23f3f4f6' width='500' height='500'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='32' dy='10.5' font-weight='bold' x='50%25' y='50%25' text-anchor='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
-
 
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart: addToCartContext } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -176,15 +175,8 @@ const ProductDetails = () => {
 
 
     try {
-      const config = { headers: { Authorization: `Bearer ${ui.token}` } };
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/cart`,
-        { productId: itemToAdd._id, quantity: productToAdd ? 1 : quantity },
-        config
-      );
+      await addToCartContext(itemToAdd._id, productToAdd ? 1 : quantity);
       toast.success(`${itemToAdd.name} added to cart!`);
-
-
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to add to cart');
     } finally {

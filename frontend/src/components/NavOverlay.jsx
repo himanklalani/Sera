@@ -1,10 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { FaTimes, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaTimes, FaChevronDown, FaChevronUp, FaShoppingCart } from 'react-icons/fa';
+import { useCart } from './CartContext';
 
 
 export default function NavOverlay({ isOpen, onClose }) {
+  const { cartCount } = useCart();
   const [isProductsOpen, setIsProductsOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -18,6 +20,7 @@ export default function NavOverlay({ isOpen, onClose }) {
   const menuItems = [
     { title: 'My Account', path: '/profile' },
     { title: 'Wishlist', path: '/profile?tab=wishlist' },
+    { title: 'My Cart', path: '/cart', showCartCount: true },
     { 
       title: 'Products', 
       path: '/shop',
@@ -119,7 +122,18 @@ export default function NavOverlay({ isOpen, onClose }) {
                       onClick={() => handleLinkClick(item.path)}
                       className="w-full flex justify-between items-center p-6 text-left group"
                     >
-                      <span className="text-2xl font-serif text-gray-900 group-hover:text-rose-600 transition-colors">{item.title}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl font-serif text-gray-900 group-hover:text-rose-600 transition-colors">{item.title}</span>
+                        {item.showCartCount && cartCount > 0 && (
+                          <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="bg-rose-500 text-white text-xs font-bold min-w-[20px] h-[20px] flex items-center justify-center rounded-full px-1 shadow-sm"
+                          >
+                            {cartCount > 99 ? '99+' : cartCount}
+                          </motion.span>
+                        )}
+                      </div>
                       <span className="text-gray-300 group-hover:text-rose-400 transition-colors">→</span>
                     </button>
                   )}

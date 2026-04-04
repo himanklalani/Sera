@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
-import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
+import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
 import { FaBars, FaSearch, FaUser, FaShoppingCart, FaHeart, FaArrowLeft } from 'react-icons/fa';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import TopBanner from './TopBanner';
 import NavOverlay from './NavOverlay';
 import SearchOverlay from './SearchOverlay';
+import { useCart } from './CartContext';
 
 
 
 export default function Navbar() {
+  const { cartCount } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -137,6 +139,19 @@ export default function Navbar() {
                 <Link to="/profile"><FaUser className="hover:text-rose-500 transition-colors" /></Link>
                 <Link to="/cart" className="relative">
                   <FaShoppingCart className="hover:text-rose-500 transition-colors" />
+                  <AnimatePresence>
+                    {cartCount > 0 && (
+                      <motion.span
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        className="absolute -top-2 -right-2 bg-rose-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 shadow-sm"
+                        aria-label={`${cartCount} items in cart`}
+                      >
+                        {cartCount > 99 ? '99+' : cartCount}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </Link>
               </div>
             </div>

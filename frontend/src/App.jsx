@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
+import { CartProvider } from './components/CartContext';
 
 import Home from './pages/Home';
 import AdminDashboard from './pages/AdminDashboard';
@@ -32,45 +33,47 @@ import Contact from './pages/Contact';
 function App() {
   return (
     <Router>
-      <ScrollToTop />
-      <Toaster position="top-center" />
-      <div className="min-h-screen flex flex-col bg-white">
-        <Navbar />
-        <main className="flex-grow">
-          <Routes>
-            {/* core pages */}
-            <Route path="/" element={<Home />} />
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/order-success" element={<OrderSuccess />} />
-            <Route path="/product/:id" element={<ProductDetails />} />
+      <CartProvider>
+        <ScrollToTop />
+        <Toaster position="top-center" />
+        <div className="min-h-screen flex flex-col bg-white">
+          <Navbar />
+          <main className="flex-grow">
+            <Routes>
+              {/* core pages */}
+              <Route path="/" element={<Home />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/order-success" element={<OrderSuccess />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
 
-            {/* info pages */}
-            <Route path="/about" element={<About />} />
-            <Route path="/faq" element={<FAQ />} />
+              {/* info pages */}
+              <Route path="/about" element={<About />} />
+              <Route path="/faq" element={<FAQ />} />
 
-            {/* legal / policy pages */}
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/returns" element={<Returns />} />
+              {/* legal / policy pages */}
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/returns" element={<Returns />} />
 
-            {/* contact */}
-            <Route path="/contact" element={<Contact />} />
+              {/* contact */}
+              <Route path="/contact" element={<Contact />} />
 
-            {/* optional: 404 fallback
-            <Route path="*" element={<NotFound />} />
-            */}
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+              {/* optional: 404 fallback
+              <Route path="*" element={<NotFound />} />
+              */}
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </CartProvider>
     </Router>
   );
 }

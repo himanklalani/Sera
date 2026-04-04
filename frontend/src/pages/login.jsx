@@ -2,8 +2,10 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useCart } from '../components/CartContext';
 
 const Login = () => {
+  const { fetchCart } = useCart();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -14,6 +16,7 @@ const Login = () => {
     try {
       const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, { email, password });
       localStorage.setItem('userInfo', JSON.stringify(data));
+      await fetchCart();
       if (data.role === 'admin') {
         navigate('/admin');
       } else {

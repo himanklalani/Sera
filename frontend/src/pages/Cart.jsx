@@ -1,41 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaTrash, FaMinus, FaPlus } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import { useCart } from '../components/CartContext';
 
 const FALLBACK_IMAGE = 'https://picsum.photos/150/150?grayscale'; // or your own image
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { cartItems, loading, updateQuantity, removeFromCart, fetchCart } = useCart();
   const navigate = useNavigate();
 
   const getUserInfo = () => {
     const stored = localStorage.getItem('userInfo');
     return stored ? JSON.parse(stored) : null;
   };
-
-  const fetchCart = useCallback(async () => {
-    try {
-      const userInfo = getUserInfo();
-      if (!userInfo) {
-        navigate('/login');
-        return;
-      }
-
-      const config = {
-        headers: { Authorization: `Bearer ${userInfo.token}` },
-      };
-
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, config);
-      setCartItems(Array.isArray(data.items) ? data.items : []);
-    } catch (error) {
-      console.error('Error fetching cart:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [navigate]);
 
   useEffect(() => {
     fetchCart();
@@ -44,19 +22,7 @@ const Cart = () => {
   const handleQuantityChange = async (productId, newQuantity) => {
     if (newQuantity < 1) return;
     try {
-      const userInfo = getUserInfo();
-      if (!userInfo) {
-        navigate('/login');
-        return;
-      }
-
-      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      const { data } = await axios.put(
-        `${import.meta.env.VITE_API_URL}/api/cart/${productId}`,
-        { quantity: newQuantity },
-        config
-      );
-      setCartItems(Array.isArray(data.items) ? data.items : []);
+      await updateQuantity(productId, newQuantity);
     } catch (error) {
       console.error('Error updating quantity:', error);
     }
@@ -64,18 +30,7 @@ const Cart = () => {
 
   const handleRemoveItem = async (productId) => {
     try {
-      const userInfo = getUserInfo();
-      if (!userInfo) {
-        navigate('/login');
-        return;
-      }
-
-      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      const { data } = await axios.delete(
-        `${import.meta.env.VITE_API_URL}/api/cart/${productId}`,
-        config
-      );
-      setCartItems(Array.isArray(data.items) ? data.items : []);
+      await removeFromCart(productId);
     } catch (error) {
       console.error('Error removing item:', error);
     }

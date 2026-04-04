@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { toast } from 'react-hot-toast';
 
 
 // ============================================
@@ -210,7 +211,7 @@ const FlyingOfferBanner = ({ onComplete }) => {
               {/* Dreamy decorative blobs */}
               <div className="absolute top-0 left-0 w-32 h-32 bg-rose-200/25 rounded-full blur-2xl" />
               <div className="absolute bottom-0 right-0 w-40 h-40 bg-pink-300/25 rounded-full blur-3xl" />
-              <div className="absolute top-1/2 left-1/2 w-h-28 bg-rose-100/35 rounded-full blur-2xl" />
+              <div className="absolute top-1/2 left-1/2 w-28 h-28 bg-rose-100/35 rounded-full blur-2xl" />
               
               {/* Floating sparkles with enhanced cuteness */}
               <motion.div
@@ -637,171 +638,6 @@ export const FloatingCouponDrawer = ({ shouldShow }) => {
             <div className="bg-gradient-to-r from-gray-50/50 to-rose-50/50 backdrop-blur-sm p-3 border-t border-white/40">
               <p className="text-[10px] text-center text-gray-700 font-medium">
                 ✂️ Click any code to copy!
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-};
-
-  return (
-    <>
-      <AnimatePresence>
-        {shouldShow && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5, x: -50 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            transition={{ 
-              duration: 0.6, 
-              ease: [0.34, 1.56, 0.64, 1],
-              delay: 0.2 
-            }}
-            className="fixed left-4 top-[13%] md:top-[32%] z-50"
-          >
-            <motion.button
-              onClick={() => setIsOpen(!isOpen)}
-              whileHover={{ scale: 1.05, x: 5 }}
-              whileTap={{ scale: 0.95 }}
-              className="group relative flex items-center gap-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full px-3 py-2 shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-black text-xs md:text-sm font-medium tracking-wide drop-shadow-lg whitespace-nowrap">
-                  Offers
-                </span>
-                
-                <motion.svg
-                  width="15"
-                  height="15"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="text-black drop-shadow-lg"
-                  animate={{ 
-                    rotate: isOpen ? 180 : 0
-                  }}
-                  transition={{
-                    rotate: {
-                      duration: 0.3,
-                      ease: "easeInOut"
-                    }
-                  }}
-                >
-                  <path
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </motion.svg>
-              </div>
-
-
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            </motion.button>
-
-
-            {!isOpen && (
-              <motion.div
-                className="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full shadow-lg"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [1, 0.8, 1]
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-
-      <AnimatePresence>
-        {isOpen && shouldShow && (
-          <motion.div
-            initial={{ opacity: 0, x: -100, scale: 0.9 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: -100, scale: 0.9 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed left-4 top-[19%] md:top-[39%] z-40 w-72 bg-white/70 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/40 overflow-hidden"
-          >
-            <div className="bg-gradient-to-r from-rose-400/80 to-pink-400/80 backdrop-blur-sm p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <h3 className="text-sm font-bold text-white tracking-wide drop-shadow">Active Coupons</h3>
-              </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-white/90 hover:text-white hover:rotate-90 transition-all duration-300"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </button>
-            </div>
-            
-            <div className="p-4 space-y-3 max-h-[400px] overflow-y-auto">
-              {coupons.map((coupon, index) => (
-                <motion.div
-                  key={coupon.code}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + index * 0.1 }}
-                  className={`relative bg-gradient-to-r ${coupon.color} backdrop-blur-sm p-4 rounded-xl border-2 border-dashed ${coupon.borderColor} overflow-hidden group cursor-pointer hover:shadow-md transition-all`}
-                >
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-rose-200/20 rounded-full blur-2xl" />
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className={`text-base font-mono font-bold ${coupon.textColor} tracking-wider drop-shadow-sm`}>
-                        {coupon.code}
-                      </p>
-                      <div className={`${coupon.badgeColor} text-white text-[10px] px-2 py-1 rounded-full font-semibold shadow-sm`}>
-                        {coupon.discount}
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-800 leading-relaxed font-medium">
-                      {coupon.description}
-                    </p>
-                    <div className="mt-2">
-  {coupon.validTill}
-</div>
-                    
-                  </div>
-                </motion.div>
-              ))}
-
-              {/* Free shipping banner */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="relative bg-gradient-to-r from-emerald-50/60 via-teal-50/60 to-emerald-50/60 backdrop-blur-sm p-3 rounded-xl border border-emerald-200/60"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="bg-emerald-500 text-white p-1.5 rounded-full">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-emerald-700">Free Shipping 🎁</p>
-                    <p className="text-[10px] text-gray-600">On all orders above ₹999</p>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-
-
-            <div className="bg-gradient-to-r from-gray-50/50 to-rose-50/50 backdrop-blur-sm p-3 border-t border-white/40">
-              <p className="text-[10px] text-center text-gray-700 font-medium">
-                💝 Apply at checkout to save more!
               </p>
             </div>
           </motion.div>

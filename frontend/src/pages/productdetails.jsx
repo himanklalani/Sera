@@ -225,23 +225,48 @@ const ProductDetails = () => {
   const handleShare = async (platform) => {
     const productUrl = `${window.location.origin}/product/${id}`;
     const productName = product.name;
-    const shareText = `Check out this beautiful ${productName}!`;
+    const shareText = `Hey checkout this product! This might just be made for you!!`;
+    const fullShareContent = `${shareText}\n\n${productName}\n${productUrl}`;
 
     try {
       if (platform === 'copy') {
-        // Copy to clipboard
-        await navigator.clipboard.writeText(productUrl);
-        toast.success('Link copied to clipboard!');
+        // Advanced Copy: Text + Link + Image (if supported)
+        const canCopyImage = !!(window.ClipboardItem && navigator.clipboard.writeUint8Array);
+        
+        try {
+          if (canCopyImage && product.images?.[selectedImage]) {
+            // Attempt to copy image + text
+            const response = await fetch(product.images[selectedImage]);
+            const blob = await response.blob();
+            
+            // Only PNG is reliably supported for clipboard images in most browsers
+            // If the source is JPG, we might need to convert it, but for now we'll try direct
+            const item = new ClipboardItem({
+              'text/plain': new Blob([fullShareContent], { type: 'text/plain' }),
+              [blob.type]: blob
+            });
+            await navigator.clipboard.write([item]);
+            toast.success('Product details and image copied!');
+          } else {
+            // Fallback to text only
+            await navigator.clipboard.writeText(fullShareContent);
+            toast.success('Product link and text copied!');
+          }
+        } catch (copyErr) {
+          console.error('Advanced copy failed, falling back to text:', copyErr);
+          await navigator.clipboard.writeText(fullShareContent);
+          toast.success('Product link and text copied!');
+        }
         setShowShareMenu(false);
       } else if (platform === 'whatsapp') {
         // WhatsApp share
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + productUrl)}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(fullShareContent)}`;
         window.open(whatsappUrl, '_blank', 'width=600,height=400');
         setShowShareMenu(false);
       } else if (platform === 'email') {
         // Email share
         const subject = `Check out: ${productName}`;
-        const body = `${shareText}\n\n${productUrl}`;
+        const body = `${fullShareContent}`;
         const emailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         window.location.href = emailUrl;
         setShowShareMenu(false);

@@ -83,6 +83,7 @@ export default function NavOverlay({ isOpen, onClose }) {
                         <button 
                           onClick={() => handleLinkClick(item.path)}
                           className="flex-1 flex items-center p-6 text-left group"
+                          aria-label={`Go to ${item.title}`}
                         >
                           <span className="text-2xl font-serif text-gray-900 group-hover:text-rose-600 transition-colors">{item.title}</span>
                         </button>
@@ -91,6 +92,8 @@ export default function NavOverlay({ isOpen, onClose }) {
                         <button 
                           onClick={() => setIsProductsOpen(!isProductsOpen)}
                           className="px-6 flex items-center justify-center border-l border-gray-100 hover:bg-rose-50 transition-colors"
+                          aria-label={isProductsOpen ? "Collapse Products Menu" : "Expand Products Menu"}
+                          aria-expanded={isProductsOpen}
                         >
                           {isProductsOpen ? <FaChevronUp className="text-rose-500" /> : <FaChevronDown className="text-gray-400" />}
                         </button>
@@ -121,6 +124,7 @@ export default function NavOverlay({ isOpen, onClose }) {
                     <button 
                       onClick={() => handleLinkClick(item.path)}
                       className="w-full flex justify-between items-center p-6 text-left group"
+                      aria-label={`Go to ${item.title}`}
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-2xl font-serif text-gray-900 group-hover:text-rose-600 transition-colors">{item.title}</span>

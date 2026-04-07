@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "https://serastore.in/(.*)",
+      "destination": "https://www.serastore.in/$1",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",

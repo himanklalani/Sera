@@ -889,19 +889,17 @@ const HeroSection = () => {
   return (
     <div className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gray-900 safe-area">
       
-      <div 
-        className={`absolute inset-0 w-full h-full bg-cover bg-center z-0 transition-opacity duration-500 ${
+      {/* Optimized LCP Hero Image */}
+      <img
+        src={heroImage}
+        alt="Sera Jewelry Hero"
+        className={`absolute inset-0 w-full h-full object-cover z-0 transition-opacity duration-500 pointer-events-none select-none ${
           backgroundLoaded ? 'opacity-100' : 'opacity-0'
         }`}
-        style={{ 
-          backgroundImage: `url("${heroImage}")`,
-          filter: 'brightness(0.6)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          WebkitBackgroundAttachment: 'scroll',
-          backgroundAttachment: 'scroll',
-          willChange: 'opacity'
-        }}
+        style={{ filter: 'brightness(0.6)' }}
+        fetchpriority="high"
+        loading="eager"
+        onLoad={() => setBackgroundLoaded(true)}
       />
 
       {/* Loading placeholder */}

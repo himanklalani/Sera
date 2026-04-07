@@ -135,9 +135,9 @@ export default function Navbar() {
                 >
                   <FaSearch />
                 </motion.button>
-                <Link to="/profile?tab=wishlist"><FaHeart className="hover:text-rose-500 transition-colors" /></Link>
-                <Link to="/profile"><FaUser className="hover:text-rose-500 transition-colors" /></Link>
-                <Link to="/cart" className="relative">
+                <Link to="/profile?tab=wishlist" className="p-2" aria-label="View Wishlist"><FaHeart className="hover:text-rose-500 transition-colors" /></Link>
+                <Link to="/profile" className="p-2" aria-label="View Account"><FaUser className="hover:text-rose-500 transition-colors" /></Link>
+                <Link to="/cart" className="relative p-2" aria-label="View Shopping Cart">
                   <FaShoppingCart className="hover:text-rose-500 transition-colors" />
                   <AnimatePresence>
                     {cartCount > 0 && (

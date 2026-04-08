@@ -866,7 +866,7 @@ const HeroSection = () => {
   const [showButton, setShowButton] = useState(false);
   const [backgroundLoaded, setBackgroundLoaded] = useState(false);
   const [showFlyer, setShowFlyer] = useState(false);
-  const heroImage = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=75&w=1920&auto=format&fit=crop&fm=webp';
+  const heroImage = '/hero.avif';
   
   // Preload hero image
   useEffect(() => {

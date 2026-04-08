@@ -1227,12 +1227,12 @@ const BentoCollectionsSection = () => {
 // ============================================
 const FloatingGallerySection = () => {
   const galleryItems = useMemo(() => [
-    { img: '/images/gallery2.png', height: 'h-64', delay: 0 },
-    { img: '/images/gallery1.png', height: 'h-80', delay: 0.05 },
-    { img: '/images/gallery3.jpg', height: 'h-72', delay: 0.1 },
-    { img: '/images/gallery4.jpg', height: 'h-96', delay: 0.15 },
-    { img: '/images/gallery5.jpg', height: 'h-64', delay: 0.2 },
-    { img: '/images/gallery6.jpg', height: 'h-88', delay: 0.25 },
+    { img: '/images/tinified/gallery2.avif', height: 'h-64', delay: 0 },
+    { img: '/images/tinified/gallery1.avif', height: 'h-80', delay: 0.05 },
+    { img: '/images/tinified/gallery3.avif', height: 'h-72', delay: 0.1 },
+    { img: '/images/tinified/gallery4.avif', height: 'h-96', delay: 0.15 },
+    { img: '/images/tinified/gallery5.avif', height: 'h-64', delay: 0.2 },
+    { img: '/images/tinified/gallery6.avif', height: 'h-88', delay: 0.25 },
   ], []);
 
 

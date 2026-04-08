@@ -110,7 +110,7 @@ export default function Navbar() {
                 className="absolute left-[calc(50%-54px)] md:left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 md:-translate-y-[calc(54%-8px)] z-20"
               >
                 <img 
-                  src="/logo.png" 
+                  src="/logo.avif" 
                   alt="SERA Logo" 
                   className="h-[120px] md:h-28 lg:h-32 xl:h-36 w-auto object-contain transition-opacity duration-300 hover:opacity-80" 
                 />

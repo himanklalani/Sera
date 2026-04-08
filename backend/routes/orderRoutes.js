@@ -245,7 +245,7 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
 
   doc.pipe(res);
 
-  const logoPath = path.join(__dirname, '..', '..', 'frontend', 'public', 'logo.png');
+  const logoPath = path.join(__dirname, '..', '..', 'frontend', 'public', 'logo.avif');
   const hasLogo = fs.existsSync(logoPath);
 
   if (hasLogo) {

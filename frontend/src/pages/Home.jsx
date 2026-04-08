@@ -662,11 +662,11 @@ const GiftingSection = () => {
 
   const giftImages = useMemo(() => [
     'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=65&w=1200&auto=format&fit=crop&fm=webp',
-    '/images/gift1.jpg',
-    'https://res.cloudinary.com/dhby5v7rw/image/upload/v1775571118/gift2_qheqi7.jpg',
-    '/images/gift3.jpg',
-    '/images/gift4.jpg',
-    '/images/gift5.jpg'
+    '/images/tinified/gift1.webp',
+    '/images/tinified/gift2.webp',
+    '/images/tinified/gift3.webp',
+    '/images/tinified/gift4.webp',
+    '/images/tinified/gift5.webp'
   ], []);
 
 

@@ -94,18 +94,7 @@ const FlyingOfferBanner = ({ onComplete }) => {
   const [currentOfferIndex, setCurrentOfferIndex] = useState(0);
 
   const offers = useMemo(() => [
-    {
-      code: 'SPECIAL25',
-      title: '✨ New Drop Special ✨',
-      discount: '25%',
-      description: 'Save 25% on your orders',
-      icon: (
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="text-white drop-shadow-md">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      )
-    },
+
     {
       code: 'FIRST10',
       title: '✨ First Order Special ✨',
@@ -440,24 +429,6 @@ export const FloatingCouponDrawer = ({ shouldShow }) => {
         <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
       Valid only for first order
-    </span>
-  ),
-  color: 'from-purple-50/60 via-indigo-50/60 to-purple-50/60',
-  borderColor: 'border-purple-300/60',
-  textColor: 'text-purple-600',
-  badgeColor: 'bg-purple-500'
-},
-   {
-  code: 'SPECIAL25',
-  discount: '25% OFF',
-  description: 'Get 25% discount on your orders',
-  validTill: (
-    <span className="flex items-center gap-1 text-xs text-gray-500">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="inline-block">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-      Valid uptil 30th April.
     </span>
   ),
   color: 'from-purple-50/60 via-indigo-50/60 to-purple-50/60',

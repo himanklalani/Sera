@@ -13,4 +13,4 @@ Disallow: /forgot-password
 Disallow: /reset-password
 
 # Sitemap
-# Sitemap: https://www.yourdomain.com/sitemap.xml
+Sitemap: https://www.serastore.in/sitemap.xml

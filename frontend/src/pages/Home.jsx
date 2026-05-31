@@ -185,7 +185,7 @@ const FlyingOfferBanner = ({ onComplete }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black/20 backdrop-blur-md z-[99]"
+            className="fixed inset-0 bg-black/40 z-[99] will-change-opacity"
           />
 
           {/* Flying flyer */}
@@ -211,10 +211,10 @@ const FlyingOfferBanner = ({ onComplete }) => {
               ease: [0.34, 1.56, 0.64, 1],
               delay: 0
             }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] pointer-events-none"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] pointer-events-none will-change-transform"
           >
             {/* Flyer with smooth transitions */}
-            <div className="relative bg-gradient-to-br from-pink-50/90 via-rose-50/85 to-pink-100/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border-2 border-white/60 overflow-hidden px-8 py-8 pointer-events-auto w-[360px] will-change-transform">
+            <div className="relative bg-gradient-to-br from-pink-50/90 via-rose-50/85 to-pink-100/90 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border-2 border-white/60 overflow-hidden px-8 py-8 pointer-events-auto w-[360px] will-change-transform">
               {/* Dreamy decorative blobs */}
               <div className="absolute top-0 left-0 w-32 h-32 bg-rose-200/25 rounded-full blur-2xl" />
               <div className="absolute bottom-0 right-0 w-40 h-40 bg-pink-300/25 rounded-full blur-3xl" />
@@ -410,7 +410,7 @@ const FlyingOfferBanner = ({ onComplete }) => {
               
               {/* Extra shimmer overlay */}
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none"
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none will-change-transform"
                 animate={{
                   x: ['-100%', '200%'],
                 }}

@@ -112,13 +112,31 @@ const FlyingOfferBanner = ({ onComplete }) => {
   useEffect(() => {
     // Check if flyer has already been shown in this session
     const flyerShown = sessionStorage.getItem('flyerShown');
-    if (!flyerShown) {
+    if (flyerShown) {
+      // If already shown, signal completion immediately to show the button
+      if (onComplete) onComplete();
+      return;
+    }
+
+    const triggerFlyer = () => {
       setIsVisible(true);
       setHasEntered(true);
       sessionStorage.setItem('flyerShown', 'true');
+    };
+
+    // If cookie consent is not yet given, the popup WILL appear.
+    // Wait for the 'cookieConsentClosed' event before triggering the flyer.
+    if (!localStorage.getItem('cookieConsent')) {
+      const handleCookieClosed = () => {
+        // Wait 2 seconds after cookie box closes before showing flyer
+        setTimeout(triggerFlyer, 2000);
+      };
+      window.addEventListener('cookieConsentClosed', handleCookieClosed);
+      return () => window.removeEventListener('cookieConsentClosed', handleCookieClosed);
     } else {
-      // If already shown, signal completion immediately to show the button
-      if (onComplete) onComplete();
+      // Cookie consent is already done. Show flyer with a normal slight delay.
+      const timer = setTimeout(triggerFlyer, 1500);
+      return () => clearTimeout(timer);
     }
   }, [onComplete]);
 

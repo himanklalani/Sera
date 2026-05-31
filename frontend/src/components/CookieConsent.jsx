@@ -19,6 +19,9 @@ export default function CookieConsent() {
     localStorage.setItem('cookieConsent', 'accepted');
     setShow(false);
     
+    // Dispatch event for other components (like Flyer) to react
+    window.dispatchEvent(new CustomEvent('cookieConsentClosed'));
+    
     // Notify Google Tag Manager that consent is granted
     if (typeof window !== 'undefined') {
       window.dataLayer = window.dataLayer || [];
@@ -32,6 +35,9 @@ export default function CookieConsent() {
   const handleDecline = () => {
     localStorage.setItem('cookieConsent', 'declined');
     setShow(false);
+    
+    // Dispatch event for other components (like Flyer) to react
+    window.dispatchEvent(new CustomEvent('cookieConsentClosed'));
     
     // Notify Google Tag Manager that consent is denied
     if (typeof window !== 'undefined') {

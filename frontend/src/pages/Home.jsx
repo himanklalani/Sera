@@ -371,6 +371,7 @@ const FlyingOfferBanner = ({ onComplete }) => {
                 <button
                   onClick={() => setIsVisible(false)}
                   className="absolute -top-2 -right-2 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg text-gray-400 hover:text-gray-600 hover:scale-110 transition-all"
+                  aria-label="Close offer banner"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -544,7 +545,8 @@ export const FloatingCouponDrawer = ({ shouldShow }) => {
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-white/90 hover:text-white hover:rotate-90 transition-all duration-300"
+                className="text-white/90 hover:text-white hover:rotate-90 transition-all duration-300 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2"
+                aria-label="Close coupons"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -784,7 +786,7 @@ const GiftingSection = () => {
             <motion.button
               key={index}
               onClick={() => handleDotClick(index)}
-              className={`rounded-full transition-all duration-300 cursor-pointer ${
+              className={`relative after:absolute after:-inset-3 rounded-full transition-all duration-300 cursor-pointer ${
                 index === activeIndex 
                   ? 'bg-rose-500 w-8 h-2.5' 
                   : 'bg-white/60 w-2 h-2 hover:bg-white/90'
@@ -947,23 +949,23 @@ const CategoriesSection = () => {
   const categories = useMemo(() => [
     { 
       name: 'EARRINGS', 
-      img: '/images/earring.jpg',
-      srcSet: '/images/earring-sm.jpg 480w, /images/earring-md.jpg 768w, /images/earring.jpg 1024w'
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227856/earring_xq3tnr.jpg',
+      srcSet: ''
     },
     { 
       name: 'BRACELET', 
-      img: '/images/bracelet.png',
-      srcSet: '/images/bracelet-sm.png 480w, /images/bracelet-md.png 768w, /images/bracelet.png 1024w'
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227859/bracelet_euzi0c.png',
+      srcSet: ''
     },
     { 
       name: 'RINGS', 
-      img: '/images/ring.png',
-      srcSet: '/images/ring-sm.png 480w, /images/ring-md.png 768w, /images/ring.png 1024w'
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227859/ring_dbl6hc.png',
+      srcSet: ''
     },
     { 
       name: 'NECKLACE', 
-      img: '/images/necklace.jpg',
-      srcSet: '/images/necklace-sm.jpg 480w, /images/necklace-md.jpg 768w, /images/necklace.jpg 1024w'
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227857/necklace_mfa0eu.jpg',
+      srcSet: ''
     },
   ], []);
 
@@ -1054,7 +1056,7 @@ const BentoCollectionsSection = () => {
     {
       name: 'Our Bestsellers',
       description: 'Customer favorites that never go out of style',
-      img: '/images/bestsellers.jpg',
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227857/bestsellers_zffy5n.jpg',
       size: 'large',
       color: 'from-rose-100 to-pink-50',
       link: '/shop?tags=bestseller'
@@ -1062,7 +1064,7 @@ const BentoCollectionsSection = () => {
     {
       name: 'Everyday Essentials',
       description: 'Chic daily pieces',
-      img: '/images/everyday.jpg',
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227859/everyday_s8miea.jpg',
       size: 'tall',
       color: 'from-pink-50 to-rose-50',
       link: '/shop?tags=everyday'
@@ -1070,7 +1072,7 @@ const BentoCollectionsSection = () => {
     {
       name: 'Accent Pairs',
       description: 'Bold & beautiful',
-      img: '/images/pair.jpg',
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227858/pair_cqurjg.jpg',
       size: 'small',
       color: 'from-rose-50 to-white',
       link: '/shop?tags=accent'
@@ -1078,7 +1080,7 @@ const BentoCollectionsSection = () => {
     {
       name: 'Minimalist',
       description: 'Less is more',
-      img: '/images/minimalist.jpg',
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227859/minimalist_cdynyl.jpg',
       size: 'small',
       color: 'from-white to-rose-50',
       link: '/shop?tags=minimalist'
@@ -1086,7 +1088,7 @@ const BentoCollectionsSection = () => {
     {
       name: 'Boho Vibes',
       description: 'Free-spirited designs',
-      img: '/images/boho.png',
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227858/boho_ejcz5g.png',
       size: 'wider',
       color: 'from-rose-50 to-pink-100',
       link: '/shop?tags=boho'

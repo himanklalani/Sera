@@ -81,6 +81,7 @@ export default function Navbar() {
                 <motion.button 
                   onClick={() => setIsNavOpen(true)} 
                   className="text-2xl focus:outline-none"
+                  aria-label="Open Navigation Menu"
                   whileHover={{ color: '#f43f5e', scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.2 }}
@@ -129,6 +130,7 @@ export default function Navbar() {
                 )}
                 <motion.button 
                   onClick={() => setIsSearchOpen(true)}
+                  aria-label="Open Search"
                   whileHover={{ color: '#f43f5e', scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.2 }}

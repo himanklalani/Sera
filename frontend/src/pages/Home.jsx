@@ -635,11 +635,11 @@ const GiftingSection = () => {
 
   const giftImages = useMemo(() => [
     'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=65&w=1200&auto=format&fit=crop&fm=webp',
-    '/images/tinified/gift1.avif',
-    '/images/tinified/gift2.avif',
-    '/images/tinified/gift3.avif',
-    '/images/tinified/gift4.avif',
-    '/images/tinified/gift5.avif'
+    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230280/gift1_yugt68.avif',
+    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230275/gift2_cdwj05.avif',
+    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230276/gift3_dkqp7u.avif',
+    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230275/gift4_mpppql.avif',
+    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230276/gift5_j1siec.avif'
   ], []);
 
 
@@ -839,7 +839,7 @@ const HeroSection = () => {
   const [showButton, setShowButton] = useState(false);
   const [backgroundLoaded, setBackgroundLoaded] = useState(false);
   const [showFlyer, setShowFlyer] = useState(false);
-  const heroImage = '/hero.avif';
+  const heroImage = 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780229969/hero_zvkcsm.avif';
   
   // Preload hero image
   useEffect(() => {
@@ -1200,12 +1200,12 @@ const BentoCollectionsSection = () => {
 // ============================================
 const FloatingGallerySection = () => {
   const galleryItems = useMemo(() => [
-    { img: '/images/tinified/gallery2.avif', height: 'h-64', delay: 0 },
-    { img: '/images/tinified/gallery1.avif', height: 'h-80', delay: 0.05 },
-    { img: '/images/tinified/gallery3.avif', height: 'h-72', delay: 0.1 },
-    { img: '/images/tinified/gallery4.avif', height: 'h-96', delay: 0.15 },
-    { img: '/images/tinified/gallery5.avif', height: 'h-64', delay: 0.2 },
-    { img: '/images/tinified/gallery6.avif', height: 'h-88', delay: 0.25 },
+    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230150/gallery2_yxa0cq.avif', height: 'h-64', delay: 0 },
+    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230149/gallery1_wd75ie.avif', height: 'h-80', delay: 0.05 },
+    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230150/gallery3_hgea56.avif', height: 'h-72', delay: 0.1 },
+    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230149/gallery4_zkqgaa.avif', height: 'h-96', delay: 0.15 },
+    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230153/gallery5_tasn9g.avif', height: 'h-64', delay: 0.2 },
+    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230150/gallery6_igxgvk.avif', height: 'h-88', delay: 0.25 },
   ], []);
 
 

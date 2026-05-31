@@ -28,13 +28,14 @@
     <!-- Preload LCP Hero Image -->
     <link rel="preload" as="image" href="https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780229969/hero_zvkcsm.avif" fetchpriority="high">
 
-    <link rel="preload" 
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" 
-      as="style">
-
-    <link 
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" 
-      rel="stylesheet">
+    <!-- Non-blocking Google Fonts load -->
+    <link rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    </noscript>
 
     <title>Sera - Affordable & Minimalistic Anti-Tarnish Jewellery</title>
   </head>

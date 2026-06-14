@@ -101,13 +101,12 @@ const Shop = () => {
         );
 
 
-        if (lastFetchParamsRef.current === paramKey) {
-          const safeProducts = Array.isArray(data.products) ? data.products : [];
-          setProducts(safeProducts);
-          setTotalPages(1);
-          setTotalProducts(safeProducts.length);
-          setLoading(false);
-        }
+        // AbortController ensures this is the latest request, no need for strict paramKey matching
+        const safeProducts = Array.isArray(data.products) ? data.products : [];
+        setProducts(safeProducts);
+        setTotalPages(1);
+        setTotalProducts(safeProducts.length);
+        setLoading(false);
       } else {
         const params = new URLSearchParams();
         params.set('page', currentPage);
@@ -140,14 +139,12 @@ const Shop = () => {
         );
 
 
-        // Only update state if this is still the latest request
-        if (lastFetchParamsRef.current === paramKey) {
-          const safeProducts = Array.isArray(data.products) ? data.products : [];
-          setProducts(safeProducts);
-          setTotalPages(data.pages || 1);
-          setTotalProducts(data.total || 0);
-          setLoading(false);
-        }
+        // AbortController ensures this is the latest request, no need for strict paramKey matching
+        const safeProducts = Array.isArray(data.products) ? data.products : [];
+        setProducts(safeProducts);
+        setTotalPages(data.pages || 1);
+        setTotalProducts(data.total || 0);
+        setLoading(false);
       }
     } catch (error) {
       // FIXED: Properly ignore AbortError/CanceledError

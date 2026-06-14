@@ -350,6 +350,14 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+      
+      // If token is invalid or expired, log them out completely
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        localStorage.removeItem('userInfo');
+        navigate('/login');
+        return;
+      }
+      
       setProducts([]);
       setUsers([]);
       setCategories([]);

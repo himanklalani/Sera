@@ -32,6 +32,8 @@ export default function Navbar() {
         localStorage.removeItem('userInfo');
         setUserInfo(null);
       }
+    } else {
+      setUserInfo(null);
     }
   }, [location]);
 

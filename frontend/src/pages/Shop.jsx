@@ -340,8 +340,9 @@ const Shop = () => {
             <p className="text-gray-500 text-xs md:text-sm mb-2 capitalize truncate">
               {product.category || 'Uncategorized'}
             </p>
-            <p className="text-lg md:text-xl font-medium text-gray-900">
-              INR {product.price?.toLocaleString() || 0}
+            <p className="text-lg md:text-xl font-medium text-gray-900 flex items-center justify-center gap-2">
+              <span className="line-through text-gray-400 text-sm md:text-base">INR {product.price?.toLocaleString() || 0}</span>
+              <span className="text-rose-500 font-bold">INR {Math.round((product.price || 0) * 0.5).toLocaleString()}</span>
             </p>
           </div>
         </motion.div>

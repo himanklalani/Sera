@@ -310,7 +310,7 @@ const Checkout = () => {
               orderItems: cartItems.map((item) => ({
                 product: item.product._id,
                 quantity: item.quantity,
-                price: item.product.price,
+                price: Math.round(item.product.price * 0.5),
               })),
               shippingAddress: {
                 street: selectedAddress.street,

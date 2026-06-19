@@ -310,7 +310,9 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
   order.items.forEach((item) => {
     const name = item.name || item.product?.name || 'Product';
     const quantity = item.quantity || 1;
-    const priceRaw = item.price || item.product?.price || 0;
+    // Show the original product price in the item row if it was discounted
+    const originalProductPrice = item.product?.price || item.price || 0;
+    const priceRaw = originalProductPrice > (item.price || 0) ? originalProductPrice : (item.price || 0);
     const lineTotalRaw = priceRaw * quantity;
     const price = formatAmount(priceRaw);
     const lineTotal = formatAmount(lineTotalRaw);
@@ -328,16 +330,28 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
   const summaryY = currentY + 10;
 
   const subtotalRaw = order.items.reduce(
+    (sum, item) => {
+      const originalProductPrice = item.product?.price || item.price || 0;
+      const priceToUse = originalProductPrice > (item.price || 0) ? originalProductPrice : (item.price || 0);
+      return sum + priceToUse * (item.quantity || 1);
+    },
+    0
+  );
+  
+  const actualItemsTotal = order.items.reduce(
     (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
     0
   );
+
+  const impliedDiscount = subtotalRaw - actualItemsTotal;
+
   const shippingRawBase =
-    subtotalRaw > 999 ? 0 : subtotalRaw > 0 ? 100 : 0;
-  const discountRaw = order.couponDiscount || 0;
+    actualItemsTotal > 999 ? 0 : actualItemsTotal > 0 ? 100 : 0;
+  const discountRaw = (order.couponDiscount || 0) + impliedDiscount;
   const grandTotalRaw =
     typeof order.totalPrice === 'number'
       ? order.totalPrice
-      : subtotalRaw + shippingRawBase - discountRaw;
+      : actualItemsTotal + shippingRawBase - (order.couponDiscount || 0);
 
   const subtotal = formatAmount(subtotalRaw);
   const discount = formatAmount(discountRaw);
@@ -361,7 +375,7 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
   if (discountRaw > 0) {
     const discountLabel = order.couponCode
       ? `Discount (${order.couponCode})`
-      : 'Discount';
+      : impliedDiscount > 0 ? 'Clearance Discount' : 'Discount';
     doc.text(
       `${discountLabel}: - INR ${discount}`,
       totalX - 50,

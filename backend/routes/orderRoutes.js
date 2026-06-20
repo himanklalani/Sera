@@ -9,6 +9,8 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
 const Coupon = require('../models/Coupon');
+const { sendOrderConfirmationEmail, sendDeliveryReviewEmail } = require('../services/emailService');
+const { generateInvoiceBase64 } = require('../utils/pdfGenerator');
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -180,6 +182,20 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     { user: req.user._id },
     { items: [] }
   );
+
+  // Send Order Confirmation Email asynchronously
+  try {
+    const populatedOrder = await Order.findById(createdOrder._id)
+      .populate('user', 'name email')
+      .populate('items.product');
+    
+    if (populatedOrder && req.user.email) {
+      const pdfBase64 = await generateInvoiceBase64(populatedOrder);
+      sendOrderConfirmationEmail(populatedOrder, req.user.email, pdfBase64);
+    }
+  } catch (err) {
+    console.error('Email confirmation error:', err);
+  }
 
   res.status(201).json(createdOrder);
 }));
@@ -441,6 +457,18 @@ router.put('/:id/status', protect, asyncHandler(async (req, res) => {
     // Mark delivered date
     if (order.status === 'delivered' && oldStatus !== 'delivered') {
       order.deliveredAt = new Date();
+      
+      // Send Delivery Review Email
+      try {
+        const populatedOrder = await Order.findById(order._id)
+          .populate('user', 'email name')
+          .populate('items.product');
+        if (populatedOrder && populatedOrder.user?.email) {
+          sendDeliveryReviewEmail(populatedOrder, populatedOrder.user.email);
+        }
+      } catch (err) {
+        console.error('Delivery email error:', err);
+      }
     }
     
     const updatedOrder = await order.save();
@@ -632,6 +660,18 @@ router.put('/:id/update', protect, asyncHandler(async (req, res) => {
       // Mark delivered date
       if (order.status === 'delivered' && oldStatus !== 'delivered') {
         order.deliveredAt = new Date();
+        
+        // Send Delivery Review Email
+        try {
+          const populatedOrder = await Order.findById(order._id)
+            .populate('user', 'email name')
+            .populate('items.product');
+          if (populatedOrder && populatedOrder.user?.email) {
+            sendDeliveryReviewEmail(populatedOrder, populatedOrder.user.email);
+          }
+        } catch (err) {
+          console.error('Delivery email error:', err);
+        }
       }
     }
 

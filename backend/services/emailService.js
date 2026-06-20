@@ -276,4 +276,166 @@ const sendPasswordResetEmail = async (email, otp) => {
   }
 };
 
-module.exports = { sendOTPEmail, sendPasswordResetEmail };
+// Send Order Confirmation Email
+const sendOrderConfirmationEmail = async (order, userEmail, pdfBase64) => {
+  const emailData = {
+    sender: { 
+      name: "Sera Jewelry", 
+      email: process.env.SMTP_FROM 
+    },
+    to: [{ email: userEmail }],
+    subject: `Order Confirmation - Sera Jewels (#${order._id.toString().slice(-8)})`,
+    htmlContent: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: 'Arial', sans-serif; background-color: #fdf2f8; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); overflow: hidden; }
+          .header { background: linear-gradient(135deg, #c5a666 0%, #b09458 100%); padding: 30px 20px; text-align: center; color: white; }
+          .header h1 { margin: 0; font-size: 28px; font-weight: 300; letter-spacing: 3px; }
+          .content { padding: 40px 30px; text-align: center; color: #333; }
+          .content h2 { font-size: 22px; margin-bottom: 20px; }
+          .content p { font-size: 16px; line-height: 1.6; color: #666; margin-bottom: 20px; }
+          .footer { background-color: #f9fafb; padding: 20px; text-align: center; color: #999; font-size: 14px; border-top: 1px solid #e5e7eb; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>SERA</h1>
+          </div>
+          <div class="content">
+            <h2>Thank You For Your Order! ✨</h2>
+            <p>Hi there,</p>
+            <p>We've successfully received your order <strong>#${order._id.toString().slice(-8)}</strong> and we are getting it ready for you!</p>
+            <p>A copy of your official invoice is attached to this email for your records.</p>
+            <p>We'll notify you as soon as your beautiful pieces are on their way.</p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sera Jewelry. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `,
+    attachment: [
+      {
+        content: pdfBase64,
+        name: `Invoice-${order.invoiceNumber || order._id.toString().slice(-8)}.pdf`
+      }
+    ]
+  };
+
+  try {
+    const response = await axios.post('https://api.brevo.com/v3/smtp/email', emailData, {
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      }
+    });
+    console.log('✅ Order Confirmation Email sent successfully:', response.data.messageId);
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Order Confirmation Email failed:', error.response?.data || error.message);
+  }
+};
+
+// Send Delivery & Review Email
+const sendDeliveryReviewEmail = async (order, userEmail) => {
+  // Generate product links
+  let productLinksHtml = '';
+  if (order.items && order.items.length > 0) {
+    productLinksHtml = `
+      <div style="margin: 30px 0; padding: 20px; background-color: #fdf2f8; border-radius: 8px; text-align: left;">
+        <h3 style="color: #c5a666; font-size: 16px; margin-top: 0;">Review your specific pieces:</h3>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          ${order.items.map(item => {
+            if (!item.product) return '';
+            const productId = item.product._id || item.product;
+            const productName = item.name || 'Your Jewelry Piece';
+            return `<li style="margin-bottom: 10px;">
+              <a href="https://www.serastore.in/product/${productId}" style="color: #333; text-decoration: none; font-weight: bold; border-bottom: 1px solid #c5a666;">
+                📝 Rate your ${productName}
+              </a>
+            </li>`;
+          }).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  const emailData = {
+    sender: { 
+      name: "Sera Jewelry", 
+      email: process.env.SMTP_FROM 
+    },
+    to: [{ email: userEmail }],
+    subject: `Your Sera Order Has Arrived! ✨`,
+    htmlContent: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: 'Arial', sans-serif; background-color: #fdf2f8; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); overflow: hidden; }
+          .header { background: linear-gradient(135deg, #c5a666 0%, #b09458 100%); padding: 30px 20px; text-align: center; color: white; }
+          .header h1 { margin: 0; font-size: 28px; font-weight: 300; letter-spacing: 3px; }
+          .content { padding: 40px 30px; text-align: center; color: #333; }
+          .content h2 { font-size: 22px; margin-bottom: 20px; }
+          .content p { font-size: 16px; line-height: 1.6; color: #666; margin-bottom: 20px; }
+          .btn { display: inline-block; padding: 12px 24px; background-color: #c5a666; color: #ffffff !important; text-decoration: none; font-weight: bold; border-radius: 8px; margin: 10px 0 20px 0; }
+          .footer { background-color: #f9fafb; padding: 20px; text-align: center; color: #999; font-size: 14px; border-top: 1px solid #e5e7eb; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>SERA</h1>
+          </div>
+          <div class="content">
+            <h2>Order Delivered!</h2>
+            <p>We hope you’re loving your SERA piece ✨</p>
+            <p>We always love seeing how our pieces become a part of your everyday moments. If you ever happen to style it, we’d absolutely love to see it, whether it’s a quick story or even a simple message to us on Instagram!</p>
+            
+            <p style="margin-top: 30px;">If you had a wonderful experience with us, it would mean the world if you could leave a quick review on our Google page:</p>
+            <a href="https://g.page/r/CWm-XXHSpBV6EAI/review" class="btn">⭐ Review Us On Google</a>
+
+            <p style="font-size: 14px; margin-top: 10px;">And also, along with that, if possible, please login and share a review on the product page too:</p>
+            ${productLinksHtml}
+
+            <p>Thank you for choosing Sera!</p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sera Jewelry. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+  };
+
+  try {
+    const response = await axios.post('https://api.brevo.com/v3/smtp/email', emailData, {
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      }
+    });
+    console.log('✅ Delivery Review Email sent successfully:', response.data.messageId);
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Delivery Review Email failed:', error.response?.data || error.message);
+  }
+};
+
+module.exports = {
+  sendOTPEmail,
+  sendPasswordResetEmail,
+  sendOrderConfirmationEmail,
+  sendDeliveryReviewEmail
+};

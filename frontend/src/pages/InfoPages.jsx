@@ -102,7 +102,7 @@ export const FAQ = () => {
     },
     {
       question: "What does anti-tarnish mean?",
-      answer: "Anti-tarnish jewelry is crafted with specific materials and coatings, like 316L stainless steel and 18k gold PVD plating, that resist oxidation. This means your jewelry won't turn black, fade quickly, or turn your skin green, even with everyday wear."
+      answer: "Anti-tarnish jewelry is crafted with specific materials and coatings, like premium stainless steel and high-quality PVD plating, that resist oxidation. This means your jewelry won't turn black, fade quickly, or turn your skin green, even with everyday wear."
     },
     {
       question: "Can I wear Sera jewelry in the shower?",
@@ -112,7 +112,7 @@ export const FAQ = () => {
       question: "What materials are used?",
       answer: (
         <span>
-          We use surgical-grade 316L stainless steel as our base, coated with a thick layer of 18K gold using advanced PVD plating. It's 100% hypoallergenic, nickel-free, and safe for sensitive skin. Read more in our <Link to="/materials" className="text-rose-600 font-bold hover:underline">Materials Guide</Link>.
+          We use premium stainless steel as our base, coated with a thick layer of advanced PVD plating. It's allergy-resistant, nickel-free, and generally safe for sensitive skin. Read more in our <Link to="/materials" className="text-rose-600 font-bold hover:underline">Materials Guide</Link>.
         </span>
       )
     },
@@ -204,7 +204,7 @@ export const FAQ = () => {
         "name": "What does anti-tarnish mean?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Anti-tarnish jewelry is crafted with specific materials and coatings, like 316L stainless steel and 18k gold PVD plating, that resist oxidation. This means your jewelry won't turn black, fade quickly, or turn your skin green, even with everyday wear."
+          "text": "Anti-tarnish jewelry is crafted with specific materials and coatings, like premium stainless steel and high-quality PVD plating, that resist oxidation. This means your jewelry won't turn black, fade quickly, or turn your skin green, even with everyday wear."
         }
       },
       {
@@ -220,7 +220,7 @@ export const FAQ = () => {
         "name": "What materials are used?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "We use surgical-grade 316L stainless steel as our base, coated with a thick layer of 18K gold using advanced PVD plating. It's 100% hypoallergenic, nickel-free, and safe for sensitive skin."
+          "text": "We use premium stainless steel as our base, coated with a thick layer of advanced PVD plating. It's allergy-resistant, nickel-free, and generally safe for sensitive skin."
         }
       },
       {

@@ -460,10 +460,10 @@ const Shop = () => {
 
 
   const seoDescriptions = {
-    'All': "Explore our complete collection of affordable, minimalistic, and cutesy anti-tarnish jewelry. Crafted with 316L stainless steel and 18k gold plating, Sera's everyday luxury pieces are waterproof, skin-safe, and designed to shine forever.",
+    'All': "Explore our complete collection of affordable, minimalistic, and cutesy anti-tarnish jewelry. Sera's everyday luxury pieces are waterproof, skin-safe, and designed to shine forever.",
     'Necklace': "Discover our elegant collection of anti-tarnish necklaces and dainty pendants. Perfect for layering or everyday wear, each waterproof gold necklace is designed to elevate your outfit without turning your skin green.",
-    'Rings': "Shop our beautiful range of minimalistic, anti-tarnish rings. From aesthetic stackable rings to elegant everyday pieces, our 18k gold-plated rings are waterproof and perfect for sensitive skin.",
-    'Earrings': "Elevate your look with our lightweight, anti-tarnish earrings. Featuring gold hoops, delicate studs, and modern drop earrings that are 100% hypoallergenic and water-resistant.",
+    'Rings': "Shop our beautiful range of minimalistic, anti-tarnish rings. From aesthetic stackable rings to elegant everyday pieces, our rings are waterproof and perfect for sensitive skin.",
+    'Earrings': "Elevate your look with our lightweight, anti-tarnish earrings. Featuring beautiful hoops, delicate studs, and modern drop earrings that are allergy-resistant and water-resistant.",
     'Bracelet': "Browse our collection of anti-tarnish bracelets and delicate chains. Crafted for durability and style, our waterproof bracelets are perfect for everyday luxury."
   };
 

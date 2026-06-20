@@ -367,6 +367,8 @@ const AdminDashboard = () => {
         return;
       }
       
+      toast.error(`Failed to fetch ${activeTab}: ` + (error.response?.data?.message || error.message));
+      
       setProducts([]);
       setUsers([]);
       setCategories([]);

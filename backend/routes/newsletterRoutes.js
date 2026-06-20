@@ -3,11 +3,20 @@ const router = express.Router();
 const asyncHandler = require('express-async-handler');
 const Newsletter = require('../models/Newsletter');
 const { protect, admin } = require('../middleware/authMiddleware');
+const rateLimit = require('express-rate-limit');
+
+const newsletterLimiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000, // 24 hours
+  max: 5, // Limit each IP to 5 requests per day
+  message: { message: 'Too many newsletter subscriptions from this IP, please try again after 24 hours' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // @desc    Subscribe to newsletter
 // @route   POST /api/newsletter
 // @access  Public
-router.post('/', asyncHandler(async (req, res) => {
+router.post('/', newsletterLimiter, asyncHandler(async (req, res) => {
   const { email } = req.body;
 
   if (!email) {

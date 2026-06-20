@@ -882,7 +882,7 @@ const HeroSection = () => {
     <div className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gray-900 safe-area">
       <Helmet>
         <title>Sera | Affordable Anti-Tarnish Jewelry</title>
-        <meta name="description" content="Discover Sera's premium collection of waterproof, anti-tarnish jewelry. Shop affordable 18k gold plated necklaces, rings, earrings, and bracelets that won't turn your skin green." />
+        <meta name="description" content="Discover Sera's premium collection of waterproof, anti-tarnish jewelry. Shop affordable necklaces, rings, earrings, and bracelets that won't turn your skin green." />
       </Helmet>
       
       {/* Optimized LCP Hero Image */}

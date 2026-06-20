@@ -1042,6 +1042,7 @@ const AdminDashboard = () => {
           </div>
         )}
       </div>
+    </>
     );
   };
 
@@ -2397,8 +2398,6 @@ const AdminDashboard = () => {
       )}
 
     </div>
-  
-    </>
   );
 };
 

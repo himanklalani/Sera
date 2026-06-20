@@ -1,16 +1,15 @@
 User-agent: *
 Allow: /
 
-# Directories
-Disallow: /admin/
-Disallow: /profile/
-Disallow: /cart/
-Disallow: /checkout/
-Disallow: /order-success/
-
-# Files
+# Disallow utility and auth pages to prevent crawling overhead
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
 Disallow: /forgot-password
 Disallow: /reset-password
+Disallow: /profile
+Disallow: /order-success
 
-# Sitemap
 Sitemap: https://www.serastore.in/sitemap.xml

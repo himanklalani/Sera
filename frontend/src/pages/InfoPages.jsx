@@ -1,6 +1,7 @@
 // InfoPage.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 
 
@@ -100,6 +101,22 @@ export const FAQ = () => {
       answer: "Orders ship within 2-3 business days via courier services & delivery may take 5-7 working days. Free shipping on orders above ₹999."
     },
     {
+      question: "What does anti-tarnish mean?",
+      answer: "Anti-tarnish jewelry is crafted with specific materials and coatings, like 316L stainless steel and 18k gold PVD plating, that resist oxidation. This means your jewelry won't turn black, fade quickly, or turn your skin green, even with everyday wear."
+    },
+    {
+      question: "Can I wear Sera jewelry in the shower?",
+      answer: "Yes! Our jewelry is highly water-resistant and sweatproof. You can comfortably wear it in the shower or during workouts without worrying about immediate tarnishing. However, avoiding harsh chemicals will prolong its life."
+    },
+    {
+      question: "What materials are used?",
+      answer: (
+        <span>
+          We use surgical-grade 316L stainless steel as our base, coated with a thick layer of 18K gold using advanced PVD plating. It's 100% hypoallergenic, nickel-free, and safe for sensitive skin. Read more in our <Link to="/materials" className="text-rose-600 font-bold hover:underline">Materials Guide</Link>.
+        </span>
+      )
+    },
+    {
       question: "International Shipping?",
       answer: "Currently shipping within India only. International shipping coming soon!"
     },
@@ -178,8 +195,54 @@ export const FAQ = () => {
 
 
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What does anti-tarnish mean?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Anti-tarnish jewelry is crafted with specific materials and coatings, like 316L stainless steel and 18k gold PVD plating, that resist oxidation. This means your jewelry won't turn black, fade quickly, or turn your skin green, even with everyday wear."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I wear Sera jewelry in the shower?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes! Our jewelry is highly water-resistant and sweatproof. You can comfortably wear it in the shower or during workouts without worrying about immediate tarnishing."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What materials are used?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We use surgical-grade 316L stainless steel as our base, coated with a thick layer of 18K gold using advanced PVD plating. It's 100% hypoallergenic, nickel-free, and safe for sensitive skin."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Shipping Timeline?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Orders ship within 2-3 business days via courier services & delivery may take 5-7 working days. Free shipping on orders above ₹999."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-rose-50/50 py-12 px-4 lg:px-8">
+      <Helmet>
+        <title>Frequently Asked Questions | Sera</title>
+        <meta name="description" content="Find answers to your questions about Sera's anti-tarnish jewelry, shipping, returns, and how to care for waterproof rings and necklaces." />
+        <script type="application/ld+json">
+          {JSON.stringify(faqSchema)}
+        </script>
+      </Helmet>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-20">

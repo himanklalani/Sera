@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaTimes, FaCheck, FaSearch, FaFilter, FaChevronLeft, FaChevronRight, FaDownload } from 'react-icons/fa';
 import axios from 'axios';
@@ -833,6 +834,10 @@ const AdminDashboard = () => {
     const hasActiveFilters = searchInput !== '' || Object.values(filters).some(f => f !== '');
     
     return (
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="bg-white shadow rounded-lg p-6 mb-6 border border-gray-200">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-4">
           <div className="flex flex-col sm:flex-row gap-3 flex-1 w-full">
@@ -2392,6 +2397,8 @@ const AdminDashboard = () => {
       )}
 
     </div>
+  
+    </>
   );
 };
 

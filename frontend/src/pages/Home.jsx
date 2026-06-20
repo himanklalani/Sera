@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 
@@ -879,6 +880,10 @@ const HeroSection = () => {
 
   return (
     <div className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gray-900 safe-area">
+      <Helmet>
+        <title>Sera | Affordable Anti-Tarnish Jewelry</title>
+        <meta name="description" content="Discover Sera's premium collection of waterproof, anti-tarnish jewelry. Shop affordable 18k gold plated necklaces, rings, earrings, and bracelets that won't turn your skin green." />
+      </Helmet>
       
       {/* Optimized LCP Hero Image */}
       <img
@@ -913,14 +918,14 @@ const HeroSection = () => {
         >
           Welcome to Sera
         </motion.h1>
-        <motion.p 
+        <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-base sm:text-lg md:text-2xl lg:text-3xl font-light tracking-widest uppercase drop-shadow-lg mb-12"
         >
           timeless elegance <span className="block md:inline font-serif italic text-rose-200">meets</span> modern intention
-        </motion.p>
+        </motion.h2>
         
         <motion.div 
           className="absolute bottom-[15%] sm:bottom-[20%] left-1/2 transform -translate-x-1/2"

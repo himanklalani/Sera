@@ -1,8 +1,10 @@
+import { Helmet } from 'react-helmet-async';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FloatingCouponDrawer } from './Home';
+import { FaLock, FaTruck, FaShieldAlt } from 'react-icons/fa';
 
 
 const Checkout = () => {
@@ -61,7 +63,26 @@ const Checkout = () => {
         
         // Fetch Cart
         const cartRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, config);
-        setCartItems(cartRes.data.items || []);
+        const fetchedCart = cartRes.data.items || [];
+        setCartItems(fetchedCart);
+
+        // GA4 begin_checkout event
+        if (window.dataLayer && fetchedCart.length > 0) {
+          window.dataLayer.push({
+            event: 'begin_checkout',
+            ecommerce: {
+              currency: 'INR',
+              value: fetchedCart.reduce((acc, item) => acc + (Math.round((item.product.price || 0) * 0.5) * item.quantity), 0),
+              items: fetchedCart.map(item => ({
+                item_id: item.product._id,
+                item_name: item.product.name,
+                item_category: item.product.category,
+                price: Math.round((item.product.price || 0) * 0.5),
+                quantity: item.quantity
+              }))
+            }
+          });
+        }
 
 
         // Fetch Addresses (Profile)
@@ -215,10 +236,24 @@ const Checkout = () => {
       console.log('Sending order data:', orderData); // ✅ DEBUG LOG
 
 
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, orderData, config);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, orderData, config);
       
       toast.success('Order placed successfully!');
-      navigate('/order-success');
+      navigate('/order-success', { 
+        state: { 
+          transaction_id: res.data._id || `COD-${Date.now()}`,
+          value: total,
+          shipping: shipping,
+          tax: 0,
+          items: cartItems.map(item => ({
+            item_id: item.product._id,
+            item_name: item.product.name,
+            item_category: item.product.category,
+            price: Math.round(item.product.price * 0.5),
+            quantity: item.quantity
+          }))
+        } 
+      });
     } catch (error) {
       console.error('Error placing order:', error);
       const errorMsg = error.response?.data?.message || 'Failed to place order.';
@@ -333,7 +368,21 @@ const Checkout = () => {
             );
 
             toast.success('Payment successful and order placed!');
-            navigate('/order-success');
+            navigate('/order-success', { 
+              state: { 
+                transaction_id: response.razorpay_payment_id,
+                value: total,
+                shipping: shipping,
+                tax: 0,
+                items: cartItems.map(item => ({
+                  item_id: item.product._id,
+                  item_name: item.product.name,
+                  item_category: item.product.category,
+                  price: Math.round(item.product.price * 0.5),
+                  quantity: item.quantity
+                }))
+              } 
+            });
           } catch (error) {
             console.error('Error verifying payment:', error);
             const message =
@@ -378,7 +427,11 @@ const Checkout = () => {
 
 
   return (
-    <div className="container mx-auto px-6 py-24 min-h-screen relative">
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      <div className="container mx-auto px-6 py-24 min-h-screen relative">
       <FloatingCouponDrawer shouldShow={true} />
       <h1 className="text-4xl font-serif text-center mb-12">Checkout</h1>
       
@@ -513,10 +566,39 @@ const Checkout = () => {
               >
                 {razorpayLoading ? 'Processing payment...' : 'Place Order'}
               </button>
+
+              {/* Trust Badges */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <FaLock className="text-xl text-gray-400" />
+                    <div>
+                      <p className="text-sm font-semibold">Secure Checkout</p>
+                      <p className="text-xs text-gray-500">256-bit SSL encryption</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <FaShieldAlt className="text-xl text-gray-400" />
+                    <div>
+                      <p className="text-sm font-semibold">Verified Payments</p>
+                      <p className="text-xs text-gray-500">100% safe & trusted transactions</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <FaTruck className="text-xl text-gray-400" />
+                    <div>
+                      <p className="text-sm font-semibold">Free Shipping</p>
+                      <p className="text-xs text-gray-500">On all orders above ₹999</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
            </div>
         </div>
       </div>
     </div>
+  
+    </>
   );
 };
 

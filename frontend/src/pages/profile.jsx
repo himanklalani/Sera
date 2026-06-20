@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { useState, useEffect } from 'react';
 import { FaPlus, FaTrash, FaMapMarkerAlt, FaEdit, FaBox } from 'react-icons/fa';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
@@ -304,7 +305,11 @@ const Profile = () => {
   };
 
   return (
-    <div className="container mx-auto px-6 py-24">
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      <div className="container mx-auto px-6 py-24">
       <h1 className="text-4xl font-serif mb-8 text-gray-900">My Account</h1>
 
       <div className="flex flex-col md:flex-row gap-8">
@@ -709,6 +714,8 @@ const Profile = () => {
         </div>
       )}
     </div>
+  
+    </>
   );
 };
 

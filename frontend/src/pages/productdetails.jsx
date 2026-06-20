@@ -1,6 +1,7 @@
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt, FaInstagram } from 'react-icons/fa';
@@ -22,6 +23,7 @@ const ProductDetails = () => {
   const [addingToCart, setAddingToCart] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [recentProducts, setRecentProducts] = useState([]);
 
 
   // review states
@@ -83,6 +85,40 @@ const ProductDetails = () => {
         const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${id}`);
         setProduct(data);
 
+        // GA4 view_item event
+        if (window.dataLayer) {
+          window.dataLayer.push({
+            event: 'view_item',
+            ecommerce: {
+              currency: 'INR',
+              value: Math.round((data.price || 0) * 0.5),
+              items: [{
+                item_id: data._id,
+                item_name: data.name,
+                item_category: data.category,
+                price: Math.round((data.price || 0) * 0.5)
+              }]
+            }
+          });
+        }
+
+        // Update Recently Viewed
+        try {
+          let recent = JSON.parse(localStorage.getItem('recentProducts') || '[]');
+          const otherRecents = recent.filter(p => p._id !== data._id);
+          setRecentProducts(otherRecents.slice(0, 4));
+
+          recent = recent.filter(p => p._id !== data._id);
+          recent.unshift({
+            _id: data._id,
+            name: data.name,
+            images: data.images,
+            price: data.price,
+            category: data.category
+          });
+          if (recent.length > 4) recent = recent.slice(0, 4);
+          localStorage.setItem('recentProducts', JSON.stringify(recent));
+        } catch(e) {}
 
         const ui = getUserInfo();
 
@@ -206,7 +242,27 @@ const ProductDetails = () => {
 
 
     try {
-      await addToCartContext(itemToAdd._id, productToAdd ? 1 : quantity);
+      const qty = productToAdd ? 1 : quantity;
+      await addToCartContext(itemToAdd._id, qty);
+      
+      // GA4 add_to_cart event
+      if (window.dataLayer) {
+        window.dataLayer.push({
+          event: 'add_to_cart',
+          ecommerce: {
+            currency: 'INR',
+            value: Math.round((itemToAdd.price || 0) * 0.5) * qty,
+            items: [{
+              item_id: itemToAdd._id,
+              item_name: itemToAdd.name,
+              item_category: itemToAdd.category,
+              price: Math.round((itemToAdd.price || 0) * 0.5),
+              quantity: qty
+            }]
+          }
+        });
+      }
+
       toast.success(`${itemToAdd.name} added to cart!`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to add to cart');
@@ -323,9 +379,40 @@ const ProductDetails = () => {
 
   if (!product) return null;
 
+  const jsonLd = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.images || [],
+    "description": product.description || `Beautiful anti-tarnish ${product.category} from Sera.`,
+    "sku": product._id,
+    "offers": {
+      "@type": "Offer",
+      "url": window.location.href,
+      "priceCurrency": "INR",
+      "price": Math.round((product.price || 0) * 0.5),
+      "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    }
+  };
+  
+  if (product.numReviews > 0) {
+    jsonLd.aggregateRating = {
+      "@type": "AggregateRating",
+      "ratingValue": product.rating,
+      "reviewCount": product.numReviews
+    };
+  }
 
   return (
     <div className="container mx-auto px-6 py-24">
+      <Helmet>
+        <title>{`${product.name} | Affordable Anti-Tarnish ${product.category} | Sera`}</title>
+        <meta name="description" content={product.description?.substring(0, 160) || `Buy the ${product.name}. Affordable, waterproof, and high-quality anti-tarnish jewelry.`} />
+        <script type="application/ld+json">
+          {JSON.stringify(jsonLd)}
+        </script>
+      </Helmet>
       <div className="flex flex-col lg:flex-row gap-12">
         {/* Image Gallery */}
         <div className="w-full lg:w-1/2">
@@ -373,7 +460,18 @@ const ProductDetails = () => {
         {/* Product Info */}
         <div className="w-full lg:w-1/2 space-y-6">
           <div className="flex justify-between items-start gap-4">
-            <div className="flex-1">
+            <div className="flex-1 w-full overflow-hidden">
+              {/* Breadcrumbs */}
+              <nav className="text-xs md:text-sm text-gray-500 mb-4 flex items-center space-x-2 whitespace-nowrap overflow-x-auto no-scrollbar">
+                <Link to="/" className="hover:text-rose-500 transition-colors shrink-0">Home</Link>
+                <span className="shrink-0">/</span>
+                <Link to="/shop" className="hover:text-rose-500 transition-colors shrink-0">Shop</Link>
+                <span className="shrink-0">/</span>
+                <Link to={`/shop/${product.category?.toLowerCase()}`} className="hover:text-rose-500 transition-colors capitalize shrink-0">{product.category}</Link>
+                <span className="shrink-0">/</span>
+                <span className="text-gray-900 truncate shrink-0">{product.name}</span>
+              </nav>
+
               <p className="text-rose-500 text-sm font-medium tracking-widest uppercase mb-2">
                 {product.category}
               </p>
@@ -789,6 +887,43 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Recently Viewed Section */}
+      {recentProducts.length > 0 && (
+        <div className="mt-24 pt-12 border-t">
+          <h3 className="font-serif text-3xl font-medium mb-8 text-gray-900 text-center">
+            Recently Viewed
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {recentProducts.map((recent) => (
+              <div 
+                key={recent._id} 
+                className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate(`/product/${recent._id}`);
+                }}
+              >
+                <div className="aspect-square bg-gray-100 overflow-hidden">
+                  <img 
+                    src={recent.images?.[0] || FALLBACK_IMAGE} 
+                    alt={recent.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => e.currentTarget.src = FALLBACK_IMAGE}
+                  />
+                </div>
+                <div className="p-4 text-center border border-t-0 rounded-b-xl">
+                  <p className="text-xs text-gray-500 mb-1 capitalize truncate">{recent.category}</p>
+                  <h4 className="font-medium text-gray-900 truncate mb-1">{recent.name}</h4>
+                  <p className="text-sm text-rose-500 font-bold">
+                    INR {Math.round((recent.price || 0) * 0.5).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import React, { Suspense } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -22,6 +23,9 @@ const Checkout = React.lazy(() => import('./pages/Checkout'));
 const ProductDetails = React.lazy(() => import('./pages/productdetails'));
 const Shop = React.lazy(() => import('./pages/Shop'));
 const OrderSuccess = React.lazy(() => import('./pages/OrderSuccess'));
+const NotFound = React.lazy(() => import('./pages/NotFound'));
+const JewelryCare = React.lazy(() => import('./pages/JewelryCare'));
+const MaterialsGuide = React.lazy(() => import('./pages/MaterialsGuide'));
 
 // Lazy load info pages
 const About = React.lazy(() => import('./pages/InfoPages').then(module => ({ default: module.About })));
@@ -36,9 +40,10 @@ const Contact = React.lazy(() => import('./pages/Contact'));
 
 function App() {
   return (
-    <Router>
-      <CartProvider>
-        <ScrollToTop />
+    <HelmetProvider>
+      <Router>
+        <CartProvider>
+          <ScrollToTop />
         <CookieConsent />
         <Toaster position="top-center" />
         <div className="min-h-screen flex flex-col bg-white">
@@ -49,6 +54,7 @@ function App() {
                 {/* core pages */}
                 <Route path="/" element={<Home />} />
                 <Route path="/shop" element={<Shop />} />
+                <Route path="/shop/:category" element={<Shop />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
@@ -60,9 +66,11 @@ function App() {
                 <Route path="/order-success" element={<OrderSuccess />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
 
-                {/* info pages */}
+                {/* info & SEO pages */}
                 <Route path="/about" element={<About />} />
                 <Route path="/faq" element={<FAQ />} />
+                <Route path="/jewelry-care" element={<JewelryCare />} />
+                <Route path="/materials" element={<MaterialsGuide />} />
 
                 {/* legal / policy pages */}
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -71,6 +79,9 @@ function App() {
 
                 {/* contact */}
                 <Route path="/contact" element={<Contact />} />
+                
+                {/* 404 */}
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
           </main>
@@ -78,6 +89,7 @@ function App() {
         </div>
       </CartProvider>
     </Router>
+    </HelmetProvider>
   );
 }
 

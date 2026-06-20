@@ -31,6 +31,30 @@ const Footer = () => {
               <FaPinterest className="w-6 h-6 text-gray-900 group-hover:text-rose-600 transition-colors duration-300 hover:scale-110" />
             </a>
           </div>
+
+          {/* Newsletter Signup */}
+          <div className="pt-8">
+            <h3 className="font-serif text-xl font-bold text-gray-900 mb-2 tracking-wide">Join the Sera Insider</h3>
+            <p className="text-sm text-gray-700 mb-4 font-medium">Subscribe for exclusive offers, early access, and jewelry care tips.</p>
+            <form className="flex max-w-sm" onSubmit={(e) => { 
+              e.preventDefault(); 
+              e.target.reset();
+              alert('Thank you for subscribing to Sera!'); 
+            }}>
+              <input 
+                type="email" 
+                placeholder="Enter your email" 
+                className="flex-1 px-4 py-3 border border-rose-200 rounded-l-lg focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 text-sm bg-white/50 backdrop-blur-sm"
+                required
+              />
+              <button 
+                type="submit"
+                className="bg-rose-600 text-white px-6 py-3 rounded-r-lg hover:bg-rose-700 transition-colors text-sm font-bold tracking-widest uppercase shadow-sm"
+              >
+                Subscribe
+              </button>
+            </form>
+          </div>
         </div>
 
 
@@ -56,6 +80,8 @@ const Footer = () => {
               <li><Link to="/shop" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3 uppercase">Shop <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
               <li><Link to="/about" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3 uppercase">About Us <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
               <li><Link to="/faq" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3">FAQ's <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
+              <li><Link to="/jewelry-care" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3 uppercase">Jewelry Care <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
+              <li><Link to="/materials" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3 uppercase">Materials Guide <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
             </ul>
           </div>
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link, useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaFilter, FaSearch, FaShoppingCart, FaTimes, FaCheck, FaChevronLeft, FaChevronRight, FaStar } from 'react-icons/fa';
@@ -10,12 +11,14 @@ import toast from 'react-hot-toast';
 const useURLSync = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { category: pathCategory } = useParams();
   
   const getURLParams = useCallback(() => {
     const params = new URLSearchParams(location.search);
+    let cat = params.get('category') || pathCategory;
     return {
-      category: params.get('category') ? 
-        params.get('category').charAt(0).toUpperCase() + params.get('category').slice(1).toLowerCase() 
+      category: cat ? 
+        cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase() 
         : 'All',
       page: Math.max(1, parseInt(params.get('page') || '1', 10)),
       tags: params.get('tags') ? params.get('tags').split(',').map(t => t.trim()) : [],
@@ -26,13 +29,15 @@ const useURLSync = () => {
   const updateURLParams = useCallback((newParams) => {
     const params = new URLSearchParams();
     if (newParams.page && newParams.page > 1) params.set('page', newParams.page);
-    if (newParams.category && newParams.category !== 'All') {
-      params.set('category', newParams.category.toLowerCase());
-    }
     if (newParams.tags && newParams.tags.length > 0) {
       params.set('tags', newParams.tags.join(','));
     }
-    navigate(`/shop${params.toString() ? '?' + params.toString() : ''}`);
+    
+    let basePath = '/shop';
+    if (newParams.category && newParams.category !== 'All') {
+      basePath = `/shop/${newParams.category.toLowerCase()}`;
+    }
+    navigate(`${basePath}${params.toString() ? '?' + params.toString() : ''}`);
   }, [navigate]);
 
 
@@ -315,11 +320,24 @@ const Shop = () => {
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
 
 
-            {product.stock === 0 && (
-              <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                Out of Stock
-              </div>
-            )}
+            <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
+              {product.stock === 0 && (
+                <div className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-sm w-max">
+                  Out of Stock
+                </div>
+              )}
+
+              {/* Bestseller Badge */}
+              {(product.name?.includes('Aurelia Clover') || 
+                product.name?.includes('Aurora Petal') || 
+                product.name?.includes('Rosella') || 
+                product.name?.includes('Elara') || 
+                product.name === 'Clover') && (
+                <div className="bg-black/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-sm text-[10px] font-bold uppercase tracking-widest shadow-sm flex items-center gap-1.5 border border-white/10 w-max">
+                  <FaStar className="text-yellow-400 w-2.5 h-2.5" /> Best Seller
+                </div>
+              )}
+            </div>
 
 
             <button
@@ -430,8 +448,20 @@ const Shop = () => {
   };
 
 
+  const seoDescriptions = {
+    'All': "Explore our complete collection of affordable, minimalistic, and cutesy anti-tarnish jewelry. Crafted with 316L stainless steel and 18k gold plating, Sera's everyday luxury pieces are waterproof, skin-safe, and designed to shine forever.",
+    'Necklace': "Discover our elegant collection of anti-tarnish necklaces and dainty pendants. Perfect for layering or everyday wear, each waterproof gold necklace is designed to elevate your outfit without turning your skin green.",
+    'Rings': "Shop our beautiful range of minimalistic, anti-tarnish rings. From aesthetic stackable rings to elegant everyday pieces, our 18k gold-plated rings are waterproof and perfect for sensitive skin.",
+    'Earrings': "Elevate your look with our lightweight, anti-tarnish earrings. Featuring gold hoops, delicate studs, and modern drop earrings that are 100% hypoallergenic and water-resistant.",
+    'Bracelet': "Browse our collection of anti-tarnish bracelets and delicate chains. Crafted for durability and style, our waterproof bracelets are perfect for everyday luxury."
+  };
+
   return (
     <div className="min-h-screen bg-white pt-16 md:pt-20">
+      <Helmet>
+        <title>{selectedCategory === 'All' ? 'Shop All Collections | Sera' : `Affordable Anti-Tarnish ${selectedCategory} | Sera`}</title>
+        <meta name="description" content={seoDescriptions[selectedCategory] || seoDescriptions['All']} />
+      </Helmet>
       {/* Header */}
       <div className="bg-rose-50 py-8 md:py-16 px-4 md:px-6 text-center">
         <motion.h1
@@ -637,6 +667,16 @@ const Shop = () => {
 
 
             {!selectedTags.includes('bestseller') && renderPagination()}
+
+            {/* SEO Content Block */}
+            <div className="mt-16 pt-8 border-t border-gray-100 pb-12">
+              <h2 className="text-xl md:text-2xl font-serif text-gray-900 mb-4">
+                {selectedCategory === 'All' ? 'Affordable Anti-Tarnish Jewelry' : `High-Quality Anti-Tarnish ${selectedCategory}`}
+              </h2>
+              <p className="text-gray-600 text-sm md:text-base leading-relaxed max-w-4xl">
+                {seoDescriptions[selectedCategory] || seoDescriptions['All']}
+              </p>
+            </div>
           </motion.div>
         </div>
       </div>

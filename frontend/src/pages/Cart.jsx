@@ -1,6 +1,7 @@
+import { Helmet } from 'react-helmet-async';
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaTrash, FaMinus, FaPlus } from 'react-icons/fa';
+import { FaTrash, FaMinus, FaPlus, FaLock, FaTruck, FaShieldAlt } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useCart } from '../components/CartContext';
 
@@ -55,7 +56,11 @@ const Cart = () => {
   }
 
   return (
-    <div className="container mx-auto px-6 py-24 min-h-screen">
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      <div className="container mx-auto px-6 py-24 min-h-screen">
       <h1 className="text-4xl font-serif text-center mb-12">Your Shopping Cart</h1>
 
       {cartItems.length === 0 ? (
@@ -208,11 +213,37 @@ const Cart = () => {
               >
                 Proceed to Checkout
               </button>
+
+              {/* Trust Badges */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <FaLock className="text-xl text-gray-400" />
+                    <div>
+                      <p className="text-sm font-semibold">Secure Checkout</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <FaShieldAlt className="text-xl text-gray-400" />
+                    <div>
+                      <p className="text-sm font-semibold">Verified Payments</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-600">
+                    <FaTruck className="text-xl text-gray-400" />
+                    <div>
+                      <p className="text-sm font-semibold">Free Shipping above ₹999</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )}
     </div>
+  
+    </>
   );
 };
 

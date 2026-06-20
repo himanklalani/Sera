@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
@@ -31,7 +32,11 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-rose-50 py-12 px-4 sm:px-6 lg:px-8 mt-[36px]">
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      <div className="min-h-screen flex items-center justify-center bg-rose-50 py-12 px-4 sm:px-6 lg:px-8 mt-[36px]">
       <div className="flex w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden p-8">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -72,6 +77,8 @@ const ForgotPassword = () => {
         </motion.div>
       </div>
     </div>
+  
+    </>
   );
 };
 

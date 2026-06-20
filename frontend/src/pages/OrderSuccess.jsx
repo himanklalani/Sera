@@ -1,5 +1,6 @@
+import { Helmet } from 'react-helmet-async';
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaCheckCircle } from 'react-icons/fa';
 import confetti from 'canvas-confetti';
@@ -48,14 +49,33 @@ const OrderSuccess = () => {
     });
   };
 
+  const location = useLocation();
+
   useEffect(() => {
     // Fire confetti after component mounts
     const timer = setTimeout(() => {
       fireConfetti();
     }, 300);
 
+    // Fire GA4 Purchase Event
+    if (window.dataLayer && location.state && !location.state.tracked) {
+      window.dataLayer.push({
+        event: 'purchase',
+        ecommerce: {
+          transaction_id: location.state.transaction_id,
+          value: location.state.value,
+          tax: location.state.tax,
+          shipping: location.state.shipping,
+          currency: 'INR',
+          items: location.state.items
+        }
+      });
+      // Prevent duplicate tracking on reload
+      location.state.tracked = true;
+    }
+
     return () => clearTimeout(timer);
-  }, []);
+  }, [location.state]);
 
   const containerVariants = {
     hidden: { opacity: 0, scale: 0.8 },
@@ -94,7 +114,11 @@ const OrderSuccess = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-rose-50 px-6 relative overflow-hidden">
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-rose-50 px-6 relative overflow-hidden">
       {/* Animated Content */}
       <motion.div
         className="flex flex-col items-center"
@@ -191,6 +215,8 @@ const OrderSuccess = () => {
         }}
       />
     </div>
+  
+    </>
   );
 };
 

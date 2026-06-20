@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const asyncHandler = require('express-async-handler');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, admin } = require('../middleware/authMiddleware');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product'); // ADD THIS IMPORT
 
@@ -25,6 +25,26 @@ const getCleanCart = async (cartId) => {
   cartObj.itemsRemoved = itemsRemoved;
   return cartObj;
 };
+
+// @desc    Get abandoned carts / cart updates from last 7 days
+// @route   GET /api/cart/abandoned
+// @access  Private/Admin
+router.get('/abandoned', protect, admin, asyncHandler(async (req, res) => {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const carts = await Cart.find({ 
+    updatedAt: { $gte: sevenDaysAgo },
+    'items.0': { $exists: true } // Only carts with items
+  })
+  .populate('user', 'name email phone')
+  .populate('items.product', 'name price images')
+  .sort({ updatedAt: -1 });
+
+  // Filter out carts where user was deleted or not found
+  const validCarts = carts.filter(cart => cart.user);
+  res.json(validCarts);
+}));
 
 // @desc    Get user cart
 // @route   GET /api/cart

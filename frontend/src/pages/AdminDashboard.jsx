@@ -14,6 +14,7 @@ const AdminDashboard = () => {
   const [orders, setOrders] = useState([]);
   const [coupons, setCoupons] = useState([]);
   const [newsletters, setNewsletters] = useState([]);
+  const [cartUpdates, setCartUpdates] = useState([]);
   const [selectedNewsletters, setSelectedNewsletters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -280,6 +281,15 @@ const AdminDashboard = () => {
   const filteredCategories = categories;
   const filteredCoupons = useMemo(() => filterCoupons(coupons), [coupons, filterCoupons]);
   const filteredNewsletters = useMemo(() => newsletters.filter(n => !debouncedSearch || n.email.toLowerCase().includes(debouncedSearch.toLowerCase())), [newsletters, debouncedSearch]);
+  const filteredCartUpdates = useMemo(() => cartUpdates.filter(cart => {
+    if (!debouncedSearch) return true;
+    const lowerSearch = debouncedSearch.toLowerCase();
+    return (
+      (cart.user?.name || '').toLowerCase().includes(lowerSearch) ||
+      (cart.user?.email || '').toLowerCase().includes(lowerSearch) ||
+      (cart.user?.phone || '').toLowerCase().includes(lowerSearch)
+    );
+  }), [cartUpdates, debouncedSearch]);
 
   // PAGINATION LOGIC - Works for all sections
   const getPaginatedData = (data) => {
@@ -295,6 +305,7 @@ const AdminDashboard = () => {
   const paginatedCategories = useMemo(() => getPaginatedData(filteredCategories), [filteredCategories, currentPage]);
   const paginatedCoupons = useMemo(() => getPaginatedData(filteredCoupons), [filteredCoupons, currentPage]);
   const paginatedNewsletters = useMemo(() => getPaginatedData(filteredNewsletters), [filteredNewsletters, currentPage]);
+  const paginatedCartUpdates = useMemo(() => getPaginatedData(filteredCartUpdates), [filteredCartUpdates, currentPage]);
 
   // Calculate total pages for each section
   const getTotalPages = (data) => Math.ceil(data.length / itemsPerPage);
@@ -302,10 +313,11 @@ const AdminDashboard = () => {
   const totalPagesProducts = getTotalPages(filteredProducts);
   const totalPagesUsers = getTotalPages(filteredUsers);
   const totalPagesContacts = getTotalPages(filteredContacts);
-  const totalPagesOrders = getTotalPages(filteredOrders);
-  const totalPagesCategories = getTotalPages(filteredCategories);
-  const totalPagesCoupons = getTotalPages(filteredCoupons);
-  const totalPagesNewsletters = getTotalPages(filteredNewsletters);
+  const totalPagesOrders = Math.ceil(filteredOrders.length / itemsPerPage);
+  const totalPagesCategories = Math.ceil(filteredCategories.length / itemsPerPage);
+  const totalPagesCoupons = Math.ceil(filteredCoupons.length / itemsPerPage);
+  const totalPagesNewsletters = Math.ceil(filteredNewsletters.length / itemsPerPage);
+  const totalPagesCartUpdates = Math.ceil(filteredCartUpdates.length / itemsPerPage);
 
   useEffect(() => {
     const ui = getUserInfo();
@@ -356,6 +368,9 @@ const AdminDashboard = () => {
       } else if (activeTab === 'newsletters') {
         const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/newsletter`, config);
         setNewsletters(Array.isArray(data) ? data : []);
+      } else if (activeTab === 'cartcheck') {
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart/abandoned`, config);
+        setCartUpdates(Array.isArray(data) ? data : []);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -376,6 +391,7 @@ const AdminDashboard = () => {
       setOrders([]);
       setCoupons([]);
       setNewsletters([]);
+      setCartUpdates([]);
     } finally {
       setLoading(false);
     }
@@ -1267,6 +1283,88 @@ const AdminDashboard = () => {
     }
   };
 
+  const renderCartCheckTable = () => {
+    if (loading) return <div className="flex justify-center py-12">Loading cart updates...</div>;
+    if (filteredCartUpdates.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg mb-4">No cart updates found for the last 7 days.</p>
+          <button
+            onClick={fetchData}
+            className="bg-rose-500 text-white px-4 py-2 rounded hover:bg-rose-600 transition-colors"
+          >
+            Run Script: Fetch 7-Day Cart Activity
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <div className="mb-4">
+          <button
+            onClick={fetchData}
+            className="bg-rose-500 text-white px-4 py-2 rounded hover:bg-rose-600 transition-colors"
+          >
+            Run Script: Fetch Latest 7-Day Cart Activity
+          </button>
+        </div>
+        <div className="overflow-x-auto bg-white rounded-lg shadow border border-gray-200">
+          <table className="w-full text-left text-sm text-gray-600">
+            <thead className="bg-gray-50 text-gray-700 uppercase font-medium border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4">User</th>
+                <th className="px-6 py-4">Contact</th>
+                <th className="px-6 py-4">Last Updated</th>
+                <th className="px-6 py-4">Cart Contents</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {paginatedCartUpdates.map((cart, index) => (
+                <tr key={index} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 font-medium text-gray-900">
+                    {cart.user?.name || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 space-y-1">
+                    {cart.user?.email && (
+                      <div>
+                        <a href={`mailto:${cart.user.email}`} className="text-rose-600 hover:underline">{cart.user.email}</a>
+                      </div>
+                    )}
+                    {cart.user?.phone && (
+                      <div>
+                        <a href={`https://wa.me/${cart.user.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">{cart.user.phone}</a>
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    {new Date(cart.updatedAt).toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4">
+                    <ul className="list-disc pl-4 space-y-1">
+                      {cart.items.map((item, i) => (
+                        <li key={i}>
+                          {item.product?.name || 'Unknown Product'} (x{item.quantity})
+                        </li>
+                      ))}
+                    </ul>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <PaginationControls 
+          currentPage={currentPage} 
+          totalPages={totalPagesCartUpdates}
+          itemCount={paginatedCartUpdates.length}
+          totalCount={filteredCartUpdates.length}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      </>
+    );
+  };
+
   const renderNewslettersTable = () => {
     if (loading) return <div className="flex justify-center py-12">Loading newsletters...</div>;
     if (filteredNewsletters.length === 0) {
@@ -1771,7 +1869,7 @@ const AdminDashboard = () => {
       <h1 className="text-4xl font-serif mb-8">Admin Dashboard</h1>
 
       <div className="flex border-b mb-8 overflow-x-auto">
-        {['products', 'users', 'coupons', 'contact', 'orders', 'newsletters'].map((tab) => (
+        {['products', 'users', 'coupons', 'contact', 'orders', 'newsletters', 'cartcheck'].map((tab) => (
           <button
             key={tab}
             className={`px-6 py-3 font-medium capitalize whitespace-nowrap ${

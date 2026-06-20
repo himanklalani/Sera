@@ -154,7 +154,7 @@ router.get('/', asyncHandler(async (req, res) => {
         sortOption = { createdAt: -1 };
         break;
       case 'best-selling':
-        sortOption = { sales: -1, createdAt: -1 };
+        sortOption = { sales: -1, views: -1, createdAt: -1 };
         break;
     }
   }
@@ -173,6 +173,26 @@ router.get('/', asyncHandler(async (req, res) => {
     pages: Math.ceil(total / limit),
     total
   });
+}));
+
+// @desc    Fetch top 1 best seller from each of the 4 main categories
+// @route   GET /api/products/top-bestsellers
+// @access  Public
+router.get('/top-bestsellers', asyncHandler(async (req, res) => {
+  const categories = ['RINGS', 'NECKLACE', 'BRACELET', 'EARRINGS'];
+  const topBestsellerIds = [];
+
+  for (const cat of categories) {
+    const topProduct = await Product.findOne({ category: { $regex: new RegExp(`^${cat}$`, 'i') }, stock: { $gt: 0 } })
+      .sort({ sales: -1, views: -1, createdAt: -1 })
+      .select('_id')
+      .lean();
+    if (topProduct) {
+      topBestsellerIds.push(topProduct._id);
+    }
+  }
+
+  res.json(topBestsellerIds);
 }));
 
 
@@ -194,6 +214,9 @@ router.get('/:id', asyncHandler(async (req, res) => {
     .populate('accentPairs', 'name price images category');
   
   if (product) {
+    // Increment views asynchronously
+    Product.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } }).exec().catch(err => console.error('Failed to update views:', err));
+    
     res.json(product);
   } else {
     res.status(404);

@@ -58,6 +58,7 @@ app.use('/api/coupons', require('./routes/couponRoutes'));
 app.use('/api/payment', require('./routes/paymentRoutes'));
 app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/upload', require('./routes/uploadRoutes'));
+app.use('/api/newsletter', require('./routes/newsletterRoutes'));
 app.use('/sitemap.xml', require('./routes/sitemapRoutes'));
 
 const path = require('path');

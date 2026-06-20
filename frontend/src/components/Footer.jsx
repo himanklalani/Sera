@@ -1,8 +1,30 @@
 import { FaInstagram, FaPinterest } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+
+    try {
+      setLoading(true);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/newsletter`, { email });
+      toast.success(res.data.message || 'Thank you for subscribing to Sera!');
+      setEmail('');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to subscribe. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <footer className="bg-rose-50 pt-16 pb-8 px-6 md:px-12 text-gray-900 border-t border-rose-200 min-h-[400px]" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 400px' }}>
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-12 gap-12">
@@ -36,22 +58,21 @@ const Footer = () => {
           <div className="pt-8">
             <h3 className="font-serif text-xl font-bold text-gray-900 mb-2 tracking-wide">Join the Sera Insider</h3>
             <p className="text-sm text-gray-700 mb-4 font-medium">Subscribe for exclusive offers, early access, and jewelry care tips.</p>
-            <form className="flex max-w-sm" onSubmit={(e) => { 
-              e.preventDefault(); 
-              e.target.reset();
-              alert('Thank you for subscribing to Sera!'); 
-            }}>
+            <form className="flex max-w-sm" onSubmit={handleSubscribe}>
               <input 
                 type="email" 
                 placeholder="Enter your email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="flex-1 px-4 py-3 border border-rose-200 rounded-l-lg focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 text-sm bg-white/50 backdrop-blur-sm"
                 required
               />
               <button 
                 type="submit"
-                className="bg-rose-600 text-white px-6 py-3 rounded-r-lg hover:bg-rose-700 transition-colors text-sm font-bold tracking-widest uppercase shadow-sm"
+                disabled={loading}
+                className="bg-rose-600 text-white px-6 py-3 rounded-r-lg hover:bg-rose-700 transition-colors text-sm font-bold tracking-widest uppercase shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Subscribe
+                {loading ? '...' : 'Subscribe'}
               </button>
             </form>
           </div>

@@ -13,6 +13,8 @@ const AdminDashboard = () => {
   const [contacts, setContacts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [coupons, setCoupons] = useState([]);
+  const [newsletters, setNewsletters] = useState([]);
+  const [selectedNewsletters, setSelectedNewsletters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
@@ -277,6 +279,7 @@ const AdminDashboard = () => {
   const filteredOrders = useMemo(() => filterOrders(orders), [orders, filterOrders]);
   const filteredCategories = categories;
   const filteredCoupons = useMemo(() => filterCoupons(coupons), [coupons, filterCoupons]);
+  const filteredNewsletters = useMemo(() => newsletters.filter(n => !debouncedSearch || n.email.toLowerCase().includes(debouncedSearch.toLowerCase())), [newsletters, debouncedSearch]);
 
   // PAGINATION LOGIC - Works for all sections
   const getPaginatedData = (data) => {
@@ -291,6 +294,7 @@ const AdminDashboard = () => {
   const paginatedOrders = useMemo(() => getPaginatedData(filteredOrders), [filteredOrders, currentPage]);
   const paginatedCategories = useMemo(() => getPaginatedData(filteredCategories), [filteredCategories, currentPage]);
   const paginatedCoupons = useMemo(() => getPaginatedData(filteredCoupons), [filteredCoupons, currentPage]);
+  const paginatedNewsletters = useMemo(() => getPaginatedData(filteredNewsletters), [filteredNewsletters, currentPage]);
 
   // Calculate total pages for each section
   const getTotalPages = (data) => Math.ceil(data.length / itemsPerPage);
@@ -301,6 +305,7 @@ const AdminDashboard = () => {
   const totalPagesOrders = getTotalPages(filteredOrders);
   const totalPagesCategories = getTotalPages(filteredCategories);
   const totalPagesCoupons = getTotalPages(filteredCoupons);
+  const totalPagesNewsletters = getTotalPages(filteredNewsletters);
 
   useEffect(() => {
     const ui = getUserInfo();
@@ -348,6 +353,9 @@ const AdminDashboard = () => {
           config
         );
         setOrders(Array.isArray(data) ? data : []);
+      } else if (activeTab === 'newsletters') {
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/newsletter`, config);
+        setNewsletters(Array.isArray(data) ? data : []);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -365,6 +373,7 @@ const AdminDashboard = () => {
       setContacts([]);
       setOrders([]);
       setCoupons([]);
+      setNewsletters([]);
     } finally {
       setLoading(false);
     }
@@ -1213,9 +1222,17 @@ const AdminDashboard = () => {
               {paginatedUsers.map((user) => (
                 <tr key={user._id || Math.random()}>
                   <td className="px-6 py-4">{user.name || 'N/A'}</td>
-                  <td className="px-6 py-4">{user.email || 'N/A'}</td>
+                  <td className="px-6 py-4">
+                    {user.email ? (
+                      <a href={`mailto:${user.email}`} className="text-blue-600 hover:underline">{user.email}</a>
+                    ) : 'N/A'}
+                  </td>
                   <td className="px-6 py-4">{user.role || 'user'}</td>
-                  <td className="px-6 py-4">{user.phone || 'N/A'}</td>
+                  <td className="px-6 py-4">
+                    {user.phone ? (
+                      <a href={`https://wa.me/${user.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">{user.phone}</a>
+                    ) : 'N/A'}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -1226,6 +1243,81 @@ const AdminDashboard = () => {
           totalPages={totalPagesUsers}
           itemCount={paginatedUsers.length}
           totalCount={filteredUsers.length}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+    );
+  };
+
+  const handleSelectAllNewsletters = (e) => {
+    if (e.target.checked) {
+      setSelectedNewsletters(paginatedNewsletters.map(n => n.email));
+    } else {
+      setSelectedNewsletters([]);
+    }
+  };
+
+  const handleSelectNewsletter = (email) => {
+    if (selectedNewsletters.includes(email)) {
+      setSelectedNewsletters(selectedNewsletters.filter(e => e !== email));
+    } else {
+      setSelectedNewsletters([...selectedNewsletters, email]);
+    }
+  };
+
+  const renderNewslettersTable = () => {
+    if (loading) return <div className="flex justify-center py-12">Loading newsletters...</div>;
+    if (filteredNewsletters.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg mb-4">No newsletters found</p>
+        </div>
+      );
+    }
+    return (
+      <>
+        <div className="mb-4 flex justify-between items-center">
+          <p className="text-sm text-gray-600">{selectedNewsletters.length} selected</p>
+          <a
+            href={selectedNewsletters.length > 0 ? `mailto:?bcc=${selectedNewsletters.join(',')}` : '#'}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${selectedNewsletters.length > 0 ? 'bg-rose-600 text-white hover:bg-rose-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+            onClick={(e) => { if (selectedNewsletters.length === 0) e.preventDefault(); }}
+          >
+            Compose Email (BCC)
+          </a>
+        </div>
+        <div className="bg-white shadow rounded-lg overflow-x-auto">
+          <table className="w-full text-left min-w-[600px]">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 font-medium text-gray-500">
+                  <input type="checkbox" onChange={handleSelectAllNewsletters} checked={paginatedNewsletters.length > 0 && selectedNewsletters.length === paginatedNewsletters.length} className="rounded text-rose-600 focus:ring-rose-500" />
+                </th>
+                <th className="px-6 py-3 font-medium text-gray-500">Email</th>
+                <th className="px-6 py-3 font-medium text-gray-500">Subscribed At</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {paginatedNewsletters.map((newsletter) => (
+                <tr key={newsletter._id || Math.random()}>
+                  <td className="px-6 py-4">
+                    <input type="checkbox" checked={selectedNewsletters.includes(newsletter.email)} onChange={() => handleSelectNewsletter(newsletter.email)} className="rounded text-rose-600 focus:ring-rose-500" />
+                  </td>
+                  <td className="px-6 py-4">
+                    <a href={`mailto:${newsletter.email}`} className="text-blue-600 hover:underline">{newsletter.email}</a>
+                  </td>
+                  <td className="px-6 py-4 text-gray-500 text-sm">
+                    {new Date(newsletter.createdAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <PaginationControls 
+          currentPage={currentPage} 
+          totalPages={totalPagesNewsletters}
+          itemCount={paginatedNewsletters.length}
+          totalCount={filteredNewsletters.length}
           onPageChange={(page) => setCurrentPage(page)}
         />
       </>
@@ -1676,7 +1768,7 @@ const AdminDashboard = () => {
       <h1 className="text-4xl font-serif mb-8">Admin Dashboard</h1>
 
       <div className="flex border-b mb-8 overflow-x-auto">
-        {['products', 'users', 'coupons', 'contact', 'orders'].map((tab) => (
+        {['products', 'users', 'coupons', 'contact', 'orders', 'newsletters'].map((tab) => (
           <button
             key={tab}
             className={`px-6 py-3 font-medium capitalize whitespace-nowrap ${

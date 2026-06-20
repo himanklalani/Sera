@@ -54,6 +54,7 @@ const Shop = () => {
 
 
   const [products, setProducts] = useState([]);
+  const [topBestsellerIds, setTopBestsellerIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(initialParams.category);
   const [selectedTags, setSelectedTags] = useState(initialParams.tags);
@@ -175,6 +176,20 @@ const Shop = () => {
 
 
   // Handle URL synchronization on mount and location change
+  useEffect(() => {
+    const fetchTopBestsellers = async () => {
+      try {
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/top-bestsellers`);
+        if (Array.isArray(data)) {
+          setTopBestsellerIds(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch top bestsellers:', error);
+      }
+    };
+    fetchTopBestsellers();
+  }, []);
+
   useEffect(() => {
     const urlParams = getURLParams();
     
@@ -328,11 +343,7 @@ const Shop = () => {
               )}
 
               {/* Bestseller Badge */}
-              {(product.name?.includes('Aurelia Clover') || 
-                product.name?.includes('Aurora Petal') || 
-                product.name?.includes('Rosella') || 
-                product.name?.includes('Elara') || 
-                product.name === 'Clover') && (
+              {topBestsellerIds.includes(product._id) && (
                 <div className="bg-black/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-sm text-[10px] font-bold uppercase tracking-widest shadow-sm flex items-center gap-1.5 border border-white/10 w-max">
                   <FaStar className="text-yellow-400 w-2.5 h-2.5" /> Best Seller
                 </div>

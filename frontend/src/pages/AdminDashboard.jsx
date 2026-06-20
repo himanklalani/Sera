@@ -1245,6 +1245,7 @@ const AdminDashboard = () => {
           totalCount={filteredUsers.length}
           onPageChange={(page) => setCurrentPage(page)}
         />
+      </>
     );
   };
 

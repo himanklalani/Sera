@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { FaPlus, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 const AdminBlogTab = ({ userInfo }) => {
   const [blogs, setBlogs] = useState([]);

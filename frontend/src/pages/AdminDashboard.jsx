@@ -427,10 +427,17 @@ const AdminDashboard = () => {
         { status: newStatus },
         config
       );
+      
+      if (newStatus === 'delivered') {
+        toast.success('Order marked as Delivered! Automated review email sent to customer.');
+      } else {
+        toast.success(`Order status updated to ${newStatus}`);
+      }
+      
       fetchData();
     } catch (error) {
       console.error('Error updating order status:', error);
-      alert('Failed to update order status');
+      toast.error('Failed to update order status');
     }
   };
 

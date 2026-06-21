@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
+const Blog = require('../models/Blog');
 
 router.get('/', async (req, res) => {
   try {
     const products = await Product.find({}).select('_id category updatedAt');
+    const blogs = await Blog.find({ isPublished: true }).select('slug updatedAt');
 
     const baseUrl = 'https://www.serastore.in';
 
@@ -64,6 +66,13 @@ router.get('/', async (req, res) => {
     <priority>0.3</priority>
   </url>
 
+  <!-- Journal/Blog Hub -->
+  <url>
+    <loc>${baseUrl}/journal</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Dynamic Product Pages -->
 `;
 
@@ -73,6 +82,17 @@ router.get('/', async (req, res) => {
     <lastmod>${new Date(product.updatedAt || Date.now()).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>\n`;
+    });
+
+    sitemap += `  <!-- Dynamic Blog Pages -->\n`;
+    
+    blogs.forEach((blog) => {
+      sitemap += `  <url>
+    <loc>${baseUrl}/journal/${blog.slug}</loc>
+    <lastmod>${new Date(blog.updatedAt || Date.now()).toISOString()}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>\n`;
     });
 

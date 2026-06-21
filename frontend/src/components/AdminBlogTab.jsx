@@ -25,9 +25,10 @@ const AdminBlogTab = ({ userInfo }) => {
   const fetchBlogs = async () => {
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      const { data } = await axios.get('/api/blogs?all=true', config);
-      setBlogs(data);
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/blogs?all=true`, config);
+      setBlogs(Array.isArray(data) ? data : []);
     } catch (error) {
+      setBlogs([]);
       toast.error('Failed to fetch blogs');
     }
   };
@@ -95,10 +96,10 @@ const AdminBlogTab = ({ userInfo }) => {
       }
 
       if (editingBlog) {
-        await axios.put(`/api/blogs/${editingBlog._id}`, payload, config);
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/blogs/${editingBlog._id}`, payload, config);
         toast.success('Blog updated successfully');
       } else {
-        await axios.post('/api/blogs', payload, config);
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/blogs`, payload, config);
         toast.success('Blog created successfully');
       }
       
@@ -115,7 +116,7 @@ const AdminBlogTab = ({ userInfo }) => {
     if (!window.confirm('Are you sure you want to delete this blog post?')) return;
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      await axios.delete(`/api/blogs/${id}`, config);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/blogs/${id}`, config);
       toast.success('Blog deleted successfully');
       fetchBlogs();
     } catch (error) {

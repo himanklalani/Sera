@@ -11,9 +11,10 @@ const BlogList = () => {
     const fetchBlogs = async () => {
       try {
         // Fetch only published blogs
-        const { data } = await axios.get('/api/blogs');
-        setBlogs(data);
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/blogs`);
+        setBlogs(Array.isArray(data) ? data : []);
       } catch (error) {
+        setBlogs([]);
         console.error('Error fetching blogs:', error);
       } finally {
         setLoading(false);

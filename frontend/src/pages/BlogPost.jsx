@@ -12,7 +12,7 @@ const BlogPost = () => {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const { data } = await axios.get(`/api/blogs/${slug}`);
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/blogs/${slug}`);
         setBlog(data);
       } catch (error) {
         console.error('Error fetching blog:', error);

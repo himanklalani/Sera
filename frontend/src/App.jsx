@@ -26,6 +26,8 @@ const OrderSuccess = React.lazy(() => import('./pages/OrderSuccess'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 const JewelryCare = React.lazy(() => import('./pages/JewelryCare'));
 const MaterialsGuide = React.lazy(() => import('./pages/MaterialsGuide'));
+const BlogList = React.lazy(() => import('./pages/BlogList'));
+const BlogPost = React.lazy(() => import('./pages/BlogPost'));
 
 // Lazy load info pages
 const About = React.lazy(() => import('./pages/InfoPages').then(module => ({ default: module.About })));
@@ -71,6 +73,8 @@ function App() {
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/jewelry-care" element={<JewelryCare />} />
                 <Route path="/materials" element={<MaterialsGuide />} />
+                <Route path="/journal" element={<BlogList />} />
+                <Route path="/journal/:slug" element={<BlogPost />} />
 
                 {/* legal / policy pages */}
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />

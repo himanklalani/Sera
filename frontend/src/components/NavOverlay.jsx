@@ -34,6 +34,7 @@ export default function NavOverlay({ isOpen, onClose }) {
       ]
     },
     { title: 'Contact Us', path: '/contact' },
+    { title: 'Journal', path: '/journal' },
     { title: 'FAQ', path: '/faq' }
   ];
 

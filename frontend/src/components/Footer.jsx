@@ -90,6 +90,7 @@ const Footer = () => {
               <li><Link to="/terms" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3">TERMS & CONDITIONS <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
               <li><Link to="/returns" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3">RETURNS & EXCHANGE <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
               <li><Link to="/contact" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3">CONTACT <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
+              <li><Link to="/journal" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3">JOURNAL <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
             </ul>
           </div>
 

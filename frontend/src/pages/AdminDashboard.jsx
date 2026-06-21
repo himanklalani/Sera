@@ -4,6 +4,7 @@ import { FaPlus, FaEdit, FaTrash, FaTimes, FaCheck, FaSearch, FaFilter, FaChevro
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import AdminBlogTab from '../components/AdminBlogTab';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('products');
@@ -1869,7 +1870,7 @@ const AdminDashboard = () => {
       <h1 className="text-4xl font-serif mb-8">Admin Dashboard</h1>
 
       <div className="flex border-b mb-8 overflow-x-auto">
-        {['products', 'users', 'coupons', 'contact', 'orders', 'newsletters', 'cartcheck'].map((tab) => (
+        {['products', 'users', 'coupons', 'contact', 'orders', 'newsletters', 'cartcheck', 'blogs'].map((tab) => (
           <button
             key={tab}
             className={`px-6 py-3 font-medium capitalize whitespace-nowrap ${
@@ -2180,6 +2181,8 @@ const AdminDashboard = () => {
           {renderCartCheckTable()}
         </div>
       )}
+
+      {activeTab === 'blogs' && <AdminBlogTab userInfo={getUserInfo()} />}
 
       {/* MODALS */}
       {isModalOpen && (

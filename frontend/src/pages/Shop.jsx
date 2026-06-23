@@ -22,8 +22,12 @@ const useURLSync = () => {
         : 'All',
       page: Math.max(1, parseInt(params.get('page') || '1', 10)),
       tags: params.get('tags') ? params.get('tags').split(',').map(t => t.trim()) : [],
+      sortBy: params.get('sort') || 'relevance',
+      searchQuery: params.get('search') || '',
+      priceRange: params.get('maxPrice') ? parseInt(params.get('maxPrice'), 10) : 10000,
+      showInStock: params.get('inStock') !== 'false'
     };
-  }, [location.search]);
+  }, [location.search, pathCategory]);
 
 
   const updateURLParams = useCallback((newParams) => {
@@ -32,12 +36,16 @@ const useURLSync = () => {
     if (newParams.tags && newParams.tags.length > 0) {
       params.set('tags', newParams.tags.join(','));
     }
+    if (newParams.sortBy && newParams.sortBy !== 'relevance') params.set('sort', newParams.sortBy);
+    if (newParams.searchQuery && newParams.searchQuery.trim() !== '') params.set('search', newParams.searchQuery);
+    if (newParams.priceRange && newParams.priceRange < 10000) params.set('maxPrice', newParams.priceRange);
+    if (newParams.showInStock === false) params.set('inStock', 'false');
     
     let basePath = '/shop';
     if (newParams.category && newParams.category !== 'All') {
       basePath = `/shop/${newParams.category.toLowerCase()}`;
     }
-    navigate(`${basePath}${params.toString() ? '?' + params.toString() : ''}`);
+    navigate(`${basePath}${params.toString() ? '?' + params.toString() : ''}`, { replace: true });
   }, [navigate]);
 
 
@@ -58,11 +66,11 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(initialParams.category);
   const [selectedTags, setSelectedTags] = useState(initialParams.tags);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [priceRange, setPriceRange] = useState(10000);
-  const [showInStock, setShowInStock] = useState(true);
+  const [searchQuery, setSearchQuery] = useState(initialParams.searchQuery);
+  const [priceRange, setPriceRange] = useState(initialParams.priceRange);
+  const [showInStock, setShowInStock] = useState(initialParams.showInStock);
   const [showFilters, setShowFilters] = useState(false);
-  const [sortBy, setSortBy] = useState('relevance');
+  const [sortBy, setSortBy] = useState(initialParams.sortBy);
   const [totalPages, setTotalPages] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
   const navigate = useNavigate();
@@ -203,6 +211,10 @@ const Shop = () => {
     if (JSON.stringify(urlParams.tags) !== JSON.stringify(selectedTags)) {
       setSelectedTags(urlParams.tags);
     }
+    if (urlParams.sortBy !== sortBy) setSortBy(urlParams.sortBy);
+    if (urlParams.searchQuery !== searchQuery) setSearchQuery(urlParams.searchQuery);
+    if (urlParams.priceRange !== priceRange) setPriceRange(urlParams.priceRange);
+    if (urlParams.showInStock !== showInStock) setShowInStock(urlParams.showInStock);
   }, [getURLParams]);
 
 
@@ -210,14 +222,14 @@ const Shop = () => {
     setSelectedCategory(category);
     setCurrentPage(1);
     setShowFilters(false);
-    updateURLParams({ category, page: 1, tags: selectedTags });
+    updateURLParams({ category, page: 1, tags: selectedTags, sortBy, searchQuery, priceRange, showInStock });
   };
 
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      updateURLParams({ category: selectedCategory, page: newPage, tags: selectedTags });
+      updateURLParams({ category: selectedCategory, page: newPage, tags: selectedTags, sortBy, searchQuery, priceRange, showInStock });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -229,7 +241,7 @@ const Shop = () => {
       : [...selectedTags, 'bestseller'];
     setSelectedTags(newTags);
     setCurrentPage(1);
-    updateURLParams({ category: selectedCategory, page: 1, tags: newTags });
+    updateURLParams({ category: selectedCategory, page: 1, tags: newTags, sortBy, searchQuery, priceRange, showInStock });
   };
 
 
@@ -292,14 +304,16 @@ const Shop = () => {
             <p className="text-sm md:text-base text-gray-500 mb-6">
               Try adjusting your search or category filters
             </p>
-            <button
+              <button
               onClick={() => {
                 setSearchQuery('');
                 setSelectedCategory('All');
                 setSelectedTags([]);
                 setSortBy('relevance');
+                setShowInStock(true);
+                setPriceRange(10000);
                 setCurrentPage(1);
-                navigate('/shop');
+                updateURLParams({ category: 'All', page: 1, tags: [], sortBy: 'relevance', searchQuery: '', priceRange: 10000, showInStock: true });
               }}
               className="bg-rose-500 text-white px-6 md:px-8 py-2 md:py-3 rounded-lg font-medium hover:bg-rose-600 transition-colors text-sm md:text-base"
             >
@@ -565,8 +579,10 @@ const Shop = () => {
                         type="checkbox"
                         checked={showInStock}
                         onChange={(e) => {
-                          setShowInStock(e.target.checked);
+                          const newInStock = e.target.checked;
+                          setShowInStock(newInStock);
                           setCurrentPage(1);
+                          updateURLParams({ category: selectedCategory, page: 1, tags: selectedTags, sortBy, searchQuery, priceRange, showInStock: newInStock });
                         }}
                         disabled={selectedTags.includes('bestseller')}
                         className="sr-only peer"
@@ -610,8 +626,10 @@ const Shop = () => {
                   <select
                     value={sortBy}
                     onChange={(e) => {
-                      setSortBy(e.target.value);
+                      const newSort = e.target.value;
+                      setSortBy(newSort);
                       setCurrentPage(1);
+                      updateURLParams({ category: selectedCategory, page: 1, tags: selectedTags, sortBy: newSort, searchQuery, priceRange, showInStock });
                     }}
                     disabled={selectedTags.includes('bestseller')}
                     className="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-sm md:text-base bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
@@ -635,8 +653,10 @@ const Shop = () => {
                     placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => {
-                      setSearchQuery(e.target.value);
+                      const newSearch = e.target.value;
+                      setSearchQuery(newSearch);
                       setCurrentPage(1);
+                      updateURLParams({ category: selectedCategory, page: 1, tags: selectedTags, sortBy, searchQuery: newSearch, priceRange, showInStock });
                     }}
                     disabled={selectedTags.includes('bestseller')}
                     className="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"

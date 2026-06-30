@@ -1301,7 +1301,7 @@ const AdminDashboard = () => {
             onClick={fetchData}
             className="bg-rose-500 text-white px-4 py-2 rounded hover:bg-rose-600 transition-colors"
           >
-            Run Script: Fetch 7-Day Cart Activity
+            Run Script: Fetch 14-Day Cart Activity
           </button>
         </div>
       );
@@ -1314,7 +1314,7 @@ const AdminDashboard = () => {
             onClick={fetchData}
             className="bg-rose-500 text-white px-4 py-2 rounded hover:bg-rose-600 transition-colors"
           >
-            Run Script: Fetch Latest 7-Day Cart Activity
+            Run Script: Fetch Latest 14-Day Cart Activity
           </button>
         </div>
         <div className="overflow-x-auto bg-white rounded-lg shadow border border-gray-200">

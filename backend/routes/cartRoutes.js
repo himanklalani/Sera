@@ -26,15 +26,15 @@ const getCleanCart = async (cartId) => {
   return cartObj;
 };
 
-// @desc    Get abandoned carts / cart updates from last 7 days
+// @desc    Get abandoned carts / cart updates from last 14 days
 // @route   GET /api/cart/abandoned
 // @access  Private/Admin
 router.get('/abandoned', protect, admin, asyncHandler(async (req, res) => {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const fourteenDaysAgo = new Date();
+  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
   const carts = await Cart.find({ 
-    updatedAt: { $gte: sevenDaysAgo },
+    updatedAt: { $gte: fourteenDaysAgo },
     'items.0': { $exists: true } // Only carts with items
   })
   .populate('user', 'name email phone')

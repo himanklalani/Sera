@@ -39,15 +39,10 @@ const Cart = () => {
     }
   };
 
-  const originalSubtotal = cartItems.reduce(
+  const subtotal = cartItems.reduce(
     (acc, item) => acc + (item.quantity || 0) * (item.product?.price || 0),
     0
   );
-  const subtotal = cartItems.reduce(
-    (acc, item) => acc + (item.quantity || 0) * Math.round((item.product?.price || 0) * 0.5),
-    0
-  );
-  const clearanceDiscount = originalSubtotal - subtotal;
   const shipping = subtotal > 999 ? 0 : subtotal > 0 ? 100 : 0;
   const total = subtotal + shipping;
 
@@ -126,9 +121,8 @@ const Cart = () => {
                       <p className="text-gray-500 mb-2">
                         {item.product.category || 'Uncategorized'}
                       </p>
-                      <p className="font-medium text-rose-600 flex items-center gap-2">
-                        <span className="line-through text-gray-400 text-sm">INR {item.product.price || 0}</span>
-                        <span>INR {Math.round((item.product.price || 0) * 0.5)}</span>
+                      <p className="font-medium text-rose-600">
+                        INR {item.product.price || 0}
                       </p>
                     </>
                   ) : (
@@ -183,14 +177,6 @@ const Cart = () => {
               <div className="space-y-4 mb-8">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
-                  <span className="line-through text-gray-400">INR {originalSubtotal}</span>
-                </div>
-                <div className="flex justify-between text-rose-500 font-bold">
-                  <span>Clearance (50% Off)</span>
-                  <span>- INR {clearanceDiscount}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal (After Discount)</span>
                   <span>INR {subtotal}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">

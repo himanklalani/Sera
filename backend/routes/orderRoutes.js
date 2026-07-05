@@ -326,9 +326,8 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
   order.items.forEach((item) => {
     const name = item.name || item.product?.name || 'Product';
     const quantity = item.quantity || 1;
-    // Show the original product price in the item row if it was discounted
-    const originalProductPrice = item.product?.price || item.price || 0;
-    const priceRaw = originalProductPrice > (item.price || 0) ? originalProductPrice : (item.price || 0);
+    // Use the actual price stored in the order item
+    const priceRaw = item.price || 0;
     const lineTotalRaw = priceRaw * quantity;
     const price = formatAmount(priceRaw);
     const lineTotal = formatAmount(lineTotalRaw);
@@ -346,26 +345,13 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
   const summaryY = currentY + 10;
 
   const subtotalRaw = order.items.reduce(
-    (sum, item) => {
-      const originalProductPrice = item.product?.price || item.price || 0;
-      const priceToUse = originalProductPrice > (item.price || 0) ? originalProductPrice : (item.price || 0);
-      return sum + priceToUse * (item.quantity || 1);
-    },
+    (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
     0
   );
 
-  let estimatedFrontendCartValue = subtotalRaw;
-  if (order.totalPrice < subtotalRaw * 0.7) {
-      estimatedFrontendCartValue = subtotalRaw * 0.5;
-  }
-
-  const shippingRawBase =
-    estimatedFrontendCartValue > 999 ? 0 : estimatedFrontendCartValue > 0 ? 100 : 0;
-    
-  let discountRaw = subtotalRaw + shippingRawBase - order.totalPrice;
-  if (discountRaw < 0) discountRaw = 0;
-  
-  const grandTotalRaw = order.totalPrice;
+  const shippingRawBase = subtotalRaw > 999 ? 0 : subtotalRaw > 0 ? 100 : 0;
+  const discountRaw = order.couponDiscount || 0;
+  const grandTotalRaw = typeof order.totalPrice === 'number' ? order.totalPrice : subtotalRaw + shippingRawBase - discountRaw;
 
   const subtotal = formatAmount(subtotalRaw);
   const discount = formatAmount(discountRaw);
@@ -389,7 +375,7 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
   if (discountRaw > 0) {
     const discountLabel = order.couponCode
       ? `Discount (${order.couponCode})`
-      : discountRaw > 0 ? 'Clearance Discount' : 'Discount';
+      : 'Discount';
     doc.text(
       `${discountLabel}: - INR ${discount}`,
       totalX - 50,

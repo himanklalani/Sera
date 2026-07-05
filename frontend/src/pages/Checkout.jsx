@@ -216,7 +216,7 @@ const Checkout = () => {
         orderItems: cartItems.map(item => ({
           product: item.product._id,
           quantity: item.quantity,
-          price: Math.round(item.product.price * 0.5)
+          price: item.product.price
         })),
         shippingAddress: {
           street: selectedAddress.street,
@@ -345,7 +345,7 @@ const Checkout = () => {
               orderItems: cartItems.map((item) => ({
                 product: item.product._id,
                 quantity: item.quantity,
-                price: Math.round(item.product.price * 0.5),
+                price: item.product.price,
               })),
               shippingAddress: {
                 street: selectedAddress.street,
@@ -378,7 +378,7 @@ const Checkout = () => {
                   item_id: item.product._id,
                   item_name: item.product.name,
                   item_category: item.product.category,
-                  price: Math.round(item.product.price * 0.5),
+                  price: item.product.price,
                   quantity: item.quantity
                 }))
               } 
@@ -414,13 +414,11 @@ const Checkout = () => {
 
 
   // ✅ FIXED: Calculate values correctly
-  const originalSubtotal = cartItems.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
-  const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * Math.round(item.product.price * 0.5), 0);
-  const clearanceDiscount = originalSubtotal - subtotal;
+  const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
   const shipping = subtotal > 999 ? 0 : 100;
   const originalTotal = subtotal + shipping;
-  const total = originalTotal; // Ignoring normal coupons due to clearance
-  const discount = 0;
+  const total = appliedCoupon?.finalTotal || originalTotal;
+  const discount = Math.max(0, appliedCoupon ? appliedCoupon.discountAmount : 0);
 
 
   if (loading) return <div className="text-center py-20">Loading Checkout...</div>;
@@ -498,7 +496,7 @@ const Checkout = () => {
                        <span className="text-gray-500">{item.quantity}x</span>
                        <span className="truncate max-w-[150px]">{item.product.name}</span>
                     </div>
-                    <span>INR {item.quantity * Math.round(item.product.price * 0.5)}</span>
+                    <span>INR {item.quantity * item.product.price}</span>
                   </div>
                 ))}
               </div>
@@ -509,16 +507,17 @@ const Checkout = () => {
                 <div className="flex gap-2 opacity-50">
                   <input
                     type="text"
-                    disabled={true}
-                    value=""
-                    onChange={() => {}}
-                    placeholder="Coupons disabled during clearance"
-                    className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:ring-rose-500 focus:border-rose-500 bg-gray-100 cursor-not-allowed"
+                    disabled={couponLoading}
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="Enter coupon code"
+                    className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:ring-rose-500 focus:border-rose-500"
                   />
                   <button
                     type="button"
-                    disabled={true}
-                    className="px-4 py-2 bg-gray-400 text-white rounded text-sm cursor-not-allowed"
+                    onClick={handleApplyCoupon}
+                    disabled={couponLoading || !couponCode.trim()}
+                    className="px-4 py-2 bg-rose-500 text-white rounded hover:bg-rose-600 transition-colors text-sm disabled:bg-gray-400"
                   >
                     Apply
                   </button>
@@ -538,16 +537,14 @@ const Checkout = () => {
               <div className="border-t border-gray-300 pt-4 space-y-2 mt-6">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
-                  <span className="line-through text-gray-400">INR {originalSubtotal}</span>
-                </div>
-                <div className="flex justify-between text-rose-500 font-bold">
-                  <span>Stock Clearance Sale (50% Off)</span>
-                  <span>- INR {clearanceDiscount}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal (After Discount)</span>
                   <span>INR {subtotal}</span>
                 </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Discount</span>
+                    <span>- INR {discount.toFixed(0)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>
                   <span>{shipping === 0 ? 'Free' : `INR ${shipping}`}</span>

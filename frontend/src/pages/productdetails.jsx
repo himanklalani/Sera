@@ -561,9 +561,8 @@ const ProductDetails = () => {
           {/* Price & Rating */}
           <div className="flex items-start gap-6">
             <div className="flex-1">
-              <p className="text-4xl font-serif font-light text-gray-900 flex items-center gap-4">
-                <span className="line-through text-gray-400 text-2xl">INR {product.price?.toLocaleString()}</span>
-                <span className="text-rose-500 font-bold">INR {Math.round((product.price || 0) * 0.5).toLocaleString()}</span>
+              <p className="text-4xl font-serif font-light text-gray-900">
+                INR {product.price?.toLocaleString()}
               </p>
               {product.stock === 0 && (
                 <span className="ml-4 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-sm font-medium">

@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt, FaInstagram } from 'react-icons/fa';
@@ -52,29 +52,6 @@ const ProductDetails = () => {
   useEffect(() => {
     if (product) {
       document.title = `${product.name} | Sera`;
-
-      // Helper for dynamic OG/Twitter meta tags
-      const updateMeta = (key, content, attr = 'name') => {
-        let el = document.querySelector(`meta[${attr}="${key}"]`);
-        if (!el) {
-          el = document.createElement('meta');
-          el.setAttribute(attr, key);
-          document.head.appendChild(el);
-        }
-        el.setAttribute('content', content);
-      };
-
-      // Set meta tags for link previews (OG/Twitter)
-      updateMeta('description', product.description?.substring(0, 160) || '');
-      updateMeta('og:title', product.name, 'property');
-      updateMeta('og:description', product.description?.substring(0, 160) || '', 'property');
-      updateMeta('og:image', product.images?.[0] || '', 'property');
-      updateMeta('og:url', window.location.href, 'property');
-      updateMeta('og:type', 'product', 'property');
-      updateMeta('twitter:card', 'summary_large_image', 'name');
-      updateMeta('twitter:title', product.name, 'name');
-      updateMeta('twitter:description', product.description?.substring(0, 160) || '', 'name');
-      updateMeta('twitter:image', product.images?.[0] || '', 'name');
     }
   }, [product, id]);
 
@@ -91,12 +68,12 @@ const ProductDetails = () => {
             event: 'view_item',
             ecommerce: {
               currency: 'INR',
-              value: Math.round((data.price || 0) * 0.5),
+              value: data.price || 0,
               items: [{
                 item_id: data._id,
                 item_name: data.name,
                 item_category: data.category,
-                price: Math.round((data.price || 0) * 0.5)
+                price: data.price || 0
               }]
             }
           });
@@ -390,10 +367,41 @@ const ProductDetails = () => {
       "@type": "Offer",
       "url": window.location.href,
       "priceCurrency": "INR",
-      "price": Math.round((product.price || 0) * 0.5),
+      "price": product.price || 0,
       "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       "itemCondition": "https://schema.org/NewCondition"
     }
+  };
+  
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://www.serastore.in"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Shop",
+        "item": "https://www.serastore.in/shop"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": product.category,
+        "item": `https://www.serastore.in/shop/${product.category.toLowerCase()}`
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": product.name,
+        "item": `https://www.serastore.in/product/${product._id}`
+      }
+    ]
   };
   
   if (product.numReviews > 0) {
@@ -406,13 +414,34 @@ const ProductDetails = () => {
 
   return (
     <div className="container mx-auto px-6 py-24">
-      <Helmet>
-        <title>{`${product.name} | Affordable Anti-Tarnish ${product.category} | Sera`}</title>
-        <meta name="description" content={product.description?.substring(0, 160) || `Buy the ${product.name}. Affordable, waterproof, and high-quality anti-tarnish jewelry.`} />
-        <script type="application/ld+json">
-          {JSON.stringify(jsonLd)}
-        </script>
-      </Helmet>
+      <SEO 
+        title={`${product.name} | Affordable Anti-Tarnish ${product.category}`}
+        description={product.description?.substring(0, 160) || `Buy the ${product.name}. Affordable, waterproof, and high-quality anti-tarnish jewelry.`}
+        canonicalUrl={`https://www.serastore.in/product/${product._id}`}
+        ogImage={product.images?.[0] || FALLBACK_IMAGE}
+        schema={[jsonLd, breadcrumbSchema]}
+      />
+      {/* Visual Breadcrumb Trail */}
+      <nav aria-label="Breadcrumb" className="mb-6 text-sm text-gray-500 font-medium">
+        <ol className="flex items-center space-x-2">
+          <li>
+            <Link to="/" className="hover:text-rose-500 transition-colors">Home</Link>
+          </li>
+          <li><span className="text-gray-300">/</span></li>
+          <li>
+            <Link to="/shop" className="hover:text-rose-500 transition-colors">Shop</Link>
+          </li>
+          <li><span className="text-gray-300">/</span></li>
+          <li>
+            <Link to={`/shop/${product.category.toLowerCase()}`} className="hover:text-rose-500 transition-colors">{product.category}</Link>
+          </li>
+          <li><span className="text-gray-300">/</span></li>
+          <li className="text-gray-900 truncate max-w-[200px]" aria-current="page">
+            {product.name}
+          </li>
+        </ol>
+      </nav>
+
       <div className="flex flex-col lg:flex-row gap-12">
         {/* Image Gallery */}
         <div className="w-full lg:w-1/2">
@@ -435,6 +464,7 @@ const ProductDetails = () => {
               {product.images.map((img, idx) => (
                 <button
                   key={idx}
+                  aria-label={`View image ${idx + 1}`}
                   onClick={() => setSelectedImage(idx)}
                   className={`w-20 h-20 flex-shrink-0 border-2 rounded-lg overflow-hidden transition-all ${
                     selectedImage === idx
@@ -483,10 +513,12 @@ const ProductDetails = () => {
               {/* Share Button */}
               <div className="relative">
                 <motion.button
-                  onClick={() => setShowShareMenu(!showShareMenu)}
                   whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="p-3 rounded-full bg-white/40 backdrop-blur-sm hover:bg-white/60 shadow-md hover:shadow-xl transition-all duration-300 text-2xl border border-white/50 hover:border-white/80"
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setShowShareMenu(!showShareMenu)}
+                  aria-label="Share product"
+                  aria-expanded={showShareMenu}
+                  className="p-3 rounded-full bg-white/40 backdrop-blur-sm hover:bg-white/60 shadow-md hover:shadow-xl transition-all duration-300 border border-white/50 hover:border-white/80"
                   title="Share this product"
                 >
                   <FaShareAlt className="text-gray-600 hover:text-rose-500 transition-colors" />

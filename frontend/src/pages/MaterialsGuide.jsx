@@ -1,13 +1,46 @@
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO';
 
 const MaterialsGuide = () => {
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is anti tarnish jewelry made of?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sera anti-tarnish jewelry is crafted with a high-quality stainless steel base and coated using Physical Vapor Deposition (PVD) plating. This makes it waterproof, highly durable, and resistant to tarnishing, unlike cheap brass or copper alloys."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is stainless steel jewelry waterproof?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, our high-quality stainless steel base is inherently waterproof. When combined with our premium PVD plating, the jewelry is designed to be worn comfortably all day through workouts and showers without rusting or fading."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Will this jewelry turn my skin green?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. We refuse to use nickel or lead, and our stainless steel base does not oxidize quickly like brass or copper. Our entire collection is allergy-resistant and skin-friendly."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-6 py-16 md:py-24 font-serif">
-      <Helmet>
-        <title>Our Materials | High Quality Anti-Tarnish Jewelry | Sera</title>
-        <meta name="description" content="Discover the premium, skin-friendly materials behind Sera's waterproof and anti-tarnish jewelry. Crafted with high-quality stainless steel and premium plating." />
-      </Helmet>
+      <SEO 
+        title="Our Materials | High Quality Anti-Tarnish Jewelry"
+        description="Discover the premium, skin-friendly materials behind Sera's waterproof and anti-tarnish jewelry. Crafted with high-quality stainless steel and premium plating."
+        canonicalUrl="https://www.serastore.in/materials"
+        schema={faqSchema}
+      />
       
       <h1 className="text-4xl md:text-5xl font-light text-gray-900 mb-8">Our Materials & Quality</h1>
       

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useLocation, useNavigate, Link, useParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaFilter, FaSearch, FaShoppingCart, FaTimes, FaCheck, FaChevronLeft, FaChevronRight, FaStar } from 'react-icons/fa';
@@ -482,10 +482,65 @@ const Shop = () => {
 
   return (
     <div className="min-h-screen bg-white pt-16 md:pt-20">
-      <Helmet>
-        <title>{selectedCategory === 'All' ? 'Shop All Collections | Sera' : `Affordable Anti-Tarnish ${selectedCategory} | Sera`}</title>
-        <meta name="description" content={seoDescriptions[selectedCategory] || seoDescriptions['All']} />
-      </Helmet>
+      <SEO 
+        title={selectedCategory === 'All' ? 'Shop All Collections | Sera' : `Affordable Anti-Tarnish ${selectedCategory} | Sera`}
+        description={seoDescriptions[selectedCategory] || seoDescriptions['All']}
+        canonicalUrl={`https://www.serastore.in/shop${selectedCategory === 'All' ? '' : '/' + selectedCategory.toLowerCase()}`}
+        schema={[
+          {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": selectedCategory === 'All' ? 'Shop All Collections' : `${selectedCategory} Collection`,
+            "description": seoDescriptions[selectedCategory] || seoDescriptions['All'],
+            "url": `https://www.serastore.in/shop${selectedCategory === 'All' ? '' : '/' + selectedCategory.toLowerCase()}`
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://www.serastore.in"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Shop",
+                "item": "https://www.serastore.in/shop"
+              },
+              ...(selectedCategory !== 'All' ? [{
+                "@type": "ListItem",
+                "position": 3,
+                "name": selectedCategory,
+                "item": `https://www.serastore.in/shop/${selectedCategory.toLowerCase()}`
+              }] : [])
+            ]
+          }
+        ]}
+      />
+      {/* Visual Breadcrumb Trail */}
+      <nav aria-label="Breadcrumb" className="bg-rose-50 px-4 md:px-6 pt-6 -mb-4 text-sm text-gray-500 font-medium">
+        <ol className="flex items-center space-x-2 max-w-7xl mx-auto">
+          <li>
+            <Link to="/" className="hover:text-rose-500 transition-colors">Home</Link>
+          </li>
+          <li><span className="text-gray-300">/</span></li>
+          {selectedCategory === 'All' ? (
+            <li className="text-gray-900" aria-current="page">Shop</li>
+          ) : (
+            <>
+              <li>
+                <Link to="/shop" className="hover:text-rose-500 transition-colors">Shop</Link>
+              </li>
+              <li><span className="text-gray-300">/</span></li>
+              <li className="text-gray-900" aria-current="page">{selectedCategory}</li>
+            </>
+          )}
+        </ol>
+      </nav>
+
       {/* Header */}
       <div className="bg-rose-50 py-8 md:py-16 px-4 md:px-6 text-center">
         <motion.h1
@@ -510,6 +565,8 @@ const Shop = () => {
         {/* Mobile Filter Button */}
         <button
           onClick={() => setShowFilters(!showFilters)}
+          aria-label={showFilters ? "Close filters" : "Open filters"}
+          aria-expanded={showFilters}
           className="lg:hidden fixed bottom-6 right-6 z-40 bg-rose-500 text-white p-4 rounded-full shadow-lg hover:bg-rose-600 transition-colors"
         >
           {showFilters ? <FaTimes className="w-5 h-5" /> : <FaFilter className="w-5 h-5" />}

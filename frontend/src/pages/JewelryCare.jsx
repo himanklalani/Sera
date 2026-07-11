@@ -1,13 +1,46 @@
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO';
 
 const JewelryCare = () => {
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is Sera anti-tarnish jewelry truly waterproof?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes! Our base materials and advanced 18k PVD plating ensure that your jewelry can withstand water. You can confidently wear our pieces while washing your hands, showering, or getting caught in the rain."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I wear perfume with anti-tarnish jewelry?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "While our jewelry is highly resistant to water, harsh chemicals can gradually break down the protective plating. We strongly recommend applying perfumes, lotions, and hand sanitizers before putting on your jewelry."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I clean my anti-tarnish jewelry?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "To restore the shine, simply wipe your jewelry with a soft, non-abrasive microfiber cloth. For a deeper clean, use mild soap and warm water, then gently pat completely dry. Avoid using harsh chemical jewelry cleaners."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-6 py-16 md:py-24 font-serif">
-      <Helmet>
-        <title>Jewelry Care Guide | Sera Anti-Tarnish Jewelry</title>
-        <meta name="description" content="Learn how to care for your anti-tarnish and waterproof jewelry from Sera. Keep your minimalist necklaces and rings shining forever." />
-      </Helmet>
+      <SEO 
+        title="Jewelry Care Guide | Sera Anti-Tarnish Jewelry"
+        description="Learn how to care for your anti-tarnish and waterproof jewelry from Sera. Keep your minimalist necklaces and rings shining forever."
+        canonicalUrl="https://www.serastore.in/jewelry-care"
+        schema={faqSchema}
+      />
       
       <h1 className="text-4xl md:text-5xl font-light text-gray-900 mb-8">Jewelry Care Guide</h1>
       

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SEO from '../components/SEO';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -75,6 +76,25 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-[#ffe4e6] py-16 px-4 sm:px-6 lg:px-8">
+      <SEO 
+        title="Contact Us | Sera Jewels"
+        description="Have a question, custom request, or need help with an order? Contact the Sera team today."
+        canonicalUrl="https://www.serastore.in/contact"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          "mainEntity": {
+            "@type": "LocalBusiness",
+            "name": "Sera Jewels",
+            "url": "https://www.serastore.in",
+            "email": "hello@serastore.in",
+            "address": {
+              "@type": "PostalAddress",
+              "addressCountry": "IN"
+            }
+          }
+        }}
+      />
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-serif text-[#c5a666] tracking-tight mb-4">

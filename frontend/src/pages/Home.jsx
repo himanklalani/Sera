@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
+import SEO from '../components/SEO';
 
 
 // ============================================
@@ -1281,6 +1282,7 @@ const FloatingGallerySection = () => {
 export default function Home() {
   return (
     <div>
+      <SEO canonicalUrl="https://www.serastore.in/" />
       <HeroSection />
       <CategoriesSection />
       <GiftingSection />

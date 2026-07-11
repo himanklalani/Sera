@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO';
 import axios from 'axios';
 
 const BlogPost = () => {
@@ -36,17 +36,25 @@ const BlogPost = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{blog.seoTitle || `${blog.title} | Sera Jewels`}</title>
-        <meta name="description" content={blog.seoDescription || blog.title} />
-        {/* Keywords string from tags array */}
-        {blog.tags && blog.tags.length > 0 && (
-          <meta name="keywords" content={blog.tags.join(', ')} />
-        )}
-        <meta property="og:title" content={blog.seoTitle || blog.title} />
-        <meta property="og:description" content={blog.seoDescription || blog.title} />
-        {blog.coverImage && <meta property="og:image" content={blog.coverImage} />}
-      </Helmet>
+      <SEO 
+        title={blog.seoTitle || `${blog.title} | Sera Jewels`}
+        description={blog.seoDescription || blog.title}
+        canonicalUrl={`https://www.serastore.in/journal/${blog.slug}`}
+        ogImage={blog.coverImage || undefined}
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": blog.title,
+          "image": blog.coverImage ? [blog.coverImage] : [],
+          "datePublished": new Date(blog.createdAt).toISOString(),
+          "dateModified": new Date(blog.updatedAt || blog.createdAt).toISOString(),
+          "author": [{
+              "@type": "Organization",
+              "name": "Sera Jewels",
+              "url": "https://www.serastore.in"
+          }]
+        }}
+      />
 
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mt-16 bg-white">
         

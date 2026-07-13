@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 // Use fetch to get products from API at build time
 async function generateSitemap() {
   try {
-    const apiUrl = process.env.VITE_API_URL || 'https://sera-backend-n51r.onrender.com';
+    const apiUrl = process.env.VITE_API_URL || 'https://backend.serastore.in';
     console.log(`Generating sitemap using API: ${apiUrl}`);
     
     // Attempt to fetch from the live API during build

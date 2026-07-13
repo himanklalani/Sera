@@ -1,13 +1,25 @@
 // InfoPage.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../components/SEO';
 
 
 
 
 export const About = () => (
   <div className="min-h-screen bg-rose-50/50 py-12 px-4 lg:px-8">
+    <SEO
+      title="About Us | Sera"
+      description="Discover the story of Sera Jewels, where timeless elegance meets modern intention in premium anti-tarnish jewelry."
+      canonicalUrl="https://www.serastore.in/about"
+      schema={{
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        "name": "About Sera Jewels",
+        "description": "Premium anti-tarnish imitation jewelry founded in Mumbai.",
+        "url": "https://www.serastore.in/about"
+      }}
+    />
     <div className="max-w-6xl mx-auto">
       {/* Hero Section */}
       <div className="text-center mb-20">
@@ -236,13 +248,12 @@ export const FAQ = () => {
 
   return (
     <div className="min-h-screen bg-rose-50/50 py-12 px-4 lg:px-8">
-      <Helmet>
-        <title>Frequently Asked Questions | Sera</title>
-        <meta name="description" content="Find answers to your questions about Sera's anti-tarnish jewelry, shipping, returns, and how to care for waterproof rings and necklaces." />
-        <script type="application/ld+json">
-          {JSON.stringify(faqSchema)}
-        </script>
-      </Helmet>
+      <SEO
+        title="Frequently Asked Questions | Sera"
+        description="Find answers to your questions about Sera's anti-tarnish jewelry, shipping, returns, and how to care for waterproof rings and necklaces."
+        canonicalUrl="https://www.serastore.in/faq"
+        schema={faqSchema}
+      />
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-20">

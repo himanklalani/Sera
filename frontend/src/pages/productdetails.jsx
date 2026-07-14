@@ -287,9 +287,7 @@ const ProductDetails = () => {
 
 
   const handleShare = async (platform) => {
-    // Generate backend share URL for dynamic OG tags parsing (fixes SPA meta tag issue)
-    const baseUrl = import.meta.env.VITE_API_URL || 'https://backend.serastore.in';
-    const productUrl = `${baseUrl}/api/products/share/${id}`;
+    const productUrl = `${window.location.origin}/product/${id}`;
     
     const productName = product.name;
     const shareText = `Hey checkout: ${productName}! This might just be made for you!!`;

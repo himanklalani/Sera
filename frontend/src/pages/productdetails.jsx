@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt, FaInstagram, FaTint, FaGem, FaTruck } from 'react-icons/fa';
+import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt, FaInstagram, FaTint, FaGem, FaTruck, FaLink, FaWhatsapp, FaEnvelope, FaShareSquare } from 'react-icons/fa';
 import { useCart } from '../components/CartContext';
 import { copyToClipboard, nativeShare } from '../utils/shareUtils';
 
@@ -540,21 +540,21 @@ const ProductDetails = () => {
                       onClick={() => handleShare('copy')}
                       className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-rose-50 transition-colors text-gray-700 hover:text-rose-600 font-medium"
                     >
-                      <span className="text-xl">🔗</span>
+                      <span className="text-xl"><FaLink /></span>
                       Copy Link
                     </button>
                     <button
                       onClick={() => handleShare('whatsapp')}
                       className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-green-50 transition-colors text-gray-700 hover:text-green-600 font-medium"
                     >
-                      <span className="text-xl">💬</span>
+                      <span className="text-xl"><FaWhatsapp /></span>
                       WhatsApp
                     </button>
                     <button
                       onClick={() => handleShare('email')}
                       className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-orange-50 transition-colors text-gray-700 hover:text-orange-600 font-medium"
                     >
-                      <span className="text-xl">✉️</span>
+                      <span className="text-xl"><FaEnvelope /></span>
                       Email
                     </button>
                     <button
@@ -569,7 +569,7 @@ const ProductDetails = () => {
                         onClick={() => handleShare('native')}
                         className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-purple-50 transition-colors text-gray-700 hover:text-purple-600 font-medium border-t border-gray-100"
                       >
-                        <span className="text-xl">📱</span>
+                        <span className="text-xl"><FaShareSquare /></span>
                         Share with an Image
                       </button>
                     )}

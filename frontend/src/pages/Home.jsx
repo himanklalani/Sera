@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
+import { FaInstagram } from 'react-icons/fa';
 import SEO from '../components/SEO';
 
 
@@ -1277,6 +1278,82 @@ const FloatingGallerySection = () => {
 
 
 // ============================================
+// Instagram Feed Section (Lazy Loaded & Deferred)
+// ============================================
+const InstagramFeedSection = () => {
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    // Lazy load the Instagram script only when scrolled near the section
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShouldLoad(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+    
+    // Fallback: load after 5 seconds of idle time regardless
+    const timer = setTimeout(() => {
+      setShouldLoad(true);
+    }, 5000);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (shouldLoad) {
+      // Load Instagram embed script asynchronously
+      const script = document.createElement('script');
+      script.src = "//www.instagram.com/embed.js";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+      
+      // Ensure existing embeds are processed
+      if (window.instgrm) {
+        window.instgrm.Embeds.process();
+      }
+    }
+  }, [shouldLoad]);
+
+  return (
+    <section ref={containerRef} className="py-16 px-4 md:px-8 bg-white overflow-hidden flex flex-col items-center">
+      <div className="text-center mb-10">
+        <h2 className="text-3xl md:text-5xl font-serif text-gray-900 mb-4">Sera In The Wild</h2>
+        <p className="text-gray-600">Tag <a href="https://instagram.com/serastore.in" target="_blank" rel="noopener noreferrer" className="text-rose-500 font-medium hover:underline">@serastore.in</a> to be featured</p>
+      </div>
+      
+      {shouldLoad ? (
+        <div className="w-full max-w-4xl mx-auto flex justify-center">
+          <blockquote 
+            className="instagram-media" 
+            data-instgrm-permalink="https://www.instagram.com/serastore.in/" 
+            data-instgrm-version="14" 
+            style={{ background: '#FFF', border: '0', borderRadius: '12px', boxShadow: '0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15)', margin: '1px', maxWidth: '540px', minWidth: '326px', padding: '0', width: '99.375%', width: '-webkit-calc(100% - 2px)', width: 'calc(100% - 2px)' }}
+          >
+          </blockquote>
+        </div>
+      ) : (
+        <div className="w-full max-w-lg mx-auto h-[600px] bg-gray-50 animate-pulse rounded-2xl flex items-center justify-center border border-gray-100">
+          <FaInstagram className="text-4xl text-gray-300" />
+        </div>
+      )}
+    </section>
+  );
+};
+
+// ============================================
 // Main Home Component
 // ============================================
 export default function Home() {
@@ -1288,6 +1365,7 @@ export default function Home() {
       <GiftingSection />
       <BentoCollectionsSection />
       <FloatingGallerySection />
+      <InstagramFeedSection />
     </div>
   );
 }

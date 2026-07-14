@@ -12,13 +12,13 @@ const blogs = [
       <p>If you are tired of your favourite rings and necklaces losing their golden shine after just a few wears, you are not alone. The search for the <strong>best anti tarnish jewellery</strong> is one of the biggest trends in fashion right now. But what actually makes a piece of jewellery tarnish free?</p>
       
       <h3>Why Solid Gold Isn't the Only Option</h3>
-      <p>For decades, women believed that solid 14k or 18k gold was the only way to avoid tarnishing. However, the best anti tarnish jewellery on the market today uses a much more accessible secret: surgical grade stainless steel combined with advanced PVD gold plating. This method creates a bond so strong that the jewellery becomes incredibly resistant to water, sweat, and daily wear and tear.</p>
+      <p>For decades, women believed that solid gold was the only way to avoid tarnishing. However, the best anti tarnish jewellery on the market today uses a much more accessible secret: surgical grade stainless steel combined with advanced PVD gold coating. This method creates a bond so strong that the jewellery becomes incredibly resistant to water, sweat, and daily wear and tear.</p>
       
       <h3>How to Spot the Best Anti Tarnish Pieces</h3>
       <p>When shopping for everyday wear, look for these key indicators:</p>
       <ul>
         <li><strong>Base Metal:</strong> The best pieces use stainless steel or titanium, not cheap copper or nickel.</li>
-        <li><strong>Plating Method:</strong> Look for PVD (Physical Vapor Deposition) plating, which lasts much longer than traditional electroplating.</li>
+        <li><strong>Coating Method:</strong> Look for PVD (Physical Vapor Deposition) coating, which lasts much longer than traditional methods.</li>
         <li><strong>Hypoallergenic Labels:</strong> True anti-tarnish jewellery is almost always skin friendly and hypoallergenic.</li>
       </ul>
       
@@ -67,7 +67,7 @@ const blogs = [
       <h3>Tips for Buying the Best Affordable Jewellery</h3>
       <ul>
         <li><strong>Check the Weight:</strong> Quality pieces have a bit of substance to them. If it feels like hollow plastic, it will look cheap.</li>
-        <li><strong>Look at the Gold Tone:</strong> Extremely yellow or brassy tones look unnatural. The best affordable jewellery uses a softer, more realistic 14k or 18k gold tone.</li>
+        <li><strong>Look at the Gold Tone:</strong> Extremely yellow or brassy tones look unnatural. The best affordable jewellery uses a softer, more realistic solid gold tone.</li>
         <li><strong>Focus on Finish:</strong> Check for a smooth, high-polish finish without any visible seams or rough edges.</li>
       </ul>
       

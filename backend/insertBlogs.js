@@ -39,7 +39,7 @@ const blogs = [
       <p>There is nothing more frustrating than buying a beautiful piece of jewellery, only for it to turn your skin green or lose its shine after a few weeks. This is why <strong>anti-tarnish jewellery</strong> has become the most sought after category in fashion accessories today.</p>
       
       <h3>What Exactly is Anti-Tarnish Jewellery?</h3>
-      <p>Anti-tarnish jewellery is typically crafted from durable base metals like stainless steel or brass, and then coated with a highly resilient plating, often 18k gold. Advanced techniques like PVD (Physical Vapor Deposition) coating are used to ensure that the gold layer bonds deeply with the base metal. This makes the jewellery resistant to sweat, water, and everyday wear.</p>
+      <p>Anti-tarnish jewellery is typically crafted from durable base metals like stainless steel or brass, and then coated with a highly resilient premium finish. Advanced techniques like PVD (Physical Vapor Deposition) coating are used to ensure that the gold layer bonds deeply with the base metal. This makes the jewellery resistant to sweat, water, and everyday wear.</p>
       
       <h3>Why You Need It in Your Collection</h3>
       <p>If you live an active lifestyle, hit the gym, or simply do not want the hassle of removing your rings every time you wash your hands, anti-tarnish pieces are a game changer. They offer the luxurious look of solid gold but require a fraction of the maintenance.</p>

@@ -10,7 +10,7 @@ const seoBlogs = [
     title: "What is Anti-Tarnish Jewellery? The Complete Guide",
     slug: "what-is-anti-tarnish-jewellery-complete-guide",
     seoTitle: "What is Anti-Tarnish Jewellery? | Sera Jewels Guide",
-    seoDescription: "Discover what anti-tarnish jewellery is, how it's made using PVD plating, and why stainless steel is the best waterproof base material.",
+    seoDescription: "Discover what anti-tarnish jewellery is, how it's made using PVD coating, and why stainless steel is the best waterproof base material.",
     tags: ["education", "anti-tarnish", "materials"],
     isPublished: true,
     coverImage: "", // Purposefully left blank for minimalist aesthetic
@@ -21,7 +21,7 @@ const seoBlogs = [
       <h2>What Makes Jewellery "Anti-Tarnish"?</h2>
       <p>Anti-tarnish jewellery is specifically engineered to resist oxidation. At Sera, we achieve this by using a high-grade stainless steel base. Unlike brass or copper, stainless steel is inherently durable and rust-resistant.</p>
       
-      <p>We then use an advanced process called <strong>Physical Vapor Deposition (PVD)</strong> plating. This bonds a premium finish to the steel at a molecular level, creating a coating that is up to 10 times thicker than standard plating.</p>
+      <p>We then use an advanced process called <strong>Physical Vapor Deposition (PVD)</strong> coating. This bonds a premium finish to the steel at a molecular level, creating a coating that is up to 10 times thicker than standard finishes.</p>
 
       <h2>Waterproof and Skin-Friendly</h2>
       <p>Because of these materials, our <a href="/shop/rings">minimalist rings</a> and <a href="/shop/necklaces">dainty necklaces</a> are entirely waterproof. You can wear them in the shower or during a workout without fear.</p>

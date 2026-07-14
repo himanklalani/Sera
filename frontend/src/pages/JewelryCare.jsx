@@ -11,7 +11,7 @@ const JewelryCare = () => {
         "name": "Is Sera anti-tarnish jewelry truly waterproof?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes! Our base materials and advanced 18k PVD plating ensure that your jewelry can withstand water. You can confidently wear our pieces while washing your hands, showering, or getting caught in the rain."
+          "text": "Yes! Our base materials and advanced PVD coating ensure that your jewelry can withstand water. You can confidently wear our pieces while washing your hands, showering, or getting caught in the rain."
         }
       },
       {
@@ -19,7 +19,7 @@ const JewelryCare = () => {
         "name": "Can I wear perfume with anti-tarnish jewelry?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "While our jewelry is highly resistant to water, harsh chemicals can gradually break down the protective plating. We strongly recommend applying perfumes, lotions, and hand sanitizers before putting on your jewelry."
+          "text": "While our jewelry is highly resistant to water, harsh chemicals can gradually break down the protective coating. We strongly recommend applying perfumes, lotions, and hand sanitizers before putting on your jewelry."
         }
       },
       {
@@ -51,12 +51,12 @@ const JewelryCare = () => {
 
         <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">1. Is it truly waterproof?</h2>
         <p className="mb-6">
-          Yes! Our base materials and advanced 18k PVD plating ensure that your jewelry can withstand water. You can confidently wear our pieces while washing your hands, showering, or getting caught in the rain without worrying about immediate tarnishing or green skin.
+          Yes! Our base materials and advanced PVD coating ensure that your jewelry can withstand water. You can confidently wear our pieces while washing your hands, showering, or getting caught in the rain without worrying about immediate tarnishing or green skin.
         </p>
 
         <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">2. Handling Chemicals & Perfumes</h2>
         <p className="mb-6">
-          While our jewelry is highly resistant to water, harsh chemicals can gradually break down the protective plating. We strongly recommend applying perfumes, lotions, hairsprays, and hand sanitizers <strong>before</strong> putting on your jewelry. Let the products dry completely to preserve the gold layer.
+          While our jewelry is highly resistant to water, harsh chemicals can gradually break down the protective coating. We strongly recommend applying perfumes, lotions, hairsprays, and hand sanitizers <strong>before</strong> putting on your jewelry. Let the products dry completely to preserve the finish.
         </p>
 
         <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">3. Safe Storage</h2>

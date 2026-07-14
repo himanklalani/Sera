@@ -11,7 +11,7 @@ const MaterialsGuide = () => {
         "name": "What is anti tarnish jewelry made of?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Sera anti-tarnish jewelry is crafted with a high-quality stainless steel base and coated using Physical Vapor Deposition (PVD) plating. This makes it waterproof, highly durable, and resistant to tarnishing, unlike cheap brass or copper alloys."
+          "text": "Sera anti-tarnish jewelry is crafted with a high-quality stainless steel base and coated using Physical Vapor Deposition (PVD) coating. This makes it waterproof, highly durable, and resistant to tarnishing, unlike cheap brass or copper alloys."
         }
       },
       {
@@ -19,7 +19,7 @@ const MaterialsGuide = () => {
         "name": "Is stainless steel jewelry waterproof?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes, our high-quality stainless steel base is inherently waterproof. When combined with our premium PVD plating, the jewelry is designed to be worn comfortably all day through workouts and showers without rusting or fading."
+          "text": "Yes, our high-quality stainless steel base is inherently waterproof. When combined with our premium PVD coating, the jewelry is designed to be worn comfortably all day through workouts and showers without rusting or fading."
         }
       },
       {
@@ -37,7 +37,7 @@ const MaterialsGuide = () => {
     <div className="max-w-4xl mx-auto px-6 py-16 md:py-24 font-serif">
       <SEO 
         title="Our Materials | High Quality Anti-Tarnish Jewelry"
-        description="Discover the premium, skin-friendly materials behind Sera's waterproof and anti-tarnish jewelry. Crafted with high-quality stainless steel and premium plating."
+        description="Discover the premium, skin-friendly materials behind Sera's waterproof and anti-tarnish jewelry. Crafted with high-quality stainless steel and premium coating."
         canonicalUrl="https://www.serastore.in/materials"
         schema={faqSchema}
       />
@@ -51,12 +51,12 @@ const MaterialsGuide = () => {
 
         <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">Premium Stainless Steel Base</h2>
         <p className="mb-6">
-          The foundation of our jewelry is high-quality stainless steel—a premium, durable metal. Unlike cheap brass or copper alloys that oxidize quickly and turn your skin green, stainless steel is inherently highly durable, waterproof, and generally allergy-resistant. It provides the perfect, unyielding canvas for our plating.
+          The foundation of our jewelry is high-quality stainless steel—a premium, durable metal. Unlike cheap brass or copper alloys that oxidize quickly and turn your skin green, stainless steel is inherently highly durable, waterproof, and generally allergy-resistant. It provides the perfect, unyielding canvas for our finish.
         </p>
 
-        <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">Premium PVD Plating</h2>
+        <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">Premium PVD Coating</h2>
         <p className="mb-6">
-          To achieve our signature luxurious finish, we use an advanced technique called Physical Vapor Deposition (PVD) to coat our stainless steel base. PVD plating binds to the steel at a molecular level, resulting in a coating that is up to 10 times thicker and vastly more durable than traditional plating.
+          To achieve our signature luxurious finish, we use an advanced technique called Physical Vapor Deposition (PVD) to coat our stainless steel base. PVD coating binds to the steel at a molecular level, resulting in a finish that is up to 10 times thicker and vastly more durable than traditional methods.
         </p>
 
         <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">Skin-Friendly & Allergy-Resistant</h2>

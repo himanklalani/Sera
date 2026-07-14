@@ -18,6 +18,11 @@ const productSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
+  aesthetics: [{
+    type: String,
+    trim: true,
+    lowercase: true
+  }],
   price: {
     type: Number,
     required: true,

@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt, FaInstagram } from 'react-icons/fa';
+import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt, FaInstagram, FaTint, FaGem, FaTruck } from 'react-icons/fa';
 import { useCart } from '../components/CartContext';
 import { copyToClipboard, nativeShare } from '../utils/shareUtils';
 
@@ -287,7 +287,10 @@ const ProductDetails = () => {
 
 
   const handleShare = async (platform) => {
-    const productUrl = `${window.location.origin}/product/${id}`;
+    // Generate backend share URL for dynamic OG tags parsing (fixes SPA meta tag issue)
+    const baseUrl = import.meta.env.VITE_API_URL || 'https://backend.serastore.in';
+    const productUrl = `${baseUrl}/api/products/share/${id}`;
+    
     const productName = product.name;
     const shareText = `Hey checkout: ${productName}! This might just be made for you!!`;
     const fullShareContent = `${shareText}\n\n${productUrl}`;
@@ -452,7 +455,7 @@ const ProductDetails = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
               src={product.images?.[selectedImage] || FALLBACK_IMAGE}
-              alt={product.name}
+              alt={`${product.name} - Anti-Tarnish Premium Jewelry`}
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 e.currentTarget.src = FALLBACK_IMAGE;
@@ -474,7 +477,7 @@ const ProductDetails = () => {
                 >
                   <img
                     src={img}
-                    alt=""
+                    alt={`${product.name} view ${idx + 1}`}
                     className="w-full h-full object-cover hover:opacity-90"
                     onError={(e) => {
                       e.currentTarget.src = FALLBACK_IMAGE;
@@ -691,6 +694,22 @@ const ProductDetails = () => {
                 </>
               )}
             </button>
+            
+            {/* Trust Badges */}
+            <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100 px-2">
+              <div className="flex flex-col items-center gap-1.5 group cursor-default">
+                <FaTint className="text-gray-400 group-hover:text-rose-400 text-xl transition-colors duration-300" />
+                <span className="text-xs font-medium tracking-wide text-gray-500 uppercase">Sweatproof</span>
+              </div>
+              <div className="flex flex-col items-center gap-1.5 group cursor-default">
+                <FaGem className="text-gray-400 group-hover:text-rose-400 text-xl transition-colors duration-300" />
+                <span className="text-xs font-medium tracking-wide text-gray-500 uppercase">Premium Finish</span>
+              </div>
+              <div className="flex flex-col items-center gap-1.5 group cursor-default">
+                <FaTruck className="text-gray-400 group-hover:text-rose-400 text-xl transition-colors duration-300" />
+                <span className="text-xs font-medium tracking-wide text-gray-500 uppercase">Free Shipping</span>
+              </div>
+            </div>
           </div>
 
 

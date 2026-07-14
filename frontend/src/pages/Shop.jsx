@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 const useURLSync = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { category: pathCategory } = useParams();
+  const { category: pathCategory, aesthetic: pathAesthetic } = useParams();
   
   const getURLParams = useCallback(() => {
     const params = new URLSearchParams(location.search);
@@ -20,6 +20,7 @@ const useURLSync = () => {
       category: cat ? 
         cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase() 
         : 'All',
+      aesthetic: pathAesthetic || params.get('aesthetic') || null,
       page: Math.max(1, parseInt(params.get('page') || '1', 10)),
       tags: params.get('tags') ? params.get('tags').split(',').map(t => t.trim()) : [],
       sortBy: params.get('sort') || 'relevance',
@@ -27,7 +28,7 @@ const useURLSync = () => {
       priceRange: params.get('maxPrice') ? parseInt(params.get('maxPrice'), 10) : 10000,
       showInStock: params.get('inStock') !== 'false'
     };
-  }, [location.search, pathCategory]);
+  }, [location.search, pathCategory, pathAesthetic]);
 
 
   const updateURLParams = useCallback((newParams) => {
@@ -42,7 +43,9 @@ const useURLSync = () => {
     if (newParams.showInStock === false) params.set('inStock', 'false');
     
     let basePath = '/shop';
-    if (newParams.category && newParams.category !== 'All') {
+    if (newParams.aesthetic) {
+      basePath = `/shop/collection/${newParams.aesthetic.toLowerCase()}`;
+    } else if (newParams.category && newParams.category !== 'All') {
       basePath = `/shop/${newParams.category.toLowerCase()}`;
     }
     navigate(`${basePath}${params.toString() ? '?' + params.toString() : ''}`, { replace: true });
@@ -65,6 +68,7 @@ const Shop = () => {
   const [topBestsellerIds, setTopBestsellerIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(initialParams.category);
+  const [selectedAesthetic, setSelectedAesthetic] = useState(initialParams.aesthetic);
   const [selectedTags, setSelectedTags] = useState(initialParams.tags);
   const [searchQuery, setSearchQuery] = useState(initialParams.searchQuery);
   const [priceRange, setPriceRange] = useState(initialParams.priceRange);
@@ -85,12 +89,13 @@ const Shop = () => {
   const fetchParams = useMemo(() => ({
     currentPage,
     selectedCategory,
+    selectedAesthetic,
     selectedTags,
     searchQuery,
     priceRange,
     showInStock,
     sortBy,
-  }), [currentPage, selectedCategory, selectedTags, searchQuery, priceRange, showInStock, sortBy]);
+  }), [currentPage, selectedCategory, selectedAesthetic, selectedTags, searchQuery, priceRange, showInStock, sortBy]);
 
 
   // OPTIMIZED: Fetch products with proper async handling
@@ -129,6 +134,9 @@ const Shop = () => {
 
         if (selectedCategory !== 'All') {
           params.set('category', selectedCategory.toLowerCase());
+        }
+        if (selectedAesthetic) {
+          params.set('aesthetics', selectedAesthetic.toLowerCase());
         }
         if (selectedTags.length > 0) {
           params.set('tags', selectedTags.join(','));
@@ -338,7 +346,7 @@ const Shop = () => {
           <div className="relative aspect-square overflow-hidden bg-gray-100">
             <img
               src={product.images?.[0] || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'300\' viewBox=\'0 0 300 300\'%3E%3Crect fill=\'%23f3f4f6\' width=\'300\' height=\'300\'/%3E%3Ctext fill=\'%239ca3af\' font-family=\'sans-serif\' font-size=\'24\' dy=\'10.5\' font-weight=\'bold\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3ENo Image%3C/text%3E%3C/svg%3E'}
-              alt={product.name || 'Product'}
+              alt={`${product.name || 'Product'} - Anti-Tarnish Premium Jewelry`}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               loading="lazy"
               decoding="async"

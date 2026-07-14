@@ -127,6 +127,12 @@ router.get('/', asyncHandler(async (req, res) => {
     query.tags = { $in: tagsArray };
   }
 
+  // Filter by aesthetics (for Shop by Category)
+  if (req.query.aesthetics) {
+    const aestheticsArray = req.query.aesthetics.split(',').map(t => t.trim().toLowerCase());
+    query.aesthetics = { $in: aestheticsArray };
+  }
+
   // Filter by price range
   if (req.query.maxPrice) {
     query.price = { $lte: parseFloat(req.query.maxPrice) };
@@ -193,6 +199,65 @@ router.get('/top-bestsellers', asyncHandler(async (req, res) => {
   }
 
   res.json(topBestsellerIds);
+}));
+
+
+// @desc    WhatsApp/Social Share Interceptor for dynamic OG Tags
+// @route   GET /api/products/share/:id
+// @access  Public
+router.get('/share/:id', asyncHandler(async (req, res) => {
+  if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).send('Invalid Product ID');
+  }
+
+  const product = await Product.findById(req.params.id).lean();
+  if (!product) {
+    return res.status(404).send('Product not found');
+  }
+
+  const frontendUrl = `https://www.serastore.in/product/${product._id}`;
+  const imageUrl = product.images?.[0] || 'https://www.serastore.in/logo.avif';
+  const title = `${product.name} | Sera Jewels`;
+  const description = `Shop the ${product.name} for INR ${product.price}. Premium Anti-Tarnish & Waterproof Jewelry.`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${title}</title>
+      
+      <!-- Open Graph / WhatsApp / Facebook -->
+      <meta property="og:type" content="product">
+      <meta property="og:url" content="${frontendUrl}">
+      <meta property="og:title" content="${title}">
+      <meta property="og:description" content="${description}">
+      <meta property="og:image" content="${imageUrl}">
+      <meta property="product:price:amount" content="${product.price}">
+      <meta property="product:price:currency" content="INR">
+      
+      <!-- Twitter -->
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="${title}">
+      <meta name="twitter:description" content="${description}">
+      <meta name="twitter:image" content="${imageUrl}">
+      
+      <!-- Redirect human users to the actual React app -->
+      <meta http-equiv="refresh" content="0;url=${frontendUrl}">
+      
+      <script>
+        // Fallback JS redirect just in case meta refresh fails
+        window.location.href = "${frontendUrl}";
+      </script>
+    </head>
+    <body>
+      <p>Redirecting to ${product.name}... <a href="${frontendUrl}">Click here</a> if not redirected automatically.</p>
+    </body>
+    </html>
+  `;
+
+  res.send(html);
 }));
 
 

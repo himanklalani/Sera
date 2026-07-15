@@ -261,3 +261,29 @@ The backend is built with Node, Express, MongoDB/Mongoose, and includes:
 * `GET /api/orders/:id/invoice` (Generates a clean PDF invoice using `pdfkit` stream buffers)
 * `PUT /api/orders/:id/cancel` (Applies a cancellation fee if status is `'processing'`)
 * `PUT /api/orders/:id/exchange` (Logs exchange requests, checking that it is within the 3-day delivery window)
+
+---
+
+## 6. Technical SEO & Brand Compliance (Phase 18)
+
+Sera strictly enforces premium brand aesthetics and high-performance technical SEO routing.
+
+### Brand Terminology
+* **Prohibited Terms**: Do NOT use "18k", "plating", or "plated" anywhere in the copy, frontend UI, or backend seed scripts.
+* **Approved Alternatives**: Use "PVD Coating", "Premium Finish", "Waterproof", and "Anti-Tarnish".
+* **Trust Badges**: Must use clean SVG/React Icons (`react-icons`) rather than emojis (e.g., `FaTint` for Sweatproof, `FaGem` for Premium Finish, `FaTruck` for Free Shipping).
+
+### Aesthetic Collection Routing
+* **Schema Upgrade**: The `Product` model includes an `aesthetics` array (e.g., `['boho vibes', 'minimalist']`).
+* **Frontend Routing**: Supports deep-linking collections via `/shop/collection/:aesthetic` instead of URL query parameters. This is natively parsed by `Shop.jsx` to filter products dynamically.
+
+### SEO & Social Interceptors
+* **Image Alt-Text Automation**: Product images append target keywords to the product name (e.g., `alt={`${product.name} - Anti-Tarnish Premium Jewelry`}`).
+* **Canonical Routing**: `Shop.jsx` implements strict canonical URLs via the `<SEO>` component to prevent Google from indexing empty parameter-based queries (preventing "Soft 404" errors).
+* **WhatsApp / Social OG Interceptor**: 
+  * Problem: SPAs on Vercel send generic `index.html` meta tags to social bots.
+  * Solution: `vercel.json` utilizes a regex `user-agent` matcher to identify bots (WhatsApp, Facebook, LinkedIn, Pinterest) and rewrite `/product/:id` requests to the backend endpoint `GET /api/products/share/:id`.
+  * The backend returns raw HTML with dynamic OpenGraph meta tags and instantly redirects human clicks back to the React SPA URL.
+
+### Performance Protections
+* **Lazy-Loaded Integrations**: Heavy 3rd-party scripts (like the Instagram Embed Feed) must never block the main thread. They are deferred using an `IntersectionObserver` (loading only when scrolled into view) or a fallback 5-second timer.

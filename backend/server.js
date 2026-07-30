@@ -68,12 +68,25 @@ const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'public/static/uploads')));
 
 // ✅ ADD THIS - Health Check Endpoint
-app.get('/api/healthcheck', (req, res) => {
-  res.status(200).json({ 
-    status: 'ok', 
-    message: 'SERA backend is running',
-    timestamp: new Date().toISOString()
-  });
+app.get('/api/healthcheck', async (req, res) => {
+  try {
+    // Ping the database to keep the MongoDB connection pool active and warm
+    if (mongoose.connection.readyState === 1) {
+      await mongoose.connection.db.command({ ping: 1 });
+    }
+
+    res.status(200).json({ 
+      status: 'ok', 
+      message: 'SERA backend is running and DB is warm',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      status: 'error', 
+      message: 'Database ping failed',
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Error handling

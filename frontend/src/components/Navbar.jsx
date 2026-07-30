@@ -122,6 +122,9 @@ export default function Navbar() {
 
               {/* Right: Icons */}
               <div className="flex items-center space-x-4 md:space-x-6 text-xl z-10 relative">
+                <Link to="/gifts" className="text-sm font-bold uppercase tracking-wider hidden md:block text-rose-500 hover:text-rose-600 transition-colors">
+                  Gifts
+                </Link>
                 <Link to="/shop" className="text-sm font-bold uppercase tracking-wider hidden md:block hover:text-rose-500 transition-colors">
                   Shop
                 </Link>

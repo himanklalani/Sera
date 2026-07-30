@@ -40,6 +40,12 @@ const TermsPage = React.lazy(() => import('./pages/TermsPage'));
 
 const Contact = React.lazy(() => import('./pages/Contact'));
 
+// New SEO Content Pages
+const GiftingHub = React.lazy(() => import('./pages/GiftingHub'));
+const SizeGuide = React.lazy(() => import('./pages/SizeGuide'));
+const Sustainability = React.lazy(() => import('./pages/Sustainability'));
+const Sitemap = React.lazy(() => import('./pages/Sitemap'));
+
 function App() {
   return (
     <HelmetProvider>
@@ -76,6 +82,10 @@ function App() {
                 <Route path="/materials" element={<MaterialsGuide />} />
                 <Route path="/journal" element={<BlogList />} />
                 <Route path="/journal/:slug" element={<BlogPost />} />
+                <Route path="/gifts" element={<GiftingHub />} />
+                <Route path="/size-guide" element={<SizeGuide />} />
+                <Route path="/sustainability" element={<Sustainability />} />
+                <Route path="/sitemap" element={<Sitemap />} />
 
                 {/* legal / policy pages */}
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />

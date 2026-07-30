@@ -100,10 +100,13 @@ const Footer = () => {
             <h3 className="font-bold tracking-widest uppercase text-sm text-rose-600">Explore</h3>
             <ul className="space-y-4 text-sm font-light">
               <li><Link to="/shop" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3 uppercase">Shop <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
-              <li><Link to="/about" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3 uppercase">About Us <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
-              <li><Link to="/faq" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3">FAQ's <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
+              <li><Link to="/gifts" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3 uppercase text-rose-500 font-medium">Gifting Hub <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
               <li><Link to="/jewelry-care" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3 uppercase">Jewelry Care <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
+              <li><Link to="/size-guide" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3 uppercase">Size Guide <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
               <li><Link to="/materials" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3 uppercase">Materials Guide <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
+              <li><Link to="/about" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3 uppercase">About Us <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
+              <li><Link to="/sustainability" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3 uppercase">Sustainability <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
+              <li><Link to="/faq" className="hover:text-rose-600 transition-colors group flex items-center gap-2 hover:gap-3">FAQ's <span className="w-1 h-1 bg-rose-600 rounded-full scale-0 group-hover:scale-100 transition-all duration-300"></span></Link></li>
             </ul>
           </div>
 
@@ -147,6 +150,7 @@ const Footer = () => {
             
             <Link to="/privacy-policy" className="hover:text-rose-600 transition-colors uppercase hover:underline">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-rose-600 transition-colors uppercase hover:underline">Terms of Service</Link>
+            <Link to="/sitemap" className="hover:text-rose-600 transition-colors uppercase hover:underline">Sitemap</Link>
             <a><span>~developed by himanklalani@gmail.com</span></a>
             <span>© 2025 SERA. All rights reserved.</span>
             

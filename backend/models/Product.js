@@ -72,6 +72,10 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  isAddon: {
+    type: Boolean,
+    default: false
+  },
   featured: {
     type: Boolean,
     default: false

@@ -83,6 +83,7 @@ const AdminDashboard = () => {
     images: [],
     selectedStyles: [],
     accentPairs: '',
+    isAddon: false,
   });
 
   const convertDriveLink = (link) => {
@@ -703,6 +704,7 @@ const AdminDashboard = () => {
           images: Array.isArray(data.images) ? data.images : [],
           selectedStyles: foundStyles,
           accentPairs: data.accentPairs ? data.accentPairs.map(p => (typeof p === 'object' ? p.name : p)).join(', ') : '',
+          isAddon: data.isAddon || false,
         });
       } catch (error) {
         console.error("Failed to fetch product details", error);
@@ -716,6 +718,7 @@ const AdminDashboard = () => {
             images: Array.isArray(product.images) ? product.images : [],
             selectedStyles: [],
             accentPairs: product.accentPairs ? product.accentPairs.join(', ') : '',
+            isAddon: product.isAddon || false,
         });
       }
     } else {
@@ -729,6 +732,7 @@ const AdminDashboard = () => {
         images: [],
         selectedStyles: [],
         accentPairs: '',
+        isAddon: false,
       });
     }
     setIsModalOpen(true);
@@ -816,6 +820,7 @@ const AdminDashboard = () => {
         .filter((img) => img !== ''),
       tags: tags,
       accentPairs: formData.accentPairs ? formData.accentPairs.split(',').map(id => id.trim()).filter(id => id) : [],
+      isAddon: formData.isAddon,
     };
 
     try {
@@ -2349,6 +2354,22 @@ const AdminDashboard = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-rose-500 focus:border-rose-500"
                   placeholder="Golden Hoop, Silver Ring..."
                 />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 cursor-pointer mt-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.isAddon}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isAddon: e.target.checked })
+                    }
+                    className="w-4 h-4 text-rose-500 border-gray-300 rounded focus:ring-rose-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    Is this an Add-on / Upsell item? (Hidden from main shop, shown in Cart)
+                  </span>
+                </label>
               </div>
 
               <div>

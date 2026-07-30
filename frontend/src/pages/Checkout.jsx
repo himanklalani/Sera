@@ -4,7 +4,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FloatingCouponDrawer } from './Home';
-import { FaLock, FaTruck, FaShieldAlt } from 'react-icons/fa';
+import { FaLock, FaTruck, FaShieldAlt, FaGift, FaPlus } from 'react-icons/fa';
+import { useCart } from '../components/CartContext';
 
 
 const Checkout = () => {
@@ -18,7 +19,9 @@ const Checkout = () => {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState('');
   const [razorpayLoading, setRazorpayLoading] = useState(false);
+  const [addons, setAddons] = useState([]);
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
 
   const loadRazorpayScript = () => {
@@ -93,6 +96,10 @@ const Checkout = () => {
           setSelectedAddress(profileRes.data.addresses[0]);
         }
         
+        // Fetch Add-ons
+        const addonsRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/products?isAddon=true`);
+        setAddons(addonsRes.data.products || []);
+
         setLoading(false);
       } catch (error) {
         console.error('Error fetching checkout data:', error);
@@ -101,6 +108,23 @@ const Checkout = () => {
     };
     fetchData();
   }, [navigate]);
+
+  const handleAddonToCart = async (addon) => {
+    try {
+      await addToCart(addon._id, 1);
+      toast.success(`${addon.name} added!`);
+      // Refetch cart to update summary
+      const storedUserInfo = localStorage.getItem('userInfo');
+      if (storedUserInfo) {
+        const userInfo = JSON.parse(storedUserInfo);
+        const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+        const cartRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, config);
+        setCartItems(cartRes.data.items || []);
+      }
+    } catch (error) {
+      toast.error('Failed to add item');
+    }
+  };
 
 
   const handleApplyCoupon = async () => {
@@ -500,6 +524,41 @@ const Checkout = () => {
                   </div>
                 ))}
               </div>
+
+              {/* CHECKOUT UPSELL / ADD-ONS SECTION */}
+              {addons.length > 0 && (
+                <div className="mt-6 border-t border-rose-100 pt-6">
+                  <div className="flex items-center gap-2 mb-3 text-rose-800">
+                    <FaGift className="text-lg" />
+                    <h4 className="font-serif text-lg">Add a Finishing Touch</h4>
+                  </div>
+                  <div className="space-y-3">
+                    {addons.map((addon) => (
+                      <div key={addon._id} className="flex items-center bg-white p-2 rounded shadow-sm border border-gray-100">
+                        <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden mr-3 flex-shrink-0">
+                          <img 
+                            src={addon.images?.[0] || 'https://picsum.photos/150/150?grayscale'} 
+                            alt={addon.name} 
+                            className="w-full h-full object-cover" 
+                          />
+                        </div>
+                        <div className="flex-grow">
+                          <h5 className="font-medium text-xs text-gray-800 line-clamp-1">{addon.name}</h5>
+                          <p className="text-rose-600 font-semibold text-xs">INR {addon.price}</p>
+                        </div>
+                        <button 
+                          onClick={() => handleAddonToCart(addon)}
+                          className="ml-2 w-7 h-7 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-colors flex-shrink-0"
+                          title="Add to Cart"
+                        >
+                          <FaPlus size={10} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="mt-6">
                 <h4 className="text-sm font-medium text-gray-700 mb-2">
                   Have a coupon?

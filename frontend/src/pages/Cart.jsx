@@ -1,15 +1,18 @@
 import { Helmet } from 'react-helmet-async';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaTrash, FaMinus, FaPlus, FaLock, FaTruck, FaShieldAlt } from 'react-icons/fa';
+import { FaTrash, FaMinus, FaPlus, FaLock, FaTruck, FaShieldAlt, FaGift } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useCart } from '../components/CartContext';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const FALLBACK_IMAGE = 'https://picsum.photos/150/150?grayscale'; // or your own image
 
 const Cart = () => {
-  const { cartItems, loading, updateQuantity, removeFromCart, fetchCart } = useCart();
+  const { cartItems, loading, updateQuantity, removeFromCart, fetchCart, addToCart } = useCart();
   const navigate = useNavigate();
+  const [addons, setAddons] = useState([]);
 
   const getUserInfo = () => {
     const stored = localStorage.getItem('userInfo');
@@ -18,7 +21,27 @@ const Cart = () => {
 
   useEffect(() => {
     fetchCart();
+    
+    // Fetch Add-ons
+    const fetchAddons = async () => {
+      try {
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products?isAddon=true`);
+        setAddons(data.products || []);
+      } catch (error) {
+        console.error('Error fetching addons:', error);
+      }
+    };
+    fetchAddons();
   }, [fetchCart]);
+
+  const handleAddonToCart = async (addon) => {
+    try {
+      await addToCart(addon._id, 1);
+      toast.success(`${addon.name} added to cart!`);
+    } catch (error) {
+      toast.error('Failed to add item');
+    }
+  };
 
   const handleQuantityChange = async (productId, newQuantity) => {
     if (newQuantity < 1) return;
@@ -168,6 +191,41 @@ const Cart = () => {
                 </div>
               </motion.div>
             ))}
+
+            {/* UPSELL / ADD-ONS SECTION */}
+            {addons.length > 0 && (
+              <div className="mt-12 bg-rose-50/50 p-6 rounded-lg border border-rose-100">
+                <div className="flex items-center gap-2 mb-4 text-rose-800">
+                  <FaGift className="text-xl" />
+                  <h3 className="font-serif text-2xl">Complete Your Gift</h3>
+                </div>
+                <p className="text-sm text-gray-600 mb-6">Add premium packaging or a little extra something to make it perfect.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {addons.map((addon) => (
+                    <div key={addon._id} className="flex items-center bg-white p-3 rounded shadow-sm border border-gray-100 transition-hover hover:border-rose-300">
+                      <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden mr-4 flex-shrink-0">
+                        <img 
+                          src={addon.images?.[0] || FALLBACK_IMAGE} 
+                          alt={addon.name} 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
+                      <div className="flex-grow">
+                        <h4 className="font-medium text-sm text-gray-800 line-clamp-1">{addon.name}</h4>
+                        <p className="text-rose-600 font-semibold text-sm">INR {addon.price}</p>
+                      </div>
+                      <button 
+                        onClick={() => handleAddonToCart(addon)}
+                        className="ml-2 w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-colors"
+                        title="Add to Cart"
+                      >
+                        <FaPlus size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Order Summary */}

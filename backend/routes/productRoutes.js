@@ -143,6 +143,16 @@ router.get('/', asyncHandler(async (req, res) => {
     query.stock = { $gt: 0 };
   }
 
+  // Handle Add-ons filter
+  if (req.query.isAddon === 'true') {
+    query.isAddon = true;
+  } else if (req.query.isAddon === 'false') {
+    query.isAddon = { $ne: true };
+  } else {
+    // By default, do NOT show add-ons in the main product feed
+    query.isAddon = { $ne: true };
+  }
+
   // Get total count
   const total = await Product.countDocuments(query);
 

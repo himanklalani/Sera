@@ -154,6 +154,11 @@ const Checkout = () => {
 
 
       // ✅ FIXED: Calculate cartValue (subtotal) and orderTotal separately
+      // Ensure addons are excluded from discountable cartValue
+      const discountableCartValue = cartItems
+        .filter(item => !item.product.isAddon)
+        .reduce((acc, item) => acc + item.quantity * item.product.price, 0);
+        
       const cartValue = cartItems.reduce(
         (acc, item) => acc + item.quantity * item.product.price,
         0
@@ -169,13 +174,13 @@ const Checkout = () => {
       setCouponError('');
 
 
-      // ✅ FIXED: Send both cartValue and orderTotal separately
+      // ✅ FIXED: Send discountableCartValue so addons don't get discounted
       const { data } = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/coupons/validate`,
         {
           code: couponCode,
-          cartValue, // ✅ Subtotal only (without shipping)
-          orderTotal, // ✅ Subtotal + shipping
+          cartValue: discountableCartValue, // ✅ Subtotal only (without shipping and addons)
+          orderTotal, // ✅ Subtotal + shipping + addons
         },
         config
       );

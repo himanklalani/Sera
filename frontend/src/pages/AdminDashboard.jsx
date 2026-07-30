@@ -2254,6 +2254,23 @@ const AdminDashboard = () => {
                   />
                 </div>
               </div>
+
+              <div className="mt-2 mb-4 bg-rose-50 p-3 rounded-lg border border-rose-100">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isAddon}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isAddon: e.target.checked })
+                    }
+                    className="w-4 h-4 text-rose-500 border-gray-300 rounded focus:ring-rose-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    Is this an Add-on / Upsell item? (Hidden from main shop, shown in Cart)
+                  </span>
+                </label>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">
                   Category
@@ -2263,7 +2280,8 @@ const AdminDashboard = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  className="w-full border p-2 rounded"
+                  disabled={formData.isAddon}
+                  className="w-full border p-2 rounded disabled:bg-gray-100 disabled:text-gray-400"
                 >
                   <option value="NECKLACE">NECKLACE</option>
                   <option value="EARRINGS">EARRINGS</option>
@@ -2319,11 +2337,12 @@ const AdminDashboard = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Style Collections
                 </label>
-                <div className="grid grid-cols-2 gap-4 mb-4 p-4 border rounded-lg bg-gray-50">
+                <div className={`grid grid-cols-2 gap-4 mb-4 p-4 border rounded-lg ${formData.isAddon ? 'bg-gray-100 opacity-60' : 'bg-gray-50'}`}>
                   {['minimalist', 'boho', 'everyday', 'accent'].map((style) => (
                     <label key={style} className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"
+                        disabled={formData.isAddon}
                         checked={formData.selectedStyles.includes(style)}
                         onChange={(e) => {
                           const newStyles = e.target.checked
@@ -2351,25 +2370,10 @@ const AdminDashboard = () => {
                   type="text"
                   value={formData.accentPairs}
                   onChange={(e) => setFormData({ ...formData, accentPairs: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-rose-500 focus:border-rose-500"
+                  disabled={formData.isAddon}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-rose-500 focus:border-rose-500 disabled:bg-gray-100 disabled:text-gray-400"
                   placeholder="Golden Hoop, Silver Ring..."
                 />
-              </div>
-
-              <div>
-                <label className="flex items-center gap-2 cursor-pointer mt-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.isAddon}
-                    onChange={(e) =>
-                      setFormData({ ...formData, isAddon: e.target.checked })
-                    }
-                    className="w-4 h-4 text-rose-500 border-gray-300 rounded focus:ring-rose-500"
-                  />
-                  <span className="text-sm font-medium text-gray-700">
-                    Is this an Add-on / Upsell item? (Hidden from main shop, shown in Cart)
-                  </span>
-                </label>
               </div>
 
               <div>

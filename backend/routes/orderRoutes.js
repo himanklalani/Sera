@@ -43,10 +43,22 @@ router.post('/', protect, asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error(`Insufficient stock for ${product.name}. Only ${product.stock} items available`);
     }
+    
+    // Attach product details for calculation
+    item.productDetails = product;
   }
 
+  // Calculate values securely on the backend
+  const cartValue = orderItems.reduce((acc, item) => acc + item.quantity * item.productDetails.price, 0);
+  const discountableCartValue = orderItems
+    .filter(item => !item.productDetails.isAddon)
+    .reduce((acc, item) => acc + item.quantity * item.productDetails.price, 0);
+  
+  const shippingCost = cartValue > 999 ? 0 : 100;
+  const originalOrderTotal = cartValue + shippingCost;
+
   let appliedCoupon = null;
-  let finalTotalPrice = totalPrice;
+  let finalTotalPrice = originalOrderTotal;
   let couponDiscount = 0;
 
   if (couponCode) {
@@ -80,7 +92,7 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     }
 
     // ✅ VALIDATE MINIMUM ORDER VALUE
-    if (coupon.minOrderValue && totalPrice < coupon.minOrderValue) {
+    if (coupon.minOrderValue && discountableCartValue < coupon.minOrderValue) {
       res.status(400);
       throw new Error(
         `Minimum order value for this coupon is INR ${coupon.minOrderValue}`
@@ -131,16 +143,16 @@ router.post('/', protect, asyncHandler(async (req, res) => {
 
     // ✅ CALCULATE DISCOUNT
     if (updatedCoupon.discountType === 'percentage') {
-      couponDiscount = (totalPrice * updatedCoupon.discountValue) / 100;
+      couponDiscount = (discountableCartValue * updatedCoupon.discountValue) / 100;
     } else {
       couponDiscount = updatedCoupon.discountValue;
     }
 
-    if (couponDiscount > totalPrice) {
-      couponDiscount = totalPrice;
+    if (couponDiscount > discountableCartValue) {
+      couponDiscount = discountableCartValue;
     }
 
-    finalTotalPrice = totalPrice - couponDiscount;
+    finalTotalPrice = originalOrderTotal - couponDiscount;
     appliedCoupon = updatedCoupon;
   }
 

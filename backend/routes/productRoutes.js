@@ -304,7 +304,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 router.post('/', protect, admin, validateProductInput, asyncHandler(async (req, res) => {
-  const { name, price, description, category, images, stock, tags, accentPairs } = req.body;
+  const { name, price, description, category, images, stock, tags, accentPairs, isAddon } = req.body;
 
   const resolvedAccentPairs = await resolveProductNamesToIds(accentPairs);
 
@@ -317,6 +317,7 @@ router.post('/', protect, admin, validateProductInput, asyncHandler(async (req, 
     stock,
     tags,
     accentPairs: resolvedAccentPairs,
+    isAddon: Boolean(isAddon),
     user: req.user._id,
   });
 
@@ -352,6 +353,10 @@ router.put('/:id', protect, admin, validateProductInput, asyncHandler(async (req
     product.images = req.body.images || product.images;
     product.stock = req.body.stock !== undefined ? req.body.stock : product.stock;
     product.tags = req.body.tags || product.tags;
+    
+    if (req.body.isAddon !== undefined) {
+      product.isAddon = Boolean(req.body.isAddon);
+    }
     
     if (req.body.accentPairs) {
       const oldPairs = (product.accentPairs || []).map(id => id.toString());

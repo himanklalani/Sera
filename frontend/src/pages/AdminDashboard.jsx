@@ -342,7 +342,7 @@ const AdminDashboard = () => {
       const config = { headers: { Authorization: `Bearer ${ui.token}` } };
 
       if (activeTab === 'products') {
-        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products?limit=1000`);
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products?limit=1000&isAddon=all`);
         const productList = Array.isArray(data?.products)
           ? data.products
           : Array.isArray(data)

@@ -148,6 +148,8 @@ router.get('/', asyncHandler(async (req, res) => {
     query.isAddon = true;
   } else if (req.query.isAddon === 'false') {
     query.isAddon = { $ne: true };
+  } else if (req.query.isAddon === 'all') {
+    // Do not filter by isAddon, return both standard products and addons
   } else {
     // By default, do NOT show add-ons in the main product feed
     query.isAddon = { $ne: true };

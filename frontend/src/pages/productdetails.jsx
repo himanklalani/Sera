@@ -703,9 +703,9 @@ const ProductDetails = () => {
                 <FaGem className="text-gray-400 group-hover:text-rose-400 text-xl transition-colors duration-300" />
                 <span className="text-xs font-medium tracking-wide text-gray-500 uppercase">Premium Finish</span>
               </div>
-              <div className="flex flex-col items-center gap-1.5 group cursor-default">
+              <div className="flex flex-col items-center gap-1.5 group cursor-default text-center">
                 <FaTruck className="text-gray-400 group-hover:text-rose-400 text-xl transition-colors duration-300" />
-                <span className="text-xs font-medium tracking-wide text-gray-500 uppercase">Free Shipping</span>
+                <span className="text-[10px] font-medium tracking-wide text-gray-500 uppercase leading-tight">Free Shipping<br/>Above ₹999</span>
               </div>
             </div>
           </div>

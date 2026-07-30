@@ -33,7 +33,7 @@ const GiftingHub = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
           {/* Card 1 */}
-          <Link to="/shop?tags=gifts" className="group relative h-96 overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-500 rounded-sm">
+          <Link to="/shop?category=necklace" className="group relative h-96 overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-500 rounded-sm">
             <div className="absolute inset-0 bg-rose-100/50 group-hover:bg-rose-200/50 transition-colors duration-500 z-0"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center p-8 z-10">
               <FaHeart className="text-4xl text-rose-400 mb-4 transform group-hover:scale-110 transition-transform duration-500" />
@@ -55,7 +55,7 @@ const GiftingHub = () => {
           </Link>
 
           {/* Card 3 */}
-          <Link to="/shop?tags=anniversary" className="group relative h-96 overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-500 rounded-sm">
+          <Link to="/shop?category=rings" className="group relative h-96 overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-500 rounded-sm">
             <div className="absolute inset-0 bg-zinc-100/50 group-hover:bg-zinc-200/50 transition-colors duration-500 z-0"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center p-8 z-10">
               <FaStar className="text-4xl text-zinc-400 mb-4 transform group-hover:scale-110 transition-transform duration-500" />
@@ -86,6 +86,29 @@ const GiftingHub = () => {
               <p className="text-gray-600">Complimentary fast shipping on all orders over ₹999.</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Internal SEO Linking Section */}
+      <div className="bg-rose-50/20 py-16">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h3 className="text-2xl font-serif text-gray-900 mb-6">Explore Our Jewelry Collections</h3>
+          <p className="text-gray-600 mb-8 max-w-2xl mx-auto text-sm leading-relaxed">
+            Finding the perfect jewelry gift is an art. Whether you are searching for a delicate 
+            <Link to="/shop?category=necklace" className="text-rose-600 hover:underline mx-1">Necklace</Link> 
+            to celebrate an anniversary, a stunning set of 
+            <Link to="/shop?category=earrings" className="text-rose-600 hover:underline mx-1">Earrings</Link> 
+            for a birthday, or a minimal 
+            <Link to="/shop?category=bracelet" className="text-rose-600 hover:underline mx-1">Bracelet</Link> 
+            for daily wear, Sera has you covered. Explore our curated 
+            <Link to="/shop?category=rings" className="text-rose-600 hover:underline mx-1">Rings collection</Link> 
+            or dive straight into our 
+            <Link to="/shop?sort=best-selling" className="text-rose-600 hover:underline mx-1">Bestsellers</Link> 
+            to see what everyone else is loving. All our pieces are anti-tarnish, waterproof, and designed to last a lifetime.
+          </p>
+          <Link to="/shop" className="inline-block bg-black text-white px-8 py-3 uppercase tracking-widest text-sm hover:bg-rose-600 transition-colors">
+            Shop All Collections
+          </Link>
         </div>
       </div>
 

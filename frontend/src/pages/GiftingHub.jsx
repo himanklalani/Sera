@@ -44,11 +44,11 @@ const GiftingHub = () => {
           </Link>
 
           {/* Card 2 */}
-          <Link to="/shop?maxPrice=2000" className="group relative h-96 overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-500 rounded-sm">
+          <Link to="/shop?category=combos" className="group relative h-96 overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-500 rounded-sm">
             <div className="absolute inset-0 bg-stone-100/50 group-hover:bg-stone-200/50 transition-colors duration-500 z-0"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center p-8 z-10">
               <FaGift className="text-4xl text-stone-400 mb-4 transform group-hover:scale-110 transition-transform duration-500" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Gifts Under ₹2000</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Gifts Under ₹1500</h2>
               <p className="text-gray-600 text-center mb-6">Affordable luxury that never compromises on quality.</p>
               <span className="inline-block border-b border-gray-900 text-gray-900 pb-1 text-sm font-semibold tracking-wider uppercase group-hover:border-stone-500 group-hover:text-stone-500 transition-colors">Shop Collection</span>
             </div>

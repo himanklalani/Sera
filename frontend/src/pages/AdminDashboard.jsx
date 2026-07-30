@@ -2287,6 +2287,8 @@ const AdminDashboard = () => {
                   <option value="EARRINGS">EARRINGS</option>
                   <option value="RINGS">RINGS</option>
                   <option value="BRACELET">BRACELET</option>
+                  <option value="COMBOS">COMBOS</option>
+                  <option value="APPAREL">APPAREL</option>
                 </select>
               </div>
               <div>

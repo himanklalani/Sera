@@ -31,6 +31,8 @@ export default function NavOverlay({ isOpen, onClose }) {
         { name: 'Earrings', path: '/shop?category=Earrings' },
         { name: 'Bracelets', path: '/shop?category=Bracelet' },
         { name: 'Rings', path: '/shop?category=Rings' },
+        { name: 'Combos', path: '/shop?category=Combos' },
+        { name: 'Apparel', path: '/shop?category=Apparel' },
       ]
     },
     { title: 'Contact Us', path: '/contact' },

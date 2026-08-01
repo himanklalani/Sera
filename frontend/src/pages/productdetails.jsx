@@ -694,18 +694,18 @@ const ProductDetails = () => {
             </button>
             
             {/* Trust Badges */}
-            <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100 px-2">
-              <div className="flex flex-col items-center gap-1.5 group cursor-default">
-                <FaTint className="text-gray-400 group-hover:text-rose-400 text-xl transition-colors duration-300" />
-                <span className="text-xs font-medium tracking-wide text-gray-500 uppercase">Sweatproof</span>
+            <div className="grid grid-cols-3 gap-2 mt-6 pt-6 border-t border-gray-100 px-1">
+              <div className="flex flex-col items-center text-center gap-1.5 group cursor-default">
+                <FaTint className="text-gray-400 group-hover:text-rose-400 text-xl md:text-2xl transition-colors duration-300" />
+                <span className="text-[9px] sm:text-[10px] md:text-xs font-medium tracking-wider text-gray-500 uppercase leading-tight">Sweatproof</span>
               </div>
-              <div className="flex flex-col items-center gap-1.5 group cursor-default">
-                <FaGem className="text-gray-400 group-hover:text-rose-400 text-xl transition-colors duration-300" />
-                <span className="text-xs font-medium tracking-wide text-gray-500 uppercase">Premium Finish</span>
+              <div className="flex flex-col items-center text-center gap-1.5 group cursor-default">
+                <FaGem className="text-gray-400 group-hover:text-rose-400 text-xl md:text-2xl transition-colors duration-300" />
+                <span className="text-[9px] sm:text-[10px] md:text-xs font-medium tracking-wider text-gray-500 uppercase leading-tight">Premium<br className="block sm:hidden"/> Finish</span>
               </div>
-              <div className="flex flex-col items-center gap-1.5 group cursor-default text-center">
-                <FaTruck className="text-gray-400 group-hover:text-rose-400 text-xl transition-colors duration-300" />
-                <span className="text-[10px] font-medium tracking-wide text-gray-500 uppercase leading-tight">Free Shipping<br/>Above ₹999</span>
+              <div className="flex flex-col items-center text-center gap-1.5 group cursor-default">
+                <FaTruck className="text-gray-400 group-hover:text-rose-400 text-xl md:text-2xl transition-colors duration-300" />
+                <span className="text-[9px] sm:text-[10px] md:text-xs font-medium tracking-wider text-gray-500 uppercase leading-tight">Free Shipping<br/>Above ₹999</span>
               </div>
             </div>
           </div>

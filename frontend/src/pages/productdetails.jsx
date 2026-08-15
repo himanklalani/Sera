@@ -581,7 +581,7 @@ const ProductDetails = () => {
                 </div>
                 <button 
                   onClick={() => navigate('/size-guide')}
-                  className="bg-[#4A3B32] text-white px-4 py-1.5 rounded-full hover:bg-[#3d3129] transition-colors whitespace-nowrap shadow-sm"
+                  className="bg-rose-600 text-white px-4 py-1.5 rounded-full hover:bg-rose-700 transition-colors whitespace-nowrap shadow-sm"
                 >
                   What's my size?
                 </button>
@@ -595,13 +595,13 @@ const ProductDetails = () => {
                     onClick={() => setSelectedSize(size)}
                     className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center text-sm font-semibold transition-all duration-300 border ${
                       selectedSize === size 
-                      ? 'border-[#4A3B32] text-[#4A3B32] border-2 bg-white shadow-sm' 
+                      ? 'border-rose-600 text-rose-600 border-2 bg-white shadow-sm' 
                       : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white'
                     }`}
                   >
                     {size}
                     {selectedSize === size && (
-                      <div className="w-4 h-[2px] bg-[#4A3B32] mt-1 rounded-full" />
+                      <div className="w-4 h-[2px] bg-rose-600 mt-1 rounded-full" />
                     )}
                   </button>
                 ))}
@@ -614,7 +614,7 @@ const ProductDetails = () => {
             <button
               onClick={handleAddToCart}
               disabled={addingToCart || product.stock === 0}
-              className="w-full bg-[#3D2D24] text-white py-4 px-8 rounded-full uppercase tracking-[0.15em] font-medium text-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 hover:bg-[#2A1F18] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all duration-300 flex items-center justify-center gap-3"
+              className="w-full bg-rose-600 text-white py-4 px-8 rounded-full uppercase tracking-[0.15em] font-medium text-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 hover:bg-rose-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all duration-300 flex items-center justify-center gap-3"
             >
               {addingToCart ? (
                 <>
@@ -641,12 +641,12 @@ const ProductDetails = () => {
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`flex-1 min-w-[140px] py-4 px-4 text-sm font-semibold transition-colors relative ${
-                    activeTab === tab ? 'text-[#4A3B32]' : 'text-gray-400 hover:text-gray-600'
+                    activeTab === tab ? 'text-rose-600' : 'text-gray-400 hover:text-gray-600'
                   }`}
                 >
                   {tab === 'details' ? 'Details & Description' : tab === 'shipping' ? 'Shipping & Delivery' : 'Return & Exchange'}
                   {activeTab === tab && (
-                    <motion.div layoutId="activeTabIndicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#4A3B32]" />
+                    <motion.div layoutId="activeTabIndicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-rose-600" />
                   )}
                 </button>
               ))}

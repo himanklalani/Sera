@@ -64,7 +64,7 @@ router.get('/', protect, asyncHandler(async (req, res) => {
 // @route   POST /api/cart
 // @access  Private
 router.post('/', protect, asyncHandler(async (req, res) => {
-  const { productId, quantity } = req.body;
+  const { productId, quantity, size } = req.body;
   
   // ADDED: Validate product exists and check stock
   const product = await Product.findById(productId);
@@ -85,7 +85,11 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     cart = await Cart.create({ user: req.user._id, items: [] });
   }
 
-  const itemIndex = cart.items.findIndex(item => item.product && item.product.toString() === productId);
+  const itemIndex = cart.items.findIndex(item => 
+    item.product && 
+    item.product.toString() === productId && 
+    (item.size || '') === (size || '')
+  );
 
   if (itemIndex > -1) {
     // MODIFIED: Check if new total quantity exceeds stock
@@ -98,7 +102,7 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     
     cart.items[itemIndex].quantity = newQuantity;
   } else {
-    cart.items.push({ product: productId, quantity: Number(quantity) });
+    cart.items.push({ product: productId, quantity: Number(quantity), size: size || undefined });
   }
 
   await cart.save();

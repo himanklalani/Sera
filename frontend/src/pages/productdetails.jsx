@@ -24,6 +24,8 @@ const ProductDetails = () => {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [recentProducts, setRecentProducts] = useState([]);
+  const [selectedSize, setSelectedSize] = useState('');
+  const [activeTab, setActiveTab] = useState('details');
 
 
   // review states
@@ -214,14 +216,19 @@ const ProductDetails = () => {
     }
 
 
+    const isApparel = itemToAdd.category?.toLowerCase() === 'apparel';
+    if (isApparel && !selectedSize && !productToAdd) {
+      toast.error('Please select a size first');
+      return;
+    }
+
     if (!productToAdd) {
       setAddingToCart(true);
     }
 
-
     try {
       const qty = productToAdd ? 1 : quantity;
-      await addToCartContext(itemToAdd._id, qty);
+      await addToCartContext(itemToAdd._id, qty, selectedSize);
       
       // GA4 add_to_cart event
       if (window.dataLayer) {
@@ -491,271 +498,206 @@ const ProductDetails = () => {
 
 
         {/* Product Info */}
+        {/* Product Info */}
         <div className="w-full lg:w-1/2 space-y-6">
+          {/* Tags */}
+          {product.tags && product.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-2">
+              {product.tags.map((tag, idx) => (
+                <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-700 text-[11px] font-medium rounded-full uppercase tracking-wider">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+          
           <div className="flex justify-between items-start gap-4">
             <div className="flex-1 w-full overflow-hidden">
-              {/* Breadcrumbs */}
-              <nav className="text-xs md:text-sm text-gray-500 mb-4 flex items-center space-x-2 whitespace-nowrap overflow-x-auto no-scrollbar">
-                <Link to="/" className="hover:text-rose-500 transition-colors shrink-0">Home</Link>
-                <span className="shrink-0">/</span>
-                <Link to="/shop" className="hover:text-rose-500 transition-colors shrink-0">Shop</Link>
-                <span className="shrink-0">/</span>
-                <Link to={`/shop/${product.category?.toLowerCase()}`} className="hover:text-rose-500 transition-colors capitalize shrink-0">{product.category}</Link>
-                <span className="shrink-0">/</span>
-                <span className="text-gray-900 truncate shrink-0">{product.name}</span>
-              </nav>
-
-              <p className="text-rose-500 text-sm font-medium tracking-widest uppercase mb-2">
-                {product.category}
-              </p>
-              <h1 className="text-4xl lg:text-5xl font-serif text-gray-900 leading-tight">
+              <h1 className="text-3xl md:text-4xl lg:text-[40px] font-serif text-gray-900 leading-tight tracking-wide">
                 {product.name}
               </h1>
+              <p className="text-gray-500 text-sm mt-2 capitalize font-medium">
+                {product.category}
+              </p>
             </div>
-            <div className="flex gap-2 items-start">
-              {/* Share Button */}
-              <div className="relative">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setShowShareMenu(!showShareMenu)}
-                  aria-label="Share product"
-                  aria-expanded={showShareMenu}
-                  className="p-3 rounded-full bg-white/40 backdrop-blur-sm hover:bg-white/60 shadow-md hover:shadow-xl transition-all duration-300 border border-white/50 hover:border-white/80"
-                  title="Share this product"
-                >
-                  <FaShareAlt className="text-gray-600 hover:text-rose-500 transition-colors" />
-                </motion.button>
-
-                {/* Share Menu */}
-                {showShareMenu && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute bottom-full right-0 mb-2 md:top-full md:bottom-auto md:mt-2 md:mb-0 bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-white/50 py-2 z-50 w-56"
-                  >
-                    <button
-                      onClick={() => handleShare('copy')}
-                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-rose-50 transition-colors text-gray-700 hover:text-rose-600 font-medium"
-                    >
-                      <span className="text-xl"><FaLink /></span>
-                      Copy Link
-                    </button>
-                    <button
-                      onClick={() => handleShare('whatsapp')}
-                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-green-50 transition-colors text-gray-700 hover:text-green-600 font-medium"
-                    >
-                      <span className="text-xl"><FaWhatsapp /></span>
-                      WhatsApp
-                    </button>
-                    <button
-                      onClick={() => handleShare('email')}
-                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-orange-50 transition-colors text-gray-700 hover:text-orange-600 font-medium"
-                    >
-                      <span className="text-xl"><FaEnvelope /></span>
-                      Email
-                    </button>
-                    <button
-                      onClick={() => handleShare('instagram')}
-                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-pink-50 transition-colors text-gray-700 hover:text-pink-600 font-medium"
-                    >
-                      <span className="text-xl"><FaInstagram /></span>
-                      Instagram
-                    </button>
-                    {navigator.share && (
-                      <button
-                        onClick={() => handleShare('native')}
-                        className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-purple-50 transition-colors text-gray-700 hover:text-purple-600 font-medium border-t border-gray-100"
-                      >
-                        <span className="text-xl"><FaShareSquare /></span>
-                        Share with an Image
-                      </button>
-                    )}
-                  </motion.div>
-                )}
-              </div>
-
-              {/* Wishlist Button */}
-              <button
-                onClick={handleWishlist}
-                className="p-3 rounded-full bg-white/40 backdrop-blur-sm hover:bg-white/60 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-110 text-2xl border border-white/50 hover:border-white/80"
-                title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-              >
-                <FaHeart
-                  className={
-                    isInWishlist ? 'text-rose-500 fill-rose-500' : 'text-gray-400'
-                  }
-                />
-              </button>
-            </div>
+            {/* Wishlist Button */}
+            <button
+              onClick={handleWishlist}
+              className="p-3 text-2xl group"
+              title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              <FaHeart className={`transition-all duration-300 ${isInWishlist ? 'text-rose-500 fill-rose-500 scale-110' : 'text-gray-300 group-hover:text-rose-300'}`} />
+            </button>
           </div>
-
 
           {/* Price & Rating */}
-          <div className="flex items-start gap-6">
-            <div className="flex-1">
-              <p className="text-4xl font-serif font-light text-gray-900">
-                INR {product.price?.toLocaleString()}
-              </p>
-              {product.stock === 0 && (
-                <span className="ml-4 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-sm font-medium">
-                  Out of Stock
-                </span>
-              )}
-            </div>
-
-
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm">
-              <div className="flex text-yellow-400 -space-x-1">
-                {[...Array(5)].map((_, i) => (
-                  <FaStar
-                    key={i}
-                    className={`text-lg ${
-                      i < Math.floor(product.rating || 0)
-                        ? 'fill-yellow-400 text-yellow-400'
-                        : i === Math.floor(product.rating || 0) &&
-                          (product.rating || 0) % 1 >= 0.5
-                        ? 'fill-yellow-400 text-yellow-400'
-                        : 'text-gray-300'
-                    }`}
-                  />
-                ))}
+          <div className="flex items-center justify-between">
+            <p className="text-2xl font-semibold text-gray-900">
+              INR {product.price?.toLocaleString()}
+            </p>
+            {product.rating > 0 && (
+              <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                <FaStar className="text-yellow-400" />
+                {product.rating.toFixed(1)} <span className="text-gray-400 ml-1">({product.numReviews})</span>
               </div>
-              <span className="text-sm text-gray-600 font-medium">
-                {product.rating ? product.rating.toFixed(1) : '0.0'}
-              </span>
-              <span className="text-xs text-gray-400">
-                ({product.numReviews || 0})
-              </span>
-            </div>
+            )}
           </div>
 
-
-          {product.description && (
-            <div className="bg-gray-50 p-6 rounded-xl">
-              <h3 className="font-serif text-xl font-medium mb-4 text-gray-900">
-                Description
-              </h3>
-              <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-                {product.description}
-              </p>
-            </div>
-          )}
-
-          {/* Apparel Size Chart Button */}
-          {product.category?.toLowerCase() === 'apparel' && (
-            <button
-              onClick={() => setShowSizeChart(true)}
-              className="flex items-center gap-2 text-sm font-medium text-rose-600 border border-rose-200 rounded-lg px-4 py-2.5 hover:bg-rose-50 transition-colors w-full justify-center"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6h18M3 10h18M3 14h18M3 18h18" />
-              </svg>
-              View Size Chart
-            </button>
-          )}
-
-
-          {/* Quantity & Add to Cart */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <div className="flex items-center gap-6 mb-4">
-              <div className="flex items-center border-2 border-gray-200 rounded-lg p-2 w-32">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="p-2 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
-                  disabled={product.stock === 0}
-                >
-                  <FaMinus size={14} />
-                </button>
-                <span className="w-12 text-center text-lg font-semibold px-4">
-                  {quantity}
-                </span>
-                <button
-                  onClick={() =>
-                    setQuantity(Math.min(product.stock || 999, quantity + 1))
-                  }
-                  className="p-2 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
-                  disabled={product.stock === 0}
-                >
-                  <FaPlus size={14} />
-                </button>
-              </div>
-              <div className="text-sm text-gray-500">
-                {product.stock === 0
-                  ? 'Out of stock'
-                  : `${product.stock} in stock`}
-              </div>
-            </div>
-
-
-            <button
-              onClick={handleAddToCart}
-              disabled={addingToCart || product.stock === 0}
-              className="w-full bg-gradient-to-r from-rose-500 to-rose-600 text-white py-4 px-8 rounded-xl uppercase tracking-wider font-semibold text-lg shadow-lg hover:shadow-xl hover:from-rose-600 hover:to-rose-700 focus:outline-none focus:ring-4 focus:ring-rose-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-3"
-            >
-              {addingToCart ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Adding to cart...
-                </>
-              ) : (
-                <>
-                  <FaShoppingCart />
-                  {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-                </>
-              )}
-            </button>
-            
-            {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-2 mt-6 pt-6 border-t border-gray-100 px-1">
-              <div className="flex flex-col items-center text-center gap-1.5 group cursor-default">
-                <FaTint className="text-gray-400 group-hover:text-rose-400 text-xl md:text-2xl transition-colors duration-300" />
-                <span className="text-[9px] sm:text-[10px] md:text-xs font-medium tracking-wider text-gray-500 uppercase leading-tight">Sweatproof</span>
-              </div>
-              <div className="flex flex-col items-center text-center gap-1.5 group cursor-default">
-                <FaGem className="text-gray-400 group-hover:text-rose-400 text-xl md:text-2xl transition-colors duration-300" />
-                <span className="text-[9px] sm:text-[10px] md:text-xs font-medium tracking-wider text-gray-500 uppercase leading-tight">Premium<br className="block sm:hidden"/> Finish</span>
-              </div>
-              <div className="flex flex-col items-center text-center gap-1.5 group cursor-default">
-                <FaTruck className="text-gray-400 group-hover:text-rose-400 text-xl md:text-2xl transition-colors duration-300" />
-                <span className="text-[9px] sm:text-[10px] md:text-xs font-medium tracking-wider text-gray-500 uppercase leading-tight">Free Shipping<br/>Above ₹999</span>
-              </div>
-            </div>
-          </div>
-
-
-          {/* Accent Pairs Section */}
+          {/* More Colors (Accent Pairs) */}
           {product.accentPairs && product.accentPairs.length > 0 && (
-            <div className="mt-12 border-t pt-8">
-              <h3 className="font-serif text-2xl font-medium mb-6 text-gray-900">
-                Complete the Look
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
+            <div className="mt-6 border-t border-gray-100 pt-6">
+              <p className="text-sm font-bold text-gray-900 mb-3">More Colors</p>
+              <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
                 {product.accentPairs.map((pair) => (
                   <div 
                     key={pair._id} 
-                    className="group cursor-pointer border rounded-xl p-3 hover:shadow-md transition-all"
+                    className="w-20 h-24 rounded-lg overflow-hidden border border-gray-200 cursor-pointer hover:border-[#4A3B32] transition-colors shrink-0 shadow-sm"
                     onClick={() => navigate(`/product/${pair._id}`)}
                   >
-                    <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-3">
-                      <img 
-                        src={pair.images?.[0] || FALLBACK_IMAGE} 
-                        alt={pair.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        onError={(e) => e.currentTarget.src = FALLBACK_IMAGE}
-                      />
-                    </div>
-                    <h4 className="font-medium text-gray-900 truncate">{pair.name}</h4>
-                    <p className="text-sm text-rose-500 font-medium mt-1">
-                      INR {pair.price?.toLocaleString()}
-                    </p>
+                    <img 
+                      src={pair.images?.[0] || FALLBACK_IMAGE} 
+                      alt={pair.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => e.currentTarget.src = FALLBACK_IMAGE}
+                    />
                   </div>
                 ))}
               </div>
             </div>
           )}
+
+          {/* Size Selector for Apparel */}
+          {product.category?.toLowerCase() === 'apparel' && (
+            <div className="mt-6 border-t border-gray-100 pt-6">
+              {/* Size Measurements Bar */}
+              <div className="bg-gray-100/80 rounded-full px-4 py-2.5 flex items-center justify-between text-xs font-medium text-gray-700 mb-5 border border-gray-200">
+                <div className="flex gap-4 tracking-wide">
+                  {selectedSize === 'XS' ? <span>Chest 32" <span className="text-gray-300 font-light mx-1.5">|</span> Waist 24" <span className="text-gray-300 font-light mx-1.5">|</span> Hip 32"</span> :
+                   selectedSize === 'S'  ? <span>Chest 34" <span className="text-gray-300 font-light mx-1.5">|</span> Waist 26" <span className="text-gray-300 font-light mx-1.5">|</span> Hip 34"</span> :
+                   selectedSize === 'M'  ? <span>Chest 36" <span className="text-gray-300 font-light mx-1.5">|</span> Waist 28" <span className="text-gray-300 font-light mx-1.5">|</span> Hip 36"</span> :
+                   selectedSize === 'L'  ? <span>Chest 38" <span className="text-gray-300 font-light mx-1.5">|</span> Waist 30" <span className="text-gray-300 font-light mx-1.5">|</span> Hip 38"</span> :
+                   selectedSize === 'XL' ? <span>Chest 40" <span className="text-gray-300 font-light mx-1.5">|</span> Waist 32" <span className="text-gray-300 font-light mx-1.5">|</span> Hip 40"</span> :
+                   <span className="text-gray-500">Select a size to view measurements</span>}
+                </div>
+                <button 
+                  onClick={() => navigate('/size-guide')}
+                  className="bg-[#4A3B32] text-white px-4 py-1.5 rounded-full hover:bg-[#3d3129] transition-colors whitespace-nowrap shadow-sm"
+                >
+                  What's my size?
+                </button>
+              </div>
+
+              {/* Size Buttons */}
+              <div className="flex flex-wrap gap-3 mb-6">
+                {['XS', 'S', 'M', 'L', 'XL'].map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center text-sm font-semibold transition-all duration-300 border ${
+                      selectedSize === size 
+                      ? 'border-[#4A3B32] text-[#4A3B32] border-2 bg-white shadow-sm' 
+                      : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white'
+                    }`}
+                  >
+                    {size}
+                    {selectedSize === size && (
+                      <div className="w-4 h-[2px] bg-[#4A3B32] mt-1 rounded-full" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Add to Cart Area */}
+          <div className="mt-8 border-t border-gray-100 pt-6">
+            <button
+              onClick={handleAddToCart}
+              disabled={addingToCart || product.stock === 0}
+              className="w-full bg-[#3D2D24] text-white py-4 px-8 rounded-full uppercase tracking-[0.15em] font-medium text-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 hover:bg-[#2A1F18] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all duration-300 flex items-center justify-center gap-3"
+            >
+              {addingToCart ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                product.stock === 0 ? 'Out of Stock' : 'Add to Cart'
+              )}
+            </button>
+            <div className="flex items-center justify-center gap-2 mt-5 text-gray-500 text-sm font-medium tracking-wide">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Easy 7 Days Returns and Exchange</span>
+            </div>
+          </div>
+
+          {/* Tabs Section */}
+          <div className="mt-10 bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm">
+            <div className="flex overflow-x-auto hide-scrollbar border-b border-gray-100 bg-gray-50/50">
+              {['details', 'shipping', 'returns'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`flex-1 min-w-[140px] py-4 px-4 text-sm font-semibold transition-colors relative ${
+                    activeTab === tab ? 'text-[#4A3B32]' : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                >
+                  {tab === 'details' ? 'Details & Description' : tab === 'shipping' ? 'Shipping & Delivery' : 'Return & Exchange'}
+                  {activeTab === tab && (
+                    <motion.div layoutId="activeTabIndicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#4A3B32]" />
+                  )}
+                </button>
+              ))}
+            </div>
+            <div className="p-6 md:p-8 bg-white min-h-[200px]">
+              {activeTab === 'details' && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
+                  {product.category?.toLowerCase() === 'apparel' && (
+                    <div className="bg-gray-50 rounded-xl px-5 py-4 mb-6 text-gray-800 font-medium flex items-center border border-gray-100">
+                      <span className="text-gray-900 font-semibold mr-2">Fabric:</span> 100% Premium Material, soft and comfortable on skin
+                    </div>
+                  )}
+                  {product.description}
+                </motion.div>
+              )}
+              {activeTab === 'shipping' && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-gray-600 text-sm leading-relaxed">
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-3"><FaTruck className="text-rose-400 mt-1" /> <span>Free shipping on all orders above INR 999.</span></li>
+                    <li className="flex items-start gap-3"><FaTruck className="text-rose-400 mt-1 opacity-0" /> <span>Standard delivery within 3-5 business days.</span></li>
+                    <li className="flex items-start gap-3"><FaTruck className="text-rose-400 mt-1 opacity-0" /> <span>Express delivery available at checkout.</span></li>
+                  </ul>
+                </motion.div>
+              )}
+              {activeTab === 'returns' && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-gray-600 text-sm leading-relaxed">
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-3"><svg className="h-4 w-4 text-rose-400 mt-1 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg> <span>Easy 7 days returns and exchanges for unworn items.</span></li>
+                    <li className="flex items-start gap-3"><svg className="h-4 w-4 text-rose-400 mt-1 opacity-0 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M0 0h24v24H0z" fill="none"/></svg> <span>Items must be returned in original packaging with tags intact.</span></li>
+                    <li className="flex items-start gap-3"><svg className="h-4 w-4 text-rose-400 mt-1 opacity-0 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M0 0h24v24H0z" fill="none"/></svg> <span>Refunds are processed within 5-7 business days of receiving the item.</span></li>
+                  </ul>
+                </motion.div>
+              )}
+            </div>
+          </div>
+          
+          {/* Share Button (Float) */}
+          <div className="mt-6 flex justify-center pb-4">
+             <button onClick={() => setShowShareMenu(!showShareMenu)} className="flex items-center gap-2 text-gray-400 hover:text-gray-900 transition-colors text-sm font-medium">
+               <FaShareAlt /> Share this product
+             </button>
+             {showShareMenu && (
+               <div className="absolute mt-8 bg-white shadow-xl rounded-xl border border-gray-100 p-2 z-50 flex gap-2">
+                  {/* Reuse share logic UI in a minimalist horizontal layout */}
+                  <button onClick={() => handleShare('copy')} className="p-2 hover:bg-gray-50 rounded-lg text-gray-600"><FaLink /></button>
+                  <button onClick={() => handleShare('whatsapp')} className="p-2 hover:bg-green-50 rounded-lg text-green-600"><FaWhatsapp /></button>
+                  <button onClick={() => handleShare('email')} className="p-2 hover:bg-orange-50 rounded-lg text-orange-600"><FaEnvelope /></button>
+               </div>
+             )}
+          </div>
+        </div>
 
 
           {/* ========== REVIEWS SECTION - INTEGRATED ========== */}

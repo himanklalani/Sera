@@ -18,6 +18,10 @@ const cartSchema = new mongoose.Schema({
       default: 1,
       min: 1 
     },
+    size: {
+      type: String,
+      trim: true
+    },
     price: Number // Snapshot price
   }]
 }, { timestamps: true });

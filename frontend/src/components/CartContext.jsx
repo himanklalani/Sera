@@ -53,7 +53,7 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
-  const addToCart = async (productId, quantity) => {
+  const addToCart = async (productId, quantity, size = null) => {
     const userInfo = getUserInfo();
     if (!userInfo) return false;
 
@@ -63,7 +63,7 @@ export const CartProvider = ({ children }) => {
       };
       const { data } = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/cart`,
-        { productId, quantity },
+        { productId, quantity, size },
         config
       );
       setCartItems(Array.isArray(data.items) ? data.items : []);

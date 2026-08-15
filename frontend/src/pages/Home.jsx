@@ -1522,8 +1522,8 @@ const BrandPromiseSection = () => {
           </h2>
         </motion.div>
 
-        {/* Asymmetric Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Asymmetric Bento Grid (Stacking Cards on Mobile) */}
+        <div className="flex flex-col md:grid md:grid-cols-3 gap-6 md:gap-4 relative pb-10 md:pb-0">
           {pillars.map((p, i) => (
             <motion.div
               key={p.label}
@@ -1531,10 +1531,11 @@ const BrandPromiseSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.75, delay: i * 0.07, ease: [0.32,0.72,0,1] }}
               viewport={{ once: true }}
-              className={`${p.span}`}
+              className={`sticky md:static top-[calc(6rem+${i * 1.5}rem)] md:top-auto w-full bg-[#FDFBF7] ${p.span}`}
+              style={{ zIndex: 10 + i }}
             >
               {/* Double-Bezel outer shell */}
-              <div className="rounded-[2rem] ring-1 ring-black/5 bg-black/[0.02] p-2 h-full">
+              <div className="rounded-[2rem] ring-1 ring-black/5 bg-black/[0.02] p-2 h-full shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.05)] md:shadow-none transition-transform duration-500 hover:scale-[1.02] md:hover:scale-100">
                 {/* Inner core */}
                 <div className={`relative rounded-[calc(2rem-0.375rem)] bg-gradient-to-br ${p.accent} p-8 md:p-10 h-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] flex flex-col justify-between min-h-[200px] overflow-hidden`}>
                   {/* Radial accent */}

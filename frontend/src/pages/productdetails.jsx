@@ -697,7 +697,6 @@ const ProductDetails = () => {
                </div>
              )}
           </div>
-        </div>
 
 
           {/* ========== REVIEWS SECTION - INTEGRATED ========== */}

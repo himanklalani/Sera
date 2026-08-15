@@ -55,7 +55,7 @@ const GiftingHub = () => {
           </Link>
 
           {/* Card 3 */}
-          <Link to="/shop?category=rings" className="group relative h-96 overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-500 rounded-sm">
+          <Link to="/shop?category=earrings" className="group relative h-96 overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-500 rounded-sm">
             <div className="absolute inset-0 bg-zinc-100/50 group-hover:bg-zinc-200/50 transition-colors duration-500 z-0"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center p-8 z-10">
               <FaStar className="text-4xl text-zinc-400 mb-4 transform group-hover:scale-110 transition-transform duration-500" />
@@ -101,7 +101,7 @@ const GiftingHub = () => {
             for a birthday, or a minimal 
             <Link to="/shop?category=bracelet" className="text-rose-600 hover:underline mx-1">Bracelet</Link> 
             for daily wear, Sera has you covered. Explore our curated 
-            <Link to="/shop?category=rings" className="text-rose-600 hover:underline mx-1">Rings collection</Link> 
+            <Link to="/shop?category=combos" className="text-rose-600 hover:underline mx-1">Combos collection</Link> 
             or dive straight into our 
             <Link to="/shop?sort=best-selling" className="text-rose-600 hover:underline mx-1">Bestsellers</Link> 
             to see what everyone else is loving. All our pieces are anti-tarnish, waterproof, and designed to last a lifetime.

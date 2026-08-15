@@ -898,22 +898,31 @@ const HeroSection = () => {
         <meta name="description" content="Discover Sera's premium collection of waterproof, anti-tarnish jewelry. Shop affordable necklaces, rings, earrings, and bracelets that won't turn your skin green." />
       </Helmet>
       
-      {/* Optimized LCP Hero Image */}
-      <img
+      {/* Optimized LCP Hero Image with Cinematic Zoom */}
+      <motion.img
         src={heroImage}
         alt="Sera Jewelry Hero"
-        className={`absolute inset-0 w-full h-full object-cover z-0 transition-opacity duration-500 pointer-events-none select-none ${
+        initial={{ scale: 1.0, filter: 'brightness(0.65)' }}
+        animate={{ 
+          scale: 1.05, 
+          filter: 'brightness(0.85)' 
+        }}
+        transition={{ duration: 3, ease: "easeOut" }}
+        className={`absolute inset-0 w-full h-full object-cover z-0 transition-opacity duration-1000 pointer-events-none select-none ${
           backgroundLoaded ? 'opacity-100' : 'opacity-0'
         }`}
-        style={{ filter: 'brightness(0.6)' }}
         fetchpriority="high"
         loading="eager"
         onLoad={() => setBackgroundLoaded(true)}
       />
 
+      {/* Cinematic Overlays: Radial Vignette & Film Grain */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)] z-0 pointer-events-none transition-opacity duration-1000" />
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay z-0 pointer-events-none" />
+
       {/* Loading placeholder */}
       {!backgroundLoaded && (
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 z-0" />
+        <div className="absolute inset-0 bg-gray-900 z-0" />
       )}
       
       {/* Flying Offer Banner - only shows after hero content loads */}
@@ -922,64 +931,54 @@ const HeroSection = () => {
       {/* Floating Coupon Drawer appears after flyer disappears */}
       <FloatingCouponDrawer shouldShow={showButton} />
       
-      <div className="relative z-10 flex flex-col items-center justify-center flex-1 text-white text-center px-4 py-16 sm:py-8">
-        <motion.h1 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.75, delay: 0.1, ease: [0.32,0.72,0,1] }}
-          className="text-5xl sm:text-6xl md:text-8xl font-serif mb-4 tracking-wide will-change-transform leading-none"
-        >
-          Welcome to Sera
-        </motion.h1>
+      <div className="relative z-10 flex flex-col items-center justify-center flex-1 text-white text-center px-4 py-16 sm:py-8 mt-12 sm:mt-16">
+        {/* Awwwards-Tier Typography Split Reveal */}
+        <div className="overflow-hidden pb-4 mb-2 px-2">
+          <motion.h1 
+            initial={{ y: "120%", opacity: 0, rotateZ: 4, scale: 0.95 }}
+            animate={{ y: 0, opacity: 1, rotateZ: 0, scale: 1 }}
+            transition={{ duration: 1.2, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="text-[14vw] sm:text-[10vw] md:text-8xl font-serif tracking-wide will-change-transform leading-[0.9] origin-bottom-left"
+          >
+            Welcome to Sera
+          </motion.h1>
+        </div>
         <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.75, delay: 0.18, ease: [0.32,0.72,0,1] }}
-          className="text-sm sm:text-base md:text-lg font-light tracking-[0.2em] uppercase text-white/70 mb-12 md:mb-14"
+          initial={{ opacity: 0, y: 30, filter: 'blur(4px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="text-xs sm:text-sm md:text-base font-light tracking-[0.25em] uppercase text-white/80 mb-14 md:mb-16 text-center leading-relaxed"
         >
-          timeless elegance &nbsp;<span className="font-serif italic text-rose-200 normal-case tracking-normal">meets</span>&nbsp; modern intention
+          timeless elegance <span className="font-serif italic text-rose-300 normal-case tracking-normal text-lg sm:text-xl md:text-2xl px-2 align-baseline">meets</span> modern intention
         </motion.p>
-
+        
         {/* Hero CTA — Button-in-Button Island Architecture */}
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.75, delay: 0.28, ease: [0.32,0.72,0,1] }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-20"
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 1.2, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-24 relative z-20"
         >
           <FramerButton to="/shop" variant="light">Shop Collection</FramerButton>
           <FramerButton to="/gifts" variant="transparent">Gifting Hub</FramerButton>
         </motion.div>
         
+        {/* Sleek Minimalist Scroll Indicator */}
         <motion.div 
-          className="absolute bottom-[15%] sm:bottom-[20%] left-1/2 transform -translate-x-1/2"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ 
-            opacity: 1, 
-            y: [0, 8, 0],
-          }}
-          transition={{ 
-            duration: 2,
-            repeat: Infinity,
-            repeatDelay: 1,
-            ease: "easeInOut"
-          }}
+          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
         >
-          <svg 
-            width="28" 
-            height="28" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            className="text-white/90 drop-shadow-lg"
-          >
-            <path 
-              d="M6 9L12 15L18 9" 
-              stroke="currentColor" 
-              strokeWidth="2.5" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
+          <span className="text-[9px] tracking-[0.4em] uppercase text-white/60 font-semibold font-sans">Scroll</span>
+          <div className="w-[1px] h-14 bg-white/20 relative overflow-hidden">
+            <motion.div 
+              className="absolute top-0 left-0 w-full h-full bg-white"
+              initial={{ y: "-100%" }}
+              animate={{ y: "100%" }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             />
-          </svg>
+          </div>
         </motion.div>
       </div>
     </div>

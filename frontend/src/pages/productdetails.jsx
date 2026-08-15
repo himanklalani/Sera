@@ -520,14 +520,34 @@ const ProductDetails = () => {
                 {product.category}
               </p>
             </div>
-            {/* Wishlist Button */}
-            <button
-              onClick={handleWishlist}
-              className="p-3 text-2xl group"
-              title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-            >
-              <FaHeart className={`transition-all duration-300 ${isInWishlist ? 'text-rose-500 fill-rose-500 scale-110' : 'text-gray-300 group-hover:text-rose-300'}`} />
-            </button>
+            
+            {/* Action Buttons: Share & Wishlist */}
+            <div className="flex items-center gap-1 relative">
+              <div>
+                <button
+                  onClick={() => setShowShareMenu(!showShareMenu)}
+                  className="p-3 text-[1.35rem] group text-gray-300 hover:text-gray-600 transition-colors"
+                  title="Share this product"
+                >
+                  <FaShareAlt />
+                </button>
+                {showShareMenu && (
+                  <div className="absolute right-0 mt-2 bg-white shadow-xl rounded-xl border border-gray-100 p-2 z-50 flex gap-2">
+                    <button onClick={() => handleShare('copy')} className="p-2 hover:bg-gray-50 rounded-lg text-gray-600"><FaLink /></button>
+                    <button onClick={() => handleShare('whatsapp')} className="p-2 hover:bg-green-50 rounded-lg text-green-600"><FaWhatsapp /></button>
+                    <button onClick={() => handleShare('email')} className="p-2 hover:bg-orange-50 rounded-lg text-orange-600"><FaEnvelope /></button>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={handleWishlist}
+                className="p-3 text-2xl group"
+                title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+              >
+                <FaHeart className={`transition-all duration-300 ${isInWishlist ? 'text-rose-500 fill-rose-500 scale-110' : 'text-gray-300 group-hover:text-rose-300'}`} />
+              </button>
+            </div>
           </div>
 
           {/* Price & Rating */}
@@ -705,23 +725,6 @@ const ProductDetails = () => {
               )}
             </div>
           </div>
-          
-          {/* Share Button (Float) */}
-          <div className="mt-6 flex justify-center pb-4">
-             <button onClick={() => setShowShareMenu(!showShareMenu)} className="flex items-center gap-2 text-gray-400 hover:text-gray-900 transition-colors text-sm font-medium">
-               <FaShareAlt /> Share this product
-             </button>
-             {showShareMenu && (
-               <div className="absolute mt-8 bg-white shadow-xl rounded-xl border border-gray-100 p-2 z-50 flex gap-2">
-                  {/* Reuse share logic UI in a minimalist horizontal layout */}
-                  <button onClick={() => handleShare('copy')} className="p-2 hover:bg-gray-50 rounded-lg text-gray-600"><FaLink /></button>
-                  <button onClick={() => handleShare('whatsapp')} className="p-2 hover:bg-green-50 rounded-lg text-green-600"><FaWhatsapp /></button>
-                  <button onClick={() => handleShare('email')} className="p-2 hover:bg-orange-50 rounded-lg text-orange-600"><FaEnvelope /></button>
-               </div>
-             )}
-          </div>
-
-
           {/* ========== REVIEWS SECTION - INTEGRATED ========== */}
 
 

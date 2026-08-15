@@ -626,10 +626,8 @@ const ProductDetails = () => {
               )}
             </button>
             <div className="flex items-center justify-center gap-2 mt-5 text-gray-500 text-sm font-medium tracking-wide">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              <span>Easy 7 Days Returns and Exchange</span>
+              <FaTruck className="w-4 h-4 text-gray-400" />
+              <span>{product.category?.toLowerCase().includes('apparel') ? 'Shipped in 7-10 business days' : 'Shipped in 5-7 business days'}</span>
             </div>
           </div>
 

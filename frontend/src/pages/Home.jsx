@@ -960,7 +960,7 @@ const HeroSection = () => {
           transition={{ duration: 1.2, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-24 relative z-20"
         >
-          <FramerButton to="/shop" variant="transparent">Shop Collection</FramerButton>
+          <FramerButton to="/shop" variant="light">Shop Collection</FramerButton>
           <TextArrowCTA to="/gifts">Gifting Hub</TextArrowCTA>
         </motion.div>
         

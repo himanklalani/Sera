@@ -1,34 +1,59 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 export default function TextArrowCTA({ children, to, className = '' }) {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <Link 
       to={to} 
-      className={`group flex items-center gap-3 text-white uppercase tracking-[0.2em] text-xs font-semibold cursor-pointer ${className}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`relative inline-flex flex-col items-center justify-center cursor-pointer ${className}`}
     >
-      <span className="relative overflow-hidden py-1">
-        <span className="inline-block transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:-translate-y-[120%]">
+      <motion.div 
+        layout
+        className="flex items-center gap-2 uppercase tracking-[0.2em] text-xs font-semibold text-white pb-[2px]"
+        style={{ flexDirection: isHovered ? 'row-reverse' : 'row' }}
+      >
+        <motion.div layout transition={{ type: "spring", stiffness: 300, damping: 30 }}>
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="1.5" 
+            strokeLinecap="round" 
+            strokeLinejoin="round" 
+            className="w-4 h-4"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </motion.div>
+        <motion.span layout transition={{ type: "spring", stiffness: 300, damping: 30 }}>
           {children}
-        </span>
-        <span className="absolute left-0 top-full inline-block transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:-translate-y-full">
-          {children}
-        </span>
-      </span>
-      <div className="flex items-center">
-        <div className="h-[1.5px] bg-white transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] w-4 group-hover:w-10" />
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="1.5" 
-          strokeLinecap="round" 
-          strokeLinejoin="round" 
-          className="w-4 h-4 -ml-[2px] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
-        >
-          <path d="M14 5l7 7-7 7" />
-        </svg>
+        </motion.span>
+      </motion.div>
+      
+      {/* Animated Underline */}
+      <div className="relative w-full h-[1.5px] bg-transparent overflow-hidden">
+        {/* Line that shrinks to the right when hovered */}
+        <motion.div 
+          className="absolute inset-0 bg-white"
+          style={{ transformOrigin: 'right' }}
+          initial={false}
+          animate={{ scaleX: isHovered ? 0 : 1 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+        />
+        {/* Line that grows from right to left when hovered */}
+        <motion.div 
+          className="absolute inset-0 bg-white"
+          style={{ transformOrigin: 'right' }}
+          initial={false}
+          animate={{ scaleX: isHovered ? 1 : 0 }}
+          transition={{ duration: 0.3, delay: isHovered ? 0.15 : 0, ease: "easeInOut" }}
+        />
       </div>
     </Link>
   );

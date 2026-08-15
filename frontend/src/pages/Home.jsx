@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import { FaInstagram } from 'react-icons/fa';
 import SEO from '../components/SEO';
 import FramerButton from '../components/FramerButton';
+import TextArrowCTA from '../components/TextArrowCTA';
 
 
 // ============================================
@@ -957,10 +958,10 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1.2, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-24 relative z-20"
+          className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-24 relative z-20"
         >
-          <FramerButton to="/shop" variant="light">Shop Collection</FramerButton>
-          <FramerButton to="/gifts" variant="transparent">Gifting Hub</FramerButton>
+          <FramerButton to="/shop" variant="transparent">Shop Collection</FramerButton>
+          <TextArrowCTA to="/gifts">Gifting Hub</TextArrowCTA>
         </motion.div>
         
         {/* Sleek Minimalist Scroll Indicator */}

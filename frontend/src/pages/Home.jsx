@@ -857,7 +857,7 @@ const GiftingSection = () => {
           className="flex flex-col sm:flex-row gap-3 justify-center"
         >
           <FramerButton to="/shop?category=COMBOS" variant="dark">Shop Combos</FramerButton>
-          <FramerButton to="/gifts" variant="transparentDark">Gifting Hub</FramerButton>
+          <TextArrowCTA to="/gifts" variant="dark">Gifting Hub</TextArrowCTA>
         </motion.div>
       </div>
     </section>

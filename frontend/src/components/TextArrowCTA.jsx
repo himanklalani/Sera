@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-export default function TextArrowCTA({ children, to, className = '' }) {
+export default function TextArrowCTA({ children, to, className = '', variant = 'light' }) {
   const [isHovered, setIsHovered] = useState(false);
+
+  const textColor = variant === 'dark' ? 'text-gray-900' : 'text-white';
+  const lineColor = variant === 'dark' ? 'bg-gray-900' : 'bg-white';
 
   return (
     <Link 
@@ -14,7 +17,7 @@ export default function TextArrowCTA({ children, to, className = '' }) {
     >
       <motion.div 
         layout
-        className="flex items-center gap-2 uppercase tracking-[0.2em] text-xs font-semibold text-white pb-[2px]"
+        className={`flex items-center gap-2 uppercase tracking-[0.2em] text-xs font-semibold ${textColor} pb-[2px]`}
         style={{ flexDirection: isHovered ? 'row-reverse' : 'row' }}
       >
         <motion.div layout transition={{ type: "spring", stiffness: 300, damping: 30 }}>
@@ -40,7 +43,7 @@ export default function TextArrowCTA({ children, to, className = '' }) {
       <div className="relative w-full h-[1.5px] bg-transparent overflow-hidden">
         {/* Line that shrinks to the right when hovered */}
         <motion.div 
-          className="absolute inset-0 bg-white"
+          className={`absolute inset-0 ${lineColor}`}
           style={{ transformOrigin: 'right' }}
           initial={false}
           animate={{ scaleX: isHovered ? 0 : 1 }}
@@ -48,7 +51,7 @@ export default function TextArrowCTA({ children, to, className = '' }) {
         />
         {/* Line that grows from right to left when hovered */}
         <motion.div 
-          className="absolute inset-0 bg-white"
+          className={`absolute inset-0 ${lineColor}`}
           style={{ transformOrigin: 'right' }}
           initial={false}
           animate={{ scaleX: isHovered ? 1 : 0 }}

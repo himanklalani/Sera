@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import { FaInstagram } from 'react-icons/fa';
 import SEO from '../components/SEO';
+import FramerButton from '../components/FramerButton';
 
 
 // ============================================
@@ -854,30 +855,8 @@ const GiftingSection = () => {
           viewport={{ once: true }}
           className="flex flex-col sm:flex-row gap-3 justify-center"
         >
-          {/* Primary — dark pill */}
-          <Link
-            to="/shop?category=COMBOS"
-            className="group flex items-center gap-0 rounded-full bg-gray-900 pl-6 pr-2 py-2 text-white transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-rose-600 active:scale-[0.98] shadow-md"
-          >
-            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Shop Combos</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:bg-white/25 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-105">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-white">
-                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-          </Link>
-          {/* Secondary — outline */}
-          <Link
-            to="/gifts"
-            className="group flex items-center gap-0 rounded-full border border-gray-900/40 bg-transparent pl-6 pr-2 py-2 text-gray-900 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-900 hover:bg-gray-900 hover:text-white active:scale-[0.98]"
-          >
-            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Gifting Hub</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-900/20 bg-gray-900/5 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:bg-white/15 group-hover:border-white/30 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-gray-700 group-hover:text-white transition-colors duration-500">
-                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-          </Link>
+          <FramerButton to="/shop?category=COMBOS" variant="dark">Shop Combos</FramerButton>
+          <FramerButton to="/gifts" variant="transparentDark">Gifting Hub</FramerButton>
         </motion.div>
       </div>
     </section>
@@ -966,33 +945,10 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.28, ease: [0.32,0.72,0,1] }}
-          className="flex flex-col sm:flex-row items-center gap-3 mb-20"
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-20"
         >
-          {/* Primary CTA — solid white pill */}
-          <Link
-            to="/shop"
-            className="group flex items-center gap-0 rounded-full bg-white pl-6 pr-2 py-2 text-gray-900 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-rose-50 active:scale-[0.98] shadow-[0_4px_24px_rgba(255,255,255,0.18)]"
-          >
-            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Shop Collection</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:bg-rose-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-105">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-white">
-                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-          </Link>
-
-          {/* Secondary CTA — ghost pill */}
-          <Link
-            to="/gifts"
-            className="group flex items-center gap-0 rounded-full border border-white/30 bg-white/5 pl-6 pr-2 py-2 text-white backdrop-blur-sm transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-white/60 hover:bg-white/10 active:scale-[0.98]"
-          >
-            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Gifting Hub</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:border-rose-300/60 group-hover:bg-rose-400/20 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-white/80">
-                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-          </Link>
+          <FramerButton to="/shop" variant="light">Shop Collection</FramerButton>
+          <FramerButton to="/gifts" variant="transparent">Gifting Hub</FramerButton>
         </motion.div>
         
         <motion.div 
@@ -1088,28 +1044,8 @@ const ApparelDropSection = () => (
           viewport={{ once: true }}
           className="flex flex-col sm:flex-row gap-3"
         >
-          <Link
-            to="/shop?category=APPAREL"
-            className="group flex items-center gap-0 rounded-full bg-white pl-6 pr-2 py-2 text-gray-900 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-rose-50 active:scale-[0.98] w-fit shadow-[0_4px_32px_rgba(255,255,255,0.12)]"
-          >
-            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Explore Apparel</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:bg-rose-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-105">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-white">
-                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-          </Link>
-          <Link
-            to="/size-guide"
-            className="group flex items-center gap-0 rounded-full border border-white/15 bg-white/5 pl-6 pr-2 py-2 text-stone-300 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-white/35 hover:text-white active:scale-[0.98] w-fit"
-          >
-            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Size Guide</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/8 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:border-rose-300/40 group-hover:bg-rose-400/15 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-stone-400 group-hover:text-white transition-colors duration-500">
-                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-          </Link>
+          <FramerButton to="/shop?category=APPAREL" variant="light">Explore Apparel</FramerButton>
+          <FramerButton to="/size-guide" variant="transparent">Size Guide</FramerButton>
         </motion.div>
 
         {/* Micro-label at bottom */}
@@ -1629,17 +1565,7 @@ const BrandPromiseSection = () => {
           <p className="text-stone-400 text-sm max-w-sm">
             Join thousands who have made Sera their everyday luxury.
           </p>
-          <Link
-            to="/shop"
-            className="group flex items-center gap-0 rounded-full bg-gray-900 pl-6 pr-2 py-2 text-white transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-rose-600 active:scale-[0.98] shadow-md"
-          >
-            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Start Shopping</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:bg-white/25 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-105">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-white">
-                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-          </Link>
+          <FramerButton to="/shop" variant="dark">Start Shopping</FramerButton>
         </motion.div>
       </div>
     </section>

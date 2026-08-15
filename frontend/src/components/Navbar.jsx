@@ -6,6 +6,7 @@ import TopBanner from './TopBanner';
 import NavOverlay from './NavOverlay';
 import SearchOverlay from './SearchOverlay';
 import { useCart } from './CartContext';
+import MotionMenuIcon from './MotionMenuIcon';
 
 
 
@@ -86,11 +87,9 @@ export default function Navbar() {
                   aria-label="Open Navigation Menu"
                   whileHover={{ color: '#f43f5e', scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
                 >
-                  <FaBars />
+                  <MotionMenuIcon isOpen={isNavOpen} />
                 </motion.button>
-                
                 {!isHome && (
                   <motion.button
                     onClick={() => navigate(-1)}

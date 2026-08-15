@@ -1531,8 +1531,8 @@ const BrandPromiseSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.75, delay: i * 0.07, ease: [0.32,0.72,0,1] }}
               viewport={{ once: true }}
-              className={`sticky md:static top-[calc(6rem+${i * 1.5}rem)] md:top-auto w-full bg-[#FDFBF7] ${p.span}`}
-              style={{ zIndex: 10 + i }}
+              className={`sticky md:static md:top-auto w-full bg-[#FDFBF7] ${p.span}`}
+              style={{ zIndex: 10 + i, top: `calc(6rem + ${i * 1.5}rem)` }}
             >
               {/* Double-Bezel outer shell */}
               <div className="rounded-[2rem] ring-1 ring-black/5 bg-black/[0.02] p-2 h-full shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.05)] md:shadow-none transition-transform duration-500 hover:scale-[1.02] md:hover:scale-100">

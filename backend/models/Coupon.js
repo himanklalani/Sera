@@ -51,6 +51,10 @@ const couponSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isFreeShipping: {
+      type: Boolean,
+      default: false,
+    },
     isFirstOrderOnly: {
       type: Boolean,
       default: false,

@@ -55,6 +55,7 @@ const AdminDashboard = () => {
     perUserLimit: 1,
     isActive: true,
     isFirstOrderOnly: false,
+    isFreeShipping: false,
     restrictedToUserEmail: '',
   });
   const [editingCouponId, setEditingCouponId] = useState(null);
@@ -575,8 +576,8 @@ const AdminDashboard = () => {
 
     const payload = {
       code: couponForm.code.toUpperCase().trim(),
-      discountType: couponForm.discountType,
-      discountValue: Number(couponForm.discountValue),
+      discountType: couponForm.isFreeShipping ? 'fixed' : couponForm.discountType,
+      discountValue: couponForm.isFreeShipping ? 0 : Number(couponForm.discountValue),
       minOrderValue: couponForm.minOrderValue
         ? Number(couponForm.minOrderValue)
         : 0,
@@ -589,6 +590,7 @@ const AdminDashboard = () => {
         : 1,
       isActive: couponForm.isActive,
       isFirstOrderOnly: couponForm.isFirstOrderOnly,
+      isFreeShipping: couponForm.isFreeShipping,
       restrictedToUserEmail: couponForm.restrictedToUserEmail.trim() || null,
     };
 
@@ -597,12 +599,13 @@ const AdminDashboard = () => {
       return;
     }
 
-    if (!payload.discountValue || payload.discountValue <= 0) {
+    if (!payload.isFreeShipping && (!payload.discountValue || payload.discountValue <= 0)) {
       toast.error('Discount value must be greater than zero');
       return;
     }
 
     if (
+      !payload.isFreeShipping &&
       payload.discountType === 'percentage' &&
       payload.discountValue > 100
     ) {
@@ -650,6 +653,7 @@ const AdminDashboard = () => {
       perUserLimit: coupon.perUserLimit || 1,
       isActive: coupon.isActive,
       isFirstOrderOnly: coupon.isFirstOrderOnly || false,
+      isFreeShipping: coupon.isFreeShipping || false,
       restrictedToUserEmail:
         coupon.allowedUsers && coupon.allowedUsers.length > 0
           ? coupon.allowedUsers[0].email || ''
@@ -1541,9 +1545,15 @@ const AdminDashboard = () => {
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    {coupon.discountType === 'percentage'
-                      ? `${coupon.discountValue}%`
-                      : `INR ${coupon.discountValue}`}
+                    {coupon.isFreeShipping ? (
+                      <span className="inline-flex items-center gap-1 text-blue-600 font-semibold bg-blue-50 px-2 py-1 rounded">
+                        🚚 Free Shipping
+                      </span>
+                    ) : (
+                      coupon.discountType === 'percentage'
+                        ? `${coupon.discountValue}%`
+                        : `INR ${coupon.discountValue}`
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     {coupon.minOrderValue ? `INR ${coupon.minOrderValue}` : '-'}
@@ -1957,42 +1967,47 @@ const AdminDashboard = () => {
                   required
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Discount Type
-                </label>
-                <select
-                  value={couponForm.discountType}
-                  onChange={(e) =>
-                    setCouponForm({
-                      ...couponForm,
-                      discountType: e.target.value,
-                    })
-                  }
-                  className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
-                >
-                  <option value="percentage">Percentage</option>
-                  <option value="fixed">Fixed Amount</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Discount Value
-                </label>
-                <input
-                  type="number"
-                  value={couponForm.discountValue}
-                  onChange={(e) =>
-                    setCouponForm({
-                      ...couponForm,
-                      discountValue: e.target.value,
-                    })
-                  }
-                  className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
-                  placeholder="10"
-                  required
-                />
-              </div>
+              
+              {!couponForm.isFreeShipping && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Discount Type
+                    </label>
+                    <select
+                      value={couponForm.discountType}
+                      onChange={(e) =>
+                        setCouponForm({
+                          ...couponForm,
+                          discountType: e.target.value,
+                        })
+                      }
+                      className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
+                    >
+                      <option value="percentage">Percentage</option>
+                      <option value="fixed">Fixed Amount</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Discount Value
+                    </label>
+                    <input
+                      type="number"
+                      value={couponForm.discountValue}
+                      onChange={(e) =>
+                        setCouponForm({
+                          ...couponForm,
+                          discountValue: e.target.value,
+                        })
+                      }
+                      className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
+                      placeholder="10"
+                      required={!couponForm.isFreeShipping}
+                    />
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

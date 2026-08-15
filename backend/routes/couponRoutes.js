@@ -39,6 +39,7 @@ router.post(
       perUserLimit,
       isActive,
       isFirstOrderOnly,
+      isFreeShipping,
       restrictedToUserEmail,
       description,
     } = req.body;
@@ -87,6 +88,7 @@ router.post(
       perUserLimit: perUserLimit ? Number(perUserLimit) : 1,
       isActive: typeof isActive === 'boolean' ? isActive : true,
       isFirstOrderOnly: Boolean(isFirstOrderOnly),
+      isFreeShipping: Boolean(isFreeShipping),
       allowedUsers,
       description: description || '',
       usageCount: 0, // ✅ Initialize usage count to 0
@@ -115,6 +117,7 @@ router.put(
       perUserLimit,
       isActive,
       isFirstOrderOnly,
+      isFreeShipping,
       restrictedToUserEmail,
       description,
       resetUsageCount, // ✅ Allow admins to reset usage count
@@ -164,6 +167,9 @@ router.put(
     if (typeof isActive === 'boolean') coupon.isActive = isActive;
     if (typeof isFirstOrderOnly === 'boolean') {
       coupon.isFirstOrderOnly = isFirstOrderOnly;
+    }
+    if (typeof isFreeShipping === 'boolean') {
+      coupon.isFreeShipping = isFreeShipping;
     }
     if (typeof description === 'string') {
       coupon.description = description;
@@ -318,7 +324,11 @@ router.post(
     }
 
     // Final total = (cartValue - discount) + shipping
-    const shippingCost = orderTotal - cartValue;
+    let shippingCost = orderTotal - cartValue;
+    if (coupon.isFreeShipping) {
+      shippingCost = 0;
+    }
+    
     const discountedCartValue = cartValue - discountAmount;
     const finalTotal = discountedCartValue + shippingCost;
 
@@ -333,6 +343,7 @@ router.post(
       finalTotal,
       minOrderValue: coupon.minOrderValue,
       isFirstOrderOnly: coupon.isFirstOrderOnly,
+      isFreeShipping: coupon.isFreeShipping,
       isActive: coupon.isActive,
       usageCount: coupon.usageCount,
       usageLimit: coupon.usageLimit,

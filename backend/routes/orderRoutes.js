@@ -54,11 +54,10 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     .filter(item => !item.productDetails.isAddon)
     .reduce((acc, item) => acc + item.quantity * item.productDetails.price, 0);
   
-  const shippingCost = cartValue > 999 ? 0 : 100;
-  const originalOrderTotal = cartValue + shippingCost;
+  let shippingCost = cartValue > 999 ? 0 : 100;
 
   let appliedCoupon = null;
-  let finalTotalPrice = originalOrderTotal;
+  let finalTotalPrice = cartValue + shippingCost;
   let couponDiscount = 0;
 
   if (couponCode) {
@@ -142,6 +141,10 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     );
 
     // ✅ CALCULATE DISCOUNT
+    if (updatedCoupon.isFreeShipping) {
+      shippingCost = 0;
+    }
+
     if (updatedCoupon.discountType === 'percentage') {
       couponDiscount = (discountableCartValue * updatedCoupon.discountValue) / 100;
     } else {
@@ -152,6 +155,7 @@ router.post('/', protect, asyncHandler(async (req, res) => {
       couponDiscount = discountableCartValue;
     }
 
+    const originalOrderTotal = cartValue + shippingCost;
     finalTotalPrice = originalOrderTotal - couponDiscount;
     appliedCoupon = updatedCoupon;
   }
@@ -182,6 +186,7 @@ router.post('/', protect, asyncHandler(async (req, res) => {
       landmark: shippingAddress.landmark || ''
     },
     totalPrice: finalTotalPrice,
+    shippingPrice: shippingCost,
     couponCode: appliedCoupon ? appliedCoupon.code : undefined,
     couponDiscount,
     status: 'pending'
@@ -361,7 +366,7 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
     0
   );
 
-  const shippingRawBase = subtotalRaw > 999 ? 0 : subtotalRaw > 0 ? 100 : 0;
+  const shippingRawBase = typeof order.shippingPrice === 'number' ? order.shippingPrice : (subtotalRaw > 999 ? 0 : subtotalRaw > 0 ? 100 : 0);
   const discountRaw = order.couponDiscount || 0;
   const grandTotalRaw = typeof order.totalPrice === 'number' ? order.totalPrice : subtotalRaw + shippingRawBase - discountRaw;
 

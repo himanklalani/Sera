@@ -272,7 +272,7 @@ const Checkout = () => {
         state: { 
           transaction_id: res.data._id || `COD-${Date.now()}`,
           value: total,
-          shipping: shipping,
+          shipping: appliedCoupon?.isFreeShipping ? 0 : shipping,
           tax: 0,
           items: cartItems.map(item => ({
             item_id: item.product._id,
@@ -401,7 +401,7 @@ const Checkout = () => {
               state: { 
                 transaction_id: response.razorpay_payment_id,
                 value: total,
-                shipping: shipping,
+                shipping: appliedCoupon?.isFreeShipping ? 0 : shipping,
                 tax: 0,
                 items: cartItems.map(item => ({
                   item_id: item.product._id,
@@ -445,6 +445,7 @@ const Checkout = () => {
   // ✅ FIXED: Calculate values correctly
   const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
   const shipping = subtotal > 999 ? 0 : 100;
+  const displayShipping = appliedCoupon?.isFreeShipping ? 0 : shipping;
   const originalTotal = subtotal + shipping;
   const total = appliedCoupon?.finalTotal || originalTotal;
   const discount = Math.max(0, appliedCoupon ? appliedCoupon.discountAmount : 0);
@@ -611,7 +612,7 @@ const Checkout = () => {
                 )}
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>
-                  <span>{shipping === 0 ? 'Free' : `INR ${shipping}`}</span>
+                  <span>{displayShipping === 0 ? 'Free' : `INR ${displayShipping}`}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg pt-2">
                   <span>Total</span>

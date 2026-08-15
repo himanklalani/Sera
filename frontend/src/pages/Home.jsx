@@ -944,19 +944,6 @@ const HeroSection = () => {
       <FloatingCouponDrawer shouldShow={showButton} />
       
       <div className="relative z-10 flex flex-col items-center justify-center flex-1 text-white text-center px-4 py-16 sm:py-8">
-        {/* Eyebrow tag */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.0, ease: [0.32,0.72,0,1] }}
-          className="mb-5"
-        >
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-3.5 py-1 text-[10px] uppercase tracking-[0.25em] text-white/70 backdrop-blur-sm">
-            <span className="h-1 w-1 rounded-full bg-rose-300 inline-block" />
-            New Collection 2025
-          </span>
-        </motion.div>
-
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1070,20 +1057,6 @@ const ApparelDropSection = () => (
       {/* RIGHT: Editorial text */}
       <div className="relative w-full md:w-[42%] flex flex-col justify-center px-8 sm:px-12 md:px-16 lg:px-20 py-20 md:py-32">
 
-        {/* Eyebrow tag */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.32,0.72,0,1] }}
-          viewport={{ once: true }}
-          className="mb-8"
-        >
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1 text-[10px] uppercase tracking-[0.25em] text-stone-400">
-            <span className="h-1 w-1 rounded-full bg-rose-400 inline-block" />
-            New Category
-          </span>
-        </motion.div>
-
         {/* Headline */}
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
@@ -1104,7 +1077,7 @@ const ApparelDropSection = () => (
           viewport={{ once: true }}
           className="text-stone-400 text-sm md:text-[15px] leading-[1.8] mb-12 max-w-[320px]"
         >
-          Minimal. Intentional. Made to move with you. Our debut apparel drop pairs effortlessly with every Sera piece you love — soft basics with an elevated edge.
+          Minimal. Intentional. Made to move with you. Our debut apparel drop pairs effortlessly with every Sera piece you love, soft basics with an elevated edge.
         </motion.p>
 
         {/* Button-in-Button CTAs */}
@@ -1580,7 +1553,7 @@ const BrandPromiseSection = () => {
     {
       label: 'Gift-Ready',
       headline: 'The perfect present, always.',
-      body: 'Every order ships in thoughtfully designed packaging. Birthdays, anniversaries, or just because — we handle the presentation.',
+      body: 'Every order ships in thoughtfully designed packaging. Birthdays, anniversaries, or just because, we handle the presentation.',
       accent: 'from-stone-50 to-gray-50',
       dot: 'bg-stone-400',
       span: 'md:col-span-1',
@@ -1607,10 +1580,6 @@ const BrandPromiseSection = () => {
           viewport={{ once: true }}
           className="mb-16 md:mb-20"
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-100/80 px-3.5 py-1 text-[10px] uppercase tracking-[0.25em] text-stone-500 mb-6">
-            <span className="h-1 w-1 rounded-full bg-rose-400 inline-block" />
-            The Sera Standard
-          </span>
           <h2 className="font-serif text-4xl md:text-6xl text-gray-900 leading-tight max-w-xl">
             Made to last.
             <span className="block italic text-rose-400">Worn to love.</span>

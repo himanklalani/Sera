@@ -850,21 +850,33 @@ const GiftingSection = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.75, delay: 0.2, ease: [0.32,0.72,0,1] }}
           viewport={{ once: true }}
-          className="flex flex-col sm:flex-row gap-4 justify-center"
+          className="flex flex-col sm:flex-row gap-3 justify-center"
         >
+          {/* Primary — dark pill */}
           <Link
             to="/shop?category=COMBOS"
-            className="px-8 py-3.5 bg-gray-900 text-white font-semibold tracking-widest uppercase text-sm rounded-full hover:bg-rose-600 transition-all duration-300 shadow-md text-center"
+            className="group flex items-center gap-0 rounded-full bg-gray-900 pl-6 pr-2 py-2 text-white transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-rose-600 active:scale-[0.98] shadow-md"
           >
-            Shop Combos
+            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Shop Combos</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:bg-white/25 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-105">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-white">
+                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
           </Link>
+          {/* Secondary — outline */}
           <Link
             to="/gifts"
-            className="px-8 py-3.5 bg-transparent text-gray-900 font-semibold tracking-widest uppercase text-sm rounded-full border border-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 text-center"
+            className="group flex items-center gap-0 rounded-full border border-gray-900/40 bg-transparent pl-6 pr-2 py-2 text-gray-900 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-900 hover:bg-gray-900 hover:text-white active:scale-[0.98]"
           >
-            Gifting Hub
+            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Gifting Hub</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-900/20 bg-gray-900/5 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:bg-white/15 group-hover:border-white/30 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-gray-700 group-hover:text-white transition-colors duration-500">
+                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
           </Link>
         </motion.div>
       </div>
@@ -932,41 +944,67 @@ const HeroSection = () => {
       <FloatingCouponDrawer shouldShow={showButton} />
       
       <div className="relative z-10 flex flex-col items-center justify-center flex-1 text-white text-center px-4 py-16 sm:py-8">
+        {/* Eyebrow tag */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.0, ease: [0.32,0.72,0,1] }}
+          className="mb-5"
+        >
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/8 px-3.5 py-1 text-[10px] uppercase tracking-[0.25em] text-white/70 backdrop-blur-sm">
+            <span className="h-1 w-1 rounded-full bg-rose-300 inline-block" />
+            New Collection 2025
+          </span>
+        </motion.div>
+
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-4xl sm:text-5xl md:text-7xl font-serif mb-4 tracking-wide will-change-transform"
+          transition={{ duration: 0.75, delay: 0.1, ease: [0.32,0.72,0,1] }}
+          className="text-5xl sm:text-6xl md:text-8xl font-serif mb-4 tracking-wide will-change-transform leading-none"
         >
           Welcome to Sera
         </motion.h1>
-        <motion.h2 
+        <motion.p 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-base sm:text-lg md:text-2xl lg:text-3xl font-light tracking-widest uppercase drop-shadow-lg mb-10 md:mb-12"
+          transition={{ duration: 0.75, delay: 0.18, ease: [0.32,0.72,0,1] }}
+          className="text-sm sm:text-base md:text-lg font-light tracking-[0.2em] uppercase text-white/70 mb-12 md:mb-14"
         >
-          timeless elegance <span className="block md:inline font-serif italic text-rose-200">meets</span> modern intention
-        </motion.h2>
+          timeless elegance &nbsp;<span className="font-serif italic text-rose-200 normal-case tracking-normal">meets</span>&nbsp; modern intention
+        </motion.p>
 
-        {/* Hero CTA Buttons */}
+        {/* Hero CTA — Button-in-Button Island Architecture */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.35 }}
-          className="flex flex-col sm:flex-row items-center gap-4 mb-16"
+          transition={{ duration: 0.75, delay: 0.28, ease: [0.32,0.72,0,1] }}
+          className="flex flex-col sm:flex-row items-center gap-3 mb-20"
         >
+          {/* Primary CTA — solid white pill */}
           <Link
             to="/shop"
-            className="px-8 py-3.5 bg-white text-gray-900 font-semibold tracking-widest uppercase text-sm rounded-full hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-rose-400/40 min-w-[160px] text-center"
+            className="group flex items-center gap-0 rounded-full bg-white pl-6 pr-2 py-2 text-gray-900 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-rose-50 active:scale-[0.98] shadow-[0_4px_24px_rgba(255,255,255,0.18)]"
           >
-            Shop Now
+            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Shop Collection</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:bg-rose-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-105">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-white">
+                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
           </Link>
+
+          {/* Secondary CTA — ghost pill */}
           <Link
             to="/gifts"
-            className="px-8 py-3.5 bg-transparent text-white font-semibold tracking-widest uppercase text-sm rounded-full border border-white/60 hover:bg-white/10 hover:border-white transition-all duration-300 min-w-[160px] text-center backdrop-blur-sm"
+            className="group flex items-center gap-0 rounded-full border border-white/30 bg-white/5 pl-6 pr-2 py-2 text-white backdrop-blur-sm transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-white/60 hover:bg-white/10 active:scale-[0.98]"
           >
-            Gifting Hub
+            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Gifting Hub</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:border-rose-300/60 group-hover:bg-rose-400/20 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-white/80">
+                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
           </Link>
         </motion.div>
         
@@ -1010,79 +1048,107 @@ const HeroSection = () => {
 // ApparelDropSection
 // ============================================
 const ApparelDropSection = () => (
-  <section className="relative overflow-hidden bg-stone-950">
-    <div className="flex flex-col md:flex-row min-h-[85vh] md:min-h-[70vh]">
-      {/* Left: editorial image placeholder */}
-      <div className="relative w-full md:w-[55%] min-h-[50vh] md:min-h-full bg-stone-800 overflow-hidden">
-        {/* Placeholder until Cloudinary image is added */}
-        <div className="absolute inset-0 bg-gradient-to-br from-stone-700 via-stone-800 to-stone-900 flex items-center justify-center">
-          <span className="text-stone-500 text-xs tracking-[0.3em] uppercase">Apparel Image Coming Soon</span>
+  <section className="relative overflow-hidden bg-[#0c0c0c]">
+    <div className="flex flex-col md:flex-row min-h-[90vh]">
+
+      {/* LEFT: Image with Double-Bezel outer shell */}
+      <div className="relative w-full md:w-[58%] min-h-[55vw] md:min-h-full">
+        {/* Outer shell — the tray */}
+        <div className="absolute inset-3 rounded-[2rem] ring-1 ring-white/8 overflow-hidden">
+          {/* Inner core — the glass plate */}
+          <div className="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-[#0c0c0c] rounded-[calc(2rem-0.375rem)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] flex items-center justify-center overflow-hidden">
+            {/* Placeholder: replace src with your Cloudinary URL */}
+            <span className="text-stone-600 text-[10px] tracking-[0.3em] uppercase select-none">Apparel Image — Add Cloudinary URL</span>
+            {/* Subtle radial glow */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_60%,rgba(244,63,94,0.08)_0%,transparent_65%)]" />
+          </div>
         </div>
-        {/* Subtle grain overlay */}
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'1\'/%3E%3C/svg%3E")', backgroundSize: '200px' }} />
+        {/* Bottom depth shadow */}
+        <div className="absolute -bottom-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </div>
 
-      {/* Right: editorial text */}
-      <div className="relative w-full md:w-[45%] flex flex-col justify-center px-8 sm:px-12 md:px-16 py-16 md:py-24">
-        <motion.p
-          initial={{ opacity: 0, x: 20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
+      {/* RIGHT: Editorial text */}
+      <div className="relative w-full md:w-[42%] flex flex-col justify-center px-8 sm:px-12 md:px-16 lg:px-20 py-20 md:py-32">
+
+        {/* Eyebrow tag */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.32,0.72,0,1] }}
           viewport={{ once: true }}
-          className="text-stone-400 text-xs tracking-[0.35em] uppercase mb-6"
+          className="mb-8"
         >
-          New Category
-        </motion.p>
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1 text-[10px] uppercase tracking-[0.25em] text-stone-400">
+            <span className="h-1 w-1 rounded-full bg-rose-400 inline-block" />
+            New Category
+          </span>
+        </motion.div>
+
+        {/* Headline */}
         <motion.h2
-          initial={{ opacity: 0, x: 20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.08 }}
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.85, delay: 0.08, ease: [0.32,0.72,0,1] }}
           viewport={{ once: true }}
-          className="text-4xl sm:text-5xl md:text-6xl font-serif text-white leading-tight mb-6"
+          className="font-serif text-5xl sm:text-6xl md:text-[4rem] lg:text-[5rem] text-white leading-[0.92] tracking-tight mb-8"
         >
           Wear the
-          <span className="block italic text-rose-300">Sera world.</span>
+          <span className="block italic text-rose-300 mt-1">Sera world.</span>
         </motion.h2>
+
+        {/* Body */}
         <motion.p
-          initial={{ opacity: 0, x: 20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.16, ease: [0.32,0.72,0,1] }}
           viewport={{ once: true }}
-          className="text-stone-400 text-sm md:text-base leading-relaxed mb-10 max-w-sm"
+          className="text-stone-400 text-sm md:text-[15px] leading-[1.8] mb-12 max-w-[320px]"
         >
-          Minimal. Intentional. Made to move with you. Our debut apparel drop is coming — soft basics built to pair effortlessly with every Sera piece you love.
+          Minimal. Intentional. Made to move with you. Our debut apparel drop pairs effortlessly with every Sera piece you love — soft basics with an elevated edge.
         </motion.p>
+
+        {/* Button-in-Button CTAs */}
         <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.22 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.24, ease: [0.32,0.72,0,1] }}
           viewport={{ once: true }}
-          className="flex flex-col sm:flex-row gap-4"
+          className="flex flex-col sm:flex-row gap-3"
         >
           <Link
             to="/shop?category=APPAREL"
-            className="px-8 py-3.5 bg-white text-gray-900 font-semibold tracking-widest uppercase text-sm rounded-full hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-lg text-center"
+            className="group flex items-center gap-0 rounded-full bg-white pl-6 pr-2 py-2 text-gray-900 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-rose-50 active:scale-[0.98] w-fit shadow-[0_4px_32px_rgba(255,255,255,0.12)]"
           >
-            Explore Apparel
+            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Explore Apparel</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:bg-rose-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-105">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-white">
+                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
           </Link>
           <Link
             to="/size-guide"
-            className="px-8 py-3.5 bg-transparent text-white font-semibold tracking-widest uppercase text-sm rounded-full border border-white/30 hover:border-white/70 transition-all duration-300 text-center"
+            className="group flex items-center gap-0 rounded-full border border-white/15 bg-white/5 pl-6 pr-2 py-2 text-stone-300 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-white/35 hover:text-white active:scale-[0.98] w-fit"
           >
-            Size Guide
+            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Size Guide</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/8 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:border-rose-300/40 group-hover:bg-rose-400/15 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-stone-400 group-hover:text-white transition-colors duration-500">
+                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
           </Link>
         </motion.div>
 
-        {/* Bottom badge */}
+        {/* Micro-label at bottom */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          transition={{ duration: 1, delay: 0.5, ease: [0.32,0.72,0,1] }}
           viewport={{ once: true }}
-          className="mt-12 flex items-center gap-3"
+          className="mt-16 flex items-center gap-4"
         >
-          <div className="w-8 h-px bg-stone-600" />
-          <span className="text-stone-500 text-xs tracking-widest uppercase">Soft. Minimal. Effortless.</span>
+          <div className="h-px w-10 bg-stone-700" />
+          <span className="text-stone-600 text-[10px] tracking-[0.28em] uppercase">Soft. Minimal. Effortless.</span>
         </motion.div>
       </div>
     </div>
@@ -1490,6 +1556,128 @@ const InstagramFeedSection = () => {
 };
 
 // ============================================
+// BrandPromiseSection — below Instagram
+// Archetype: Asymmetric Bento, Editorial Luxury
+// ============================================
+const BrandPromiseSection = () => {
+  const pillars = [
+    {
+      label: 'Anti-Tarnish',
+      headline: 'Jewelry that lasts.',
+      body: 'Every Sera piece is crafted with PVD-grade plating that resists tarnish, sweat, water, and time. Wear it every day without a second thought.',
+      accent: 'from-rose-50 to-pink-50',
+      dot: 'bg-rose-400',
+      span: 'md:col-span-2',
+    },
+    {
+      label: 'Skin-Safe Always',
+      headline: 'Zero green. Zero irritation.',
+      body: 'Hypoallergenic materials, tested on sensitive skin. Sera is designed for people who want beauty without the compromise.',
+      accent: 'from-stone-50 to-gray-50',
+      dot: 'bg-stone-400',
+      span: 'md:col-span-1',
+    },
+    {
+      label: 'Gift-Ready',
+      headline: 'The perfect present, always.',
+      body: 'Every order ships in thoughtfully designed packaging. Birthdays, anniversaries, or just because — we handle the presentation.',
+      accent: 'from-stone-50 to-gray-50',
+      dot: 'bg-stone-400',
+      span: 'md:col-span-1',
+    },
+    {
+      label: 'Free Shipping',
+      headline: 'On orders above ₹999.',
+      body: "Across India. Every time. Because quality shouldn't come with a shipping surcharge.",
+      accent: 'from-rose-50 to-pink-50',
+      dot: 'bg-rose-300',
+      span: 'md:col-span-2',
+    },
+  ];
+
+  return (
+    <section className="bg-[#FDFBF7] py-24 md:py-32 px-4 md:px-8">
+      <div className="max-w-6xl mx-auto">
+
+        {/* Section header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.32,0.72,0,1] }}
+          viewport={{ once: true }}
+          className="mb-16 md:mb-20"
+        >
+          <span className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-100/80 px-3.5 py-1 text-[10px] uppercase tracking-[0.25em] text-stone-500 mb-6">
+            <span className="h-1 w-1 rounded-full bg-rose-400 inline-block" />
+            The Sera Standard
+          </span>
+          <h2 className="font-serif text-4xl md:text-6xl text-gray-900 leading-tight max-w-xl">
+            Made to last.
+            <span className="block italic text-rose-400">Worn to love.</span>
+          </h2>
+        </motion.div>
+
+        {/* Asymmetric Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {pillars.map((p, i) => (
+            <motion.div
+              key={p.label}
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.75, delay: i * 0.07, ease: [0.32,0.72,0,1] }}
+              viewport={{ once: true }}
+              className={`${p.span}`}
+            >
+              {/* Double-Bezel outer shell */}
+              <div className="rounded-[2rem] ring-1 ring-black/5 bg-black/[0.02] p-2 h-full">
+                {/* Inner core */}
+                <div className={`relative rounded-[calc(2rem-0.375rem)] bg-gradient-to-br ${p.accent} p-8 md:p-10 h-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] flex flex-col justify-between min-h-[200px] overflow-hidden`}>
+                  {/* Radial accent */}
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+                  <div>
+                    {/* Eyebrow */}
+                    <span className="inline-flex items-center gap-1.5 mb-5">
+                      <span className={`h-1.5 w-1.5 rounded-full ${p.dot}`} />
+                      <span className="text-[10px] uppercase tracking-[0.22em] text-stone-500 font-medium">{p.label}</span>
+                    </span>
+                    <h3 className="font-serif text-2xl md:text-3xl text-gray-900 leading-tight mb-3">{p.headline}</h3>
+                    <p className="text-sm text-stone-500 leading-relaxed max-w-xs">{p.body}</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Bottom CTA strip */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: [0.32,0.72,0,1] }}
+          viewport={{ once: true }}
+          className="mt-14 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pt-10 border-t border-stone-100"
+        >
+          <p className="text-stone-400 text-sm max-w-sm">
+            Join thousands who have made Sera their everyday luxury.
+          </p>
+          <Link
+            to="/shop"
+            className="group flex items-center gap-0 rounded-full bg-gray-900 pl-6 pr-2 py-2 text-white transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-rose-600 active:scale-[0.98] shadow-md"
+          >
+            <span className="text-xs font-semibold tracking-[0.18em] uppercase mr-3">Start Shopping</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:bg-white/25 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-105">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-white">
+                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+          </Link>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+// ============================================
 // Main Home Component
 // ============================================
 export default function Home() {
@@ -1503,6 +1691,7 @@ export default function Home() {
       <BentoCollectionsSection />
       <FloatingGallerySection />
       <InstagramFeedSection />
+      <BrandPromiseSection />
     </div>
   );
 }

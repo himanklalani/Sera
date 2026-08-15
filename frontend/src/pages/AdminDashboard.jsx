@@ -2098,7 +2098,7 @@ const AdminDashboard = () => {
                   placeholder="Optional"
                 />
               </div>
-              <div className="flex items-center gap-6 mt-6">
+              <div className="flex flex-wrap items-center gap-6 mt-6">
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -2127,6 +2127,22 @@ const AdminDashboard = () => {
                   />
                   <span className="text-sm text-gray-700">
                     First-order only
+                  </span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={couponForm.isFreeShipping}
+                    onChange={(e) =>
+                      setCouponForm({
+                        ...couponForm,
+                        isFreeShipping: e.target.checked,
+                      })
+                    }
+                    className="h-4 w-4 text-blue-500 border-gray-300 rounded"
+                  />
+                  <span className="text-sm font-semibold text-blue-700">
+                    Free Shipping
                   </span>
                 </label>
               </div>

@@ -41,6 +41,35 @@ const Returns = () => {
           </div>
         </div>
 
+        {/* Apparel Policy */}
+        <div className="bg-amber-50 p-10 rounded-2xl border-2 border-amber-200 shadow-lg mb-16">
+          <div className="w-20 h-20 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-3xl font-bold text-white">👗</span>
+          </div>
+          <h3 className="text-3xl font-bold text-gray-900 mb-4 tracking-wide text-center uppercase">Apparel Policy</h3>
+          <p className="text-xl text-amber-800 text-center font-semibold mb-8">Special rules apply for Apparel items.</p>
+          
+          <div className="grid md:grid-cols-2 gap-8 text-lg text-gray-700 text-left">
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-amber-100">
+              <h4 className="font-bold text-xl mb-3 text-amber-900 flex items-center gap-2">🔄 Apparel Exchanges</h4>
+              <ul className="space-y-2">
+                <li>• <strong>₹150 Exchange Fee</strong> (Free if our mistake)</li>
+                <li>• Subject to availability and size</li>
+              </ul>
+            </div>
+            
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-amber-100">
+              <h4 className="font-bold text-xl mb-3 text-amber-900 flex items-center gap-2">📦 Apparel Returns (Store Credit)</h4>
+              <ul className="space-y-2">
+                <li>• <strong>₹100 Return Fee</strong></li>
+                <li>• No money refunded (Store Credit Coupon Only)</li>
+                <li>• Coupon matches apparel value</li>
+                <li>• Valid for <strong>3 months</strong> on Sera Store</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* Timeline & Process */}
         <section className="space-y-12 mb-16">
           <div className="bg-rose-50 p-10 rounded-2xl border-2 border-rose-200">

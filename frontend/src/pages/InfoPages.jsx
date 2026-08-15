@@ -144,7 +144,9 @@ export const FAQ = () => {
       question: "Exchange Policy?",
       answer: (
         <span>
-          <strong>No refunds, exchanges only within 3 days.</strong> ₹100 fee (free if our mistake). See <Link to="/returns" className="text-rose-600 font-bold hover:underline">full policy</Link>.
+          <strong>No refunds, exchanges only within 3 days.</strong> ₹100 fee (free if our mistake).<br/><br/>
+          <strong>For Apparel:</strong> No refunds. Exchanges are subject to availability (₹150 fee). You may return apparel for a Store Credit Coupon (₹100 fee, valid 3 months).<br/><br/>
+          See our <Link to="/returns" className="text-rose-600 font-bold hover:underline">full policy</Link> for details.
         </span>
       )
     },

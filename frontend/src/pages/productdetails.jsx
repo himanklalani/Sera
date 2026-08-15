@@ -723,27 +723,57 @@ const ProductDetails = () => {
               {activeTab === 'shipping_returns' && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-gray-600 text-sm leading-relaxed space-y-6">
                   
-                  <div className="bg-rose-50 border border-rose-100 rounded-xl p-4">
-                    <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">🚫 NO REFUNDS</h4>
-                    <p>We maintain a strict <strong>no-refund policy</strong>. But don't worry! We're happy to offer exchanges instead. Your satisfaction matters to us.</p>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">🔄 EXCHANGES (3-Day Window)</h4>
-                    <p className="mb-2"><strong>₹100 Exchange Fee</strong> (Free if SERA made a mistake)</p>
-                    <ul className="list-disc pl-5 space-y-1">
-                      <li>Subject to availability</li>
-                      <li>Same size/quality replacement</li>
-                      <li>Only regular-priced items are eligible for exchange. Sale items are FINAL SALE.</li>
-                    </ul>
-                  </div>
+                  {product.category?.toLowerCase().includes('apparel') ? (
+                    <>
+                      <div className="bg-rose-50 border border-rose-100 rounded-xl p-4">
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">🚫 NO REFUNDS (Apparel)</h4>
+                        <p>We maintain a strict <strong>no-refund policy</strong> for all apparel.</p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">🔄 APPAREL EXCHANGES</h4>
+                        <p className="mb-2"><strong>₹150 Exchange Fee</strong> (Free if SERA made a mistake)</p>
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>Subject to availability and size.</li>
+                          <li>Only regular-priced items are eligible for exchange. Sale items are FINAL SALE.</li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">📦 APPAREL RETURNS (Store Credit)</h4>
+                        <p className="mb-2"><strong>₹100 Return Fee</strong></p>
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>If apparel is returned, no money will be refunded.</li>
+                          <li>You will receive a <strong>Coupon</strong> worth the apparel value which can be used in Sera Store.</li>
+                          <li>The coupon is valid for <strong>3 months</strong>.</li>
+                        </ul>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="bg-rose-50 border border-rose-100 rounded-xl p-4">
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">🚫 NO REFUNDS</h4>
+                        <p>We maintain a strict <strong>no-refund policy</strong>. But don't worry! We're happy to offer exchanges instead. Your satisfaction matters to us.</p>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">🔄 EXCHANGES (3-Day Window)</h4>
+                        <p className="mb-2"><strong>₹100 Exchange Fee</strong> (Free if SERA made a mistake)</p>
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>Subject to availability</li>
+                          <li>Same size/quality replacement</li>
+                          <li>Only regular-priced items are eligible for exchange. Sale items are FINAL SALE.</li>
+                        </ul>
+                      </div>
+                    </>
+                  )}
 
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">How to Exchange</h4>
+                    <h4 className="font-semibold text-gray-900 mb-2">How to Exchange/Return</h4>
                     <ol className="list-decimal pl-5 space-y-2">
-                      <li><strong>Request Exchange:</strong> Profile → My Orders → Apply within 3 days.</li>
+                      <li><strong>Request:</strong> Profile → My Orders → Apply within 3 days.</li>
                       <li><strong>Ship Back:</strong> Send with unboxing video proof.</li>
-                      <li><strong>New Piece Ships:</strong> Quality check → Exchange ships.</li>
+                      <li><strong>Resolution:</strong> Quality check → Exchange ships or Coupon is issued.</li>
                     </ol>
                   </div>
 

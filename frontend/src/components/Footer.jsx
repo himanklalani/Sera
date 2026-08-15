@@ -37,7 +37,7 @@ const Footer = () => {
               SERA is a jewellery brand born from the love of timeless simplicity. 
               Every piece in this collection is designed to celebrate you — your story, 
               your strength, your softness. Crafted with care and a keen eye for detail, 
-              our rings, bracelets, necklaces, and earrings are made to blend effortlessly 
+              our bracelets, necklaces, and earrings are made to blend effortlessly 
               into your everyday, while still standing out with grace.
             </p>
             <p>Let <span className="font-bold">SERA</span> be your everyday luxury.</p>

@@ -843,10 +843,30 @@ const GiftingSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           viewport={{ once: true }}
-          className="max-w-md text-base md:text-lg text-gray-700 leading-relaxed mb-6 md:mb-8"
+          className="max-w-md text-base md:text-lg text-gray-700 leading-relaxed mb-8 md:mb-10"
         >
           Jewellery that feels personal, packaging that looks like a celebration. Whether it's a thoughtful surprise or a spontaneous gesture, our pieces come ready to gift, no extra wrapping required.
         </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="flex flex-col sm:flex-row gap-4 justify-center"
+        >
+          <Link
+            to="/shop?category=COMBOS"
+            className="px-8 py-3.5 bg-gray-900 text-white font-semibold tracking-widest uppercase text-sm rounded-full hover:bg-rose-600 transition-all duration-300 shadow-md text-center"
+          >
+            Shop Combos
+          </Link>
+          <Link
+            to="/gifts"
+            className="px-8 py-3.5 bg-transparent text-gray-900 font-semibold tracking-widest uppercase text-sm rounded-full border border-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 text-center"
+          >
+            Gifting Hub
+          </Link>
+        </motion.div>
       </div>
     </section>
   );
@@ -924,10 +944,31 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-base sm:text-lg md:text-2xl lg:text-3xl font-light tracking-widest uppercase drop-shadow-lg mb-12"
+          className="text-base sm:text-lg md:text-2xl lg:text-3xl font-light tracking-widest uppercase drop-shadow-lg mb-10 md:mb-12"
         >
           timeless elegance <span className="block md:inline font-serif italic text-rose-200">meets</span> modern intention
         </motion.h2>
+
+        {/* Hero CTA Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.35 }}
+          className="flex flex-col sm:flex-row items-center gap-4 mb-16"
+        >
+          <Link
+            to="/shop"
+            className="px-8 py-3.5 bg-white text-gray-900 font-semibold tracking-widest uppercase text-sm rounded-full hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-rose-400/40 min-w-[160px] text-center"
+          >
+            Shop Now
+          </Link>
+          <Link
+            to="/gifts"
+            className="px-8 py-3.5 bg-transparent text-white font-semibold tracking-widest uppercase text-sm rounded-full border border-white/60 hover:bg-white/10 hover:border-white transition-all duration-300 min-w-[160px] text-center backdrop-blur-sm"
+          >
+            Gifting Hub
+          </Link>
+        </motion.div>
         
         <motion.div 
           className="absolute bottom-[15%] sm:bottom-[20%] left-1/2 transform -translate-x-1/2"
@@ -966,6 +1007,90 @@ const HeroSection = () => {
 
 
 // ============================================
+// ApparelDropSection
+// ============================================
+const ApparelDropSection = () => (
+  <section className="relative overflow-hidden bg-stone-950">
+    <div className="flex flex-col md:flex-row min-h-[85vh] md:min-h-[70vh]">
+      {/* Left: editorial image placeholder */}
+      <div className="relative w-full md:w-[55%] min-h-[50vh] md:min-h-full bg-stone-800 overflow-hidden">
+        {/* Placeholder until Cloudinary image is added */}
+        <div className="absolute inset-0 bg-gradient-to-br from-stone-700 via-stone-800 to-stone-900 flex items-center justify-center">
+          <span className="text-stone-500 text-xs tracking-[0.3em] uppercase">Apparel Image Coming Soon</span>
+        </div>
+        {/* Subtle grain overlay */}
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'1\'/%3E%3C/svg%3E")', backgroundSize: '200px' }} />
+      </div>
+
+      {/* Right: editorial text */}
+      <div className="relative w-full md:w-[45%] flex flex-col justify-center px-8 sm:px-12 md:px-16 py-16 md:py-24">
+        <motion.p
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+          className="text-stone-400 text-xs tracking-[0.35em] uppercase mb-6"
+        >
+          New Category
+        </motion.p>
+        <motion.h2
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.08 }}
+          viewport={{ once: true }}
+          className="text-4xl sm:text-5xl md:text-6xl font-serif text-white leading-tight mb-6"
+        >
+          Wear the
+          <span className="block italic text-rose-300">Sera world.</span>
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          viewport={{ once: true }}
+          className="text-stone-400 text-sm md:text-base leading-relaxed mb-10 max-w-sm"
+        >
+          Minimal. Intentional. Made to move with you. Our debut apparel drop is coming — soft basics built to pair effortlessly with every Sera piece you love.
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.22 }}
+          viewport={{ once: true }}
+          className="flex flex-col sm:flex-row gap-4"
+        >
+          <Link
+            to="/shop?category=APPAREL"
+            className="px-8 py-3.5 bg-white text-gray-900 font-semibold tracking-widest uppercase text-sm rounded-full hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-lg text-center"
+          >
+            Explore Apparel
+          </Link>
+          <Link
+            to="/size-guide"
+            className="px-8 py-3.5 bg-transparent text-white font-semibold tracking-widest uppercase text-sm rounded-full border border-white/30 hover:border-white/70 transition-all duration-300 text-center"
+          >
+            Size Guide
+          </Link>
+        </motion.div>
+
+        {/* Bottom badge */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          viewport={{ once: true }}
+          className="mt-12 flex items-center gap-3"
+        >
+          <div className="w-8 h-px bg-stone-600" />
+          <span className="text-stone-500 text-xs tracking-widest uppercase">Soft. Minimal. Effortless.</span>
+        </motion.div>
+      </div>
+    </div>
+  </section>
+);
+
+
+// ============================================
 // CategoriesSection
 // ============================================
 const CategoriesSection = () => {
@@ -983,13 +1108,18 @@ const CategoriesSection = () => {
       srcSet: ''
     },
     { 
-      name: 'RINGS', 
-      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227859/ring_dbl6hc.png',
+      name: 'NECKLACE', 
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227857/necklace_mfa0eu.jpg',
       srcSet: ''
     },
     { 
-      name: 'NECKLACE', 
-      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227857/necklace_mfa0eu.jpg',
+      name: 'COMBOS', 
+      img: '', // TODO: Add Cloudinary URL for Combos
+      srcSet: ''
+    },
+    { 
+      name: 'APPAREL', 
+      img: '', // TODO: Add Cloudinary URL for Apparel
       srcSet: ''
     },
   ], []);
@@ -1011,7 +1141,7 @@ const CategoriesSection = () => {
           Find your perfect accessory
         </p>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 md:gap-6">
           {categories.map((cat, index) => (
             <motion.div
               key={cat.name}
@@ -1023,14 +1153,20 @@ const CategoriesSection = () => {
               className="group cursor-pointer relative"
             >
               <div className="relative overflow-hidden rounded-2xl aspect-[3/4] bg-gray-100 shadow-md hover:shadow-xl transition-all duration-300">
-                <LazyImage 
-                  src={cat.img}
-                  srcSet={cat.srcSet}
-                  alt={cat.name} 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 will-change-transform"
-                  width={400}
-                  height={533}
-                />
+                {cat.img ? (
+                  <LazyImage 
+                    src={cat.img}
+                    srcSet={cat.srcSet}
+                    alt={cat.name} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 will-change-transform"
+                    width={400}
+                    height={533}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-stone-100 to-stone-200 flex items-center justify-center">
+                    <span className="text-stone-400 text-xs tracking-widest uppercase">Coming Soon</span>
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
                 
                 <div className="absolute inset-0 flex flex-col items-center justify-end pb-4 md:pb-6">
@@ -1362,6 +1498,7 @@ export default function Home() {
       <SEO canonicalUrl="https://www.serastore.in/" />
       <HeroSection />
       <CategoriesSection />
+      <ApparelDropSection />
       <GiftingSection />
       <BentoCollectionsSection />
       <FloatingGallerySection />

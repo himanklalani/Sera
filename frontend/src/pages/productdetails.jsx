@@ -32,6 +32,7 @@ const ProductDetails = () => {
   const [reviewLoading, setReviewLoading] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [reviewComment, setReviewComment] = useState('');
+  const [showSizeChart, setShowSizeChart] = useState(false);
 
 
   const getUserInfo = () => {
@@ -414,7 +415,7 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className="container mx-auto px-6 py-24">
+    <>
       <SEO 
         title={`${product.name} | Affordable Anti-Tarnish ${product.category}`}
         description={product.description?.substring(0, 160) || `Buy the ${product.name}. Affordable, waterproof, and high-quality anti-tarnish jewelry.`}
@@ -422,6 +423,7 @@ const ProductDetails = () => {
         ogImage={product.images?.[0] || FALLBACK_IMAGE}
         schema={[jsonLd, breadcrumbSchema]}
       />
+      <div className="container mx-auto px-6 py-24">
       {/* Visual Breadcrumb Trail */}
       <nav aria-label="Breadcrumb" className="mb-6 text-sm text-gray-500 font-medium">
         <ol className="flex items-center space-x-2">
@@ -640,6 +642,19 @@ const ProductDetails = () => {
                 {product.description}
               </p>
             </div>
+          )}
+
+          {/* Apparel Size Chart Button */}
+          {product.category?.toLowerCase() === 'apparel' && (
+            <button
+              onClick={() => setShowSizeChart(true)}
+              className="flex items-center gap-2 text-sm font-medium text-rose-600 border border-rose-200 rounded-lg px-4 py-2.5 hover:bg-rose-50 transition-colors w-full justify-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6h18M3 10h18M3 14h18M3 18h18" />
+              </svg>
+              View Size Chart
+            </button>
           )}
 
 
@@ -972,7 +987,77 @@ const ProductDetails = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+
+    {/* Apparel Size Chart Modal */}
+    {showSizeChart && (
+      <div
+        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+        onClick={() => setShowSizeChart(false)}
+      >
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+        <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 60 }}
+          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          className="relative bg-white w-full sm:max-w-xl rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+            <div>
+              <h2 className="text-lg font-serif font-semibold text-gray-900">Size Chart</h2>
+              <p className="text-xs text-gray-400 mt-0.5">All measurements are approximate</p>
+            </div>
+            <button
+              onClick={() => setShowSizeChart(false)}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-600"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Table */}
+          <div className="p-4 sm:p-6 overflow-x-auto">
+            {/* Unit Toggle - visual only, table always shows both */}
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-rose-50">
+                  <th className="text-left px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-rose-700 rounded-tl-lg">Size</th>
+                  <th className="text-center px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-rose-700">Chest (in)</th>
+                  <th className="text-center px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-rose-700">Chest (cm)</th>
+                  <th className="text-center px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-rose-700">Length (in)</th>
+                  <th className="text-center px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-rose-700 rounded-tr-lg">Length (cm)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { size: 'XS', chestIn: '32–33', chestCm: '81–84', lengthIn: '23', lengthCm: '58' },
+                  { size: 'S',  chestIn: '34–35', chestCm: '86–89', lengthIn: '24', lengthCm: '61' },
+                  { size: 'M',  chestIn: '36–37', chestCm: '91–94', lengthIn: '25', lengthCm: '63' },
+                  { size: 'L',  chestIn: '38–40', chestCm: '96–101', lengthIn: '26', lengthCm: '66' },
+                  { size: 'XL', chestIn: '41–43', chestCm: '104–109', lengthIn: '27', lengthCm: '68' },
+                ].map((row, i) => (
+                  <tr key={row.size} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td className="px-3 py-3 font-semibold text-gray-900 text-center">{row.size}</td>
+                    <td className="px-3 py-3 text-center text-gray-600">{row.chestIn}</td>
+                    <td className="px-3 py-3 text-center text-gray-600">{row.chestCm}</td>
+                    <td className="px-3 py-3 text-center text-gray-600">{row.lengthIn}</td>
+                    <td className="px-3 py-3 text-center text-gray-600">{row.lengthCm}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <p className="text-xs text-gray-400 mt-4 text-center">
+              If you're between sizes, we recommend sizing up for a relaxed fit.
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    )}
+    </>
   );
 };
 

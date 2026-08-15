@@ -78,7 +78,7 @@ const Shop = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
   const navigate = useNavigate();
-  const categories = ['All', 'Necklace', 'Earrings', 'Bracelet', 'Rings', 'Combos', 'Apparel'];
+  const categories = ['All', 'Necklace', 'Earrings', 'Bracelet', 'Combos', 'Apparel'];
   
   // Use refs to prevent race conditions
   const abortControllerRef = useRef(null);
@@ -483,7 +483,6 @@ const Shop = () => {
   const seoDescriptions = {
     'All': "Explore our complete collection of affordable, minimalistic, and cutesy anti-tarnish jewelry. Sera's everyday luxury pieces are waterproof, skin-safe, and designed to shine forever.",
     'Necklace': "Discover our elegant collection of anti-tarnish necklaces and dainty pendants. Perfect for layering or everyday wear, each waterproof gold necklace is designed to elevate your outfit without turning your skin green.",
-    'Rings': "Explore our signature collection of adjustable, free-size rings. Say goodbye to sizing issues with our tarnish-free, waterproof rings that fit perfectly on any finger.",
     'Earrings': "Shop lightweight, hypoallergenic earrings made for sensitive ears. From classic gold hoops to statement studs, find your new everyday staples here.",
     'Bracelet': "Stack and style with our durable, water-resistant bracelets. Designed with premium PVD plating so you can wear them through workouts, showers, and beyond.",
     'Combos': "Curated jewelry sets and bundled pairings that make the perfect gift or addition to your own collection. Enjoy more style for less.",

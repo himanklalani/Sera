@@ -82,7 +82,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
     if (query.trim() === '') {
       return (
         <div className="text-center py-12 text-gray-400">
-          <p className="text-sm mb-2">Search for Necklace, Rings...</p>
+          <p className="text-sm mb-2">Search for Necklace, Apparel...</p>
         </div>
       );
     }
@@ -139,7 +139,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
             <div className="flex items-center gap-3 mb-6 pb-4 border-b">
               <input 
                 type="text" 
-                placeholder="Search for Necklace, Rings..." 
+                placeholder="Search for Necklace, Apparel..." 
                 className="w-full border-none p-2 text-xl font-serif focus:outline-none focus:ring-2 focus:ring-rose-500 rounded-lg"
                 autoFocus
                 value={query}

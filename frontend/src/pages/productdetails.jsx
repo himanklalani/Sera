@@ -636,7 +636,7 @@ const ProductDetails = () => {
           {/* Tabs Section */}
           <div className="mt-10 bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm">
             <div className="flex overflow-x-auto hide-scrollbar border-b border-gray-100 bg-gray-50/50">
-              {['details', 'shipping', 'returns'].map((tab) => (
+              {['details', 'shipping_returns'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -644,7 +644,7 @@ const ProductDetails = () => {
                     activeTab === tab ? 'text-rose-600' : 'text-gray-400 hover:text-gray-600'
                   }`}
                 >
-                  {tab === 'details' ? 'Details & Description' : tab === 'shipping' ? 'Shipping & Delivery' : 'Return & Exchange'}
+                  {tab === 'details' ? 'Details & Description' : 'Shipping & Returns'}
                   {activeTab === tab && (
                     <motion.div layoutId="activeTabIndicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-rose-600" />
                   )}
@@ -662,22 +662,47 @@ const ProductDetails = () => {
                   {product.description}
                 </motion.div>
               )}
-              {activeTab === 'shipping' && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-gray-600 text-sm leading-relaxed">
-                  <ul className="space-y-4">
-                    <li className="flex items-start gap-3"><FaTruck className="text-rose-400 mt-1" /> <span>Free shipping on all orders above INR 999.</span></li>
-                    <li className="flex items-start gap-3"><FaTruck className="text-rose-400 mt-1 opacity-0" /> <span>Standard delivery within 3-5 business days.</span></li>
-                    <li className="flex items-start gap-3"><FaTruck className="text-rose-400 mt-1 opacity-0" /> <span>Express delivery available at checkout.</span></li>
-                  </ul>
-                </motion.div>
-              )}
-              {activeTab === 'returns' && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-gray-600 text-sm leading-relaxed">
-                  <ul className="space-y-4">
-                    <li className="flex items-start gap-3"><svg className="h-4 w-4 text-rose-400 mt-1 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg> <span>Easy 7 days returns and exchanges for unworn items.</span></li>
-                    <li className="flex items-start gap-3"><svg className="h-4 w-4 text-rose-400 mt-1 opacity-0 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M0 0h24v24H0z" fill="none"/></svg> <span>Items must be returned in original packaging with tags intact.</span></li>
-                    <li className="flex items-start gap-3"><svg className="h-4 w-4 text-rose-400 mt-1 opacity-0 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M0 0h24v24H0z" fill="none"/></svg> <span>Refunds are processed within 5-7 business days of receiving the item.</span></li>
-                  </ul>
+              {activeTab === 'shipping_returns' && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-gray-600 text-sm leading-relaxed space-y-6">
+                  
+                  <div className="bg-rose-50 border border-rose-100 rounded-xl p-4">
+                    <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">🚫 NO REFUNDS</h4>
+                    <p>We maintain a strict <strong>no-refund policy</strong>. But don't worry! We're happy to offer exchanges instead. Your satisfaction matters to us.</p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">🔄 EXCHANGES (3-Day Window)</h4>
+                    <p className="mb-2"><strong>₹100 Exchange Fee</strong> (Free if SERA made a mistake)</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Subject to availability</li>
+                      <li>Same size/quality replacement</li>
+                      <li>Only regular-priced items are eligible for exchange. Sale items are FINAL SALE.</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">How to Exchange</h4>
+                    <ol className="list-decimal pl-5 space-y-2">
+                      <li><strong>Request Exchange:</strong> Profile → My Orders → Apply within 3 days.</li>
+                      <li><strong>Ship Back:</strong> Send with unboxing video proof.</li>
+                      <li><strong>New Piece Ships:</strong> Quality check → Exchange ships.</li>
+                    </ol>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Order Cancellations & Shipping</h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>For orders cancelled on <em>pending</em> status, no fees are applicable.</li>
+                      <li>For orders cancelled on <em>processing</em> status, a fee of ₹100 will be applicable.</li>
+                      <li><strong>Orders cannot be cancelled once shipped.</strong></li>
+                      <li>If your order arrives damaged during shipping, contact us within 3 days with an unboxing video for a FREE exchange.</li>
+                    </ul>
+                  </div>
+
+                  <p className="text-xs text-gray-400 pt-4 border-t border-gray-100">
+                    *UNBOXING VIDEO required as proof for all damage or wrong-item claims. Need Help? Contact us via Email, WhatsApp, or Instagram DM.
+                  </p>
+
                 </motion.div>
               )}
             </div>

@@ -1001,7 +1001,7 @@ const ApparelDropSection = () => (
           {/* Inner core — the glass plate */}
           <div className="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-[#0c0c0c] rounded-[calc(2rem-0.375rem)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] flex items-center justify-center overflow-hidden">
             {/* Placeholder: replace src with your Cloudinary URL */}
-            <span className="text-stone-600 text-[10px] tracking-[0.3em] uppercase select-none">Apparel Image — Add Cloudinary URL</span>
+            <span className="text-stone-600 text-[10px] tracking-[0.3em] uppercase select-none">COMING SOON</span>
             {/* Subtle radial glow */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_60%,rgba(244,63,94,0.08)_0%,transparent_65%)]" />
           </div>

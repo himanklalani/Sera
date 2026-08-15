@@ -532,11 +532,51 @@ const ProductDetails = () => {
                   <FaShareAlt />
                 </button>
                 {showShareMenu && (
-                  <div className="absolute right-0 mt-2 bg-white shadow-xl rounded-xl border border-gray-100 p-2 z-50 flex gap-2">
-                    <button onClick={() => handleShare('copy')} className="p-2 hover:bg-gray-50 rounded-lg text-gray-600"><FaLink /></button>
-                    <button onClick={() => handleShare('whatsapp')} className="p-2 hover:bg-green-50 rounded-lg text-green-600"><FaWhatsapp /></button>
-                    <button onClick={() => handleShare('email')} className="p-2 hover:bg-orange-50 rounded-lg text-orange-600"><FaEnvelope /></button>
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-100 py-2 z-50 w-56"
+                  >
+                    <button
+                      onClick={() => handleShare('copy')}
+                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-rose-50 transition-colors text-gray-700 hover:text-rose-600 font-medium"
+                    >
+                      <span className="text-xl"><FaLink /></span>
+                      Copy Link
+                    </button>
+                    <button
+                      onClick={() => handleShare('whatsapp')}
+                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-green-50 transition-colors text-gray-700 hover:text-green-600 font-medium"
+                    >
+                      <span className="text-xl"><FaWhatsapp /></span>
+                      WhatsApp
+                    </button>
+                    <button
+                      onClick={() => handleShare('email')}
+                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-orange-50 transition-colors text-gray-700 hover:text-orange-600 font-medium"
+                    >
+                      <span className="text-xl"><FaEnvelope /></span>
+                      Email
+                    </button>
+                    <button
+                      onClick={() => handleShare('instagram')}
+                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-pink-50 transition-colors text-gray-700 hover:text-pink-600 font-medium"
+                    >
+                      <span className="text-xl"><FaInstagram /></span>
+                      Instagram
+                    </button>
+                    {navigator.share && (
+                      <button
+                        onClick={() => handleShare('native')}
+                        className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-purple-50 transition-colors text-gray-700 hover:text-purple-600 font-medium border-t border-gray-100"
+                      >
+                        <span className="text-xl"><FaShareSquare /></span>
+                        Share with an Image
+                      </button>
+                    )}
+                  </motion.div>
                 )}
               </div>
 

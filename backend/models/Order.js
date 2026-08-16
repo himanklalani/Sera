@@ -22,6 +22,10 @@ const orderSchema = new mongoose.Schema({
       required: true, 
       min: 0 
     },
+    size: {
+      type: String,
+      trim: true
+    },
     name: String // Add product name for reference
   }],
   totalPrice: { 

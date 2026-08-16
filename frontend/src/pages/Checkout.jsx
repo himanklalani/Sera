@@ -245,7 +245,8 @@ const Checkout = () => {
         orderItems: cartItems.map(item => ({
           product: item.product._id,
           quantity: item.quantity,
-          price: item.product.price
+          price: item.product.price,
+          size: item.size
         })),
         shippingAddress: {
           street: selectedAddress.street,
@@ -279,7 +280,8 @@ const Checkout = () => {
             item_name: item.product.name,
             item_category: item.product.category,
             price: Math.round(item.product.price * 0.5),
-            quantity: item.quantity
+            quantity: item.quantity,
+            size: item.size
           }))
         } 
       });
@@ -379,6 +381,7 @@ const Checkout = () => {
                 product: item.product._id,
                 quantity: item.quantity,
                 price: item.product.price,
+                size: item.size,
               })),
               shippingAddress: {
                 street: selectedAddress.street,
@@ -412,7 +415,8 @@ const Checkout = () => {
                   item_name: item.product.name,
                   item_category: item.product.category,
                   price: item.product.price,
-                  quantity: item.quantity
+                  quantity: item.quantity,
+                  size: item.size
                 }))
               } 
             });
@@ -528,7 +532,7 @@ const Checkout = () => {
                   <div key={item.product._id} className="flex justify-between items-center text-sm">
                     <div className="flex items-center gap-3">
                        <span className="text-gray-500">{item.quantity}x</span>
-                       <span className="truncate max-w-[150px]">{item.product.name}</span>
+                       <span className="truncate max-w-[150px]">{item.product.name} {item.size && <span className="text-gray-400 text-xs ml-1">(Size: {item.size})</span>}</span>
                     </div>
                     <span>INR {item.quantity * item.product.price}</span>
                   </div>

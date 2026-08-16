@@ -174,7 +174,8 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     items: orderItems.map(item => ({
       product: item.product,
       quantity: item.quantity,
-      price: item.price
+      price: item.price,
+      size: item.size
     })),
     shippingAddress: {
       street: shippingAddress.street,
@@ -341,7 +342,8 @@ router.get('/:id/invoice', protect, asyncHandler(async (req, res) => {
   let currentY = tableTop + 25;
 
   order.items.forEach((item) => {
-    const name = item.name || item.product?.name || 'Product';
+    const baseName = item.name || item.product?.name || 'Product';
+    const name = item.size ? `${baseName} (Size: ${item.size})` : baseName;
     const quantity = item.quantity || 1;
     // Use the actual price stored in the order item
     const priceRaw = item.price || 0;

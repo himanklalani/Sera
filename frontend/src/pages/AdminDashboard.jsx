@@ -1761,7 +1761,7 @@ const AdminDashboard = () => {
                             <span className="font-medium">
                               {item.name || item.product?.name || 'Product'}
                             </span>
-                            <span className="text-gray-500"> × {item.quantity}</span>
+                            <span className="text-gray-500"> × {item.quantity}{item.size && ` (Size: ${item.size})`}</span>
                           </div>
                         ))
                       ) : (

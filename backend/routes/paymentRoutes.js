@@ -177,6 +177,7 @@ router.post(
         product: item.product,
         quantity: item.quantity,
         price: item.price,
+        size: item.size
       })),
       shippingAddress: {
         street: shippingAddress.street,

@@ -524,7 +524,7 @@ const Profile = () => {
                             </div>
                             <div className="flex-1">
                               <h4 className="font-serif text-gray-900">{item.product?.name || 'Product'}</h4>
-                              <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                              <p className="text-sm text-gray-500">Qty: {item.quantity}{item.size && ` | Size: ${item.size}`}</p>
                             </div>
                             <div className="text-right">
                               <p className="font-medium text-gray-900">INR {item.price}</p>

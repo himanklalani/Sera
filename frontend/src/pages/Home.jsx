@@ -854,7 +854,7 @@ const GiftingSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.2, ease: [0.32,0.72,0,1] }}
           viewport={{ once: true }}
-          className="flex flex-col sm:flex-row gap-3 justify-center"
+          className="flex flex-col sm:flex-row gap-6 sm:gap-8 justify-center items-center"
         >
           <FramerButton to="/shop?category=COMBOS" variant="dark">Shop Combos</FramerButton>
           <TextArrowCTA to="/gifts" variant="dark">Gifting Hub</TextArrowCTA>

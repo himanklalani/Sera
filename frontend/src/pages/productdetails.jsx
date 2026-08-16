@@ -718,21 +718,23 @@ const ProductDetails = () => {
               )}
             </button>
 
-            {/* Features/Trust Badges */}
-            <div className="grid grid-cols-3 gap-2 pt-5 border-t border-gray-100">
-              <div className="flex flex-col items-center text-center gap-2">
-                <FaTint className="text-gray-400 text-xl" />
-                <span className="text-[10px] md:text-xs uppercase font-medium tracking-wide text-gray-500">Sweatproof</span>
+            {/* Features/Trust Badges (Hidden for Apparel) */}
+            {!(product.category?.toLowerCase().includes('apparel')) && (
+              <div className="grid grid-cols-3 gap-2 pt-5 border-t border-gray-100">
+                <div className="flex flex-col items-center text-center gap-2">
+                  <FaTint className="text-gray-400 text-xl" />
+                  <span className="text-[10px] md:text-xs uppercase font-medium tracking-wide text-gray-500">Sweatproof</span>
+                </div>
+                <div className="flex flex-col items-center text-center gap-2">
+                  <FaGem className="text-gray-400 text-xl" />
+                  <span className="text-[10px] md:text-xs uppercase font-medium tracking-wide text-gray-500">Premium Finish</span>
+                </div>
+                <div className="flex flex-col items-center text-center gap-2">
+                  <FaTruck className="text-gray-400 text-xl" />
+                  <span className="text-[10px] md:text-xs uppercase font-medium tracking-wide text-gray-500">Free Shipping<br/>Above ₹999</span>
+                </div>
               </div>
-              <div className="flex flex-col items-center text-center gap-2">
-                <FaGem className="text-gray-400 text-xl" />
-                <span className="text-[10px] md:text-xs uppercase font-medium tracking-wide text-gray-500">Premium Finish</span>
-              </div>
-              <div className="flex flex-col items-center text-center gap-2">
-                <FaTruck className="text-gray-400 text-xl" />
-                <span className="text-[10px] md:text-xs uppercase font-medium tracking-wide text-gray-500">Free Shipping<br/>Above ₹999</span>
-              </div>
-            </div>
+            )}
             
             {/* Original Shipping Notice */}
             <div className="absolute -bottom-8 left-0 right-0 flex items-center justify-center gap-1.5 text-gray-400 text-[11px] font-medium tracking-wide">

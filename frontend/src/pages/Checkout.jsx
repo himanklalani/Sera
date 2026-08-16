@@ -47,11 +47,7 @@ const Checkout = () => {
   useEffect(() => {
     if (proceedAfterRender && !showStockModal) {
       setProceedAfterRender(false);
-      if (paymentMethod === 'cod') {
-        handlePlaceOrder();
-      } else {
-        handleRazorpayPayment();
-      }
+      handleRazorpayPayment();
     }
   }, [cartItems, proceedAfterRender, paymentMethod, showStockModal]);
 
@@ -256,11 +252,7 @@ const Checkout = () => {
       }
       
       // All items in stock
-      if (paymentMethod === 'cod') {
-        handlePlaceOrder();
-      } else {
-        handleRazorpayPayment();
-      }
+      handleRazorpayPayment();
     } catch (e) {
        console.error('Error validating stock:', e);
        toast.error("Error validating stock before checkout.");

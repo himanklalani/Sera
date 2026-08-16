@@ -1125,9 +1125,9 @@ const CategoriesSection = () => {
               transition={{ duration: 0.3, delay: index * 0.03 }}
               viewport={{ once: true }}
               onClick={() => navigate(`/shop?category=${cat.name}`)}
-              className="group cursor-pointer relative"
+              className={`group cursor-pointer relative ${index === 4 ? 'col-span-2 sm:col-span-1' : ''}`}
             >
-              <div className="relative overflow-hidden rounded-2xl aspect-[3/4] bg-gray-100 shadow-md hover:shadow-xl transition-all duration-300">
+              <div className={`relative overflow-hidden rounded-2xl bg-gray-100 shadow-md hover:shadow-xl transition-all duration-300 ${index === 4 ? 'aspect-[2/1] sm:aspect-[3/4]' : 'aspect-[3/4]'}`}>
                 {cat.img ? (
                   <LazyImage 
                     src={cat.img}

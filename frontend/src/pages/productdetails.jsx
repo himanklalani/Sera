@@ -669,12 +669,41 @@ const ProductDetails = () => {
             </div>
           )}
 
-          {/* Add to Cart Area */}
-          <div className="mt-8 border-t border-gray-100 pt-6">
+          {/* Add to Cart Area & Features Box */}
+          <div className="mt-8 border border-gray-200 rounded-[20px] p-4 sm:p-5 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] bg-white relative">
+            
+            {/* Quantity and Stock */}
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white/50">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                >
+                  <FaMinus className="w-3 h-3" />
+                </button>
+                <span className="w-8 text-center font-semibold text-gray-800 text-sm">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                  className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                  disabled={quantity >= product.stock}
+                >
+                  <FaPlus className="w-3 h-3" />
+                </button>
+              </div>
+              <span className="text-sm font-medium text-gray-500">
+                {product.stock > 0 ? (
+                  <span className={product.stock <= 5 ? "text-orange-500" : ""}>{product.stock} in stock</span>
+                ) : (
+                  <span className="text-red-500">Out of stock</span>
+                )}
+              </span>
+            </div>
+
+            {/* Add to Cart Button */}
             <button
               onClick={handleAddToCart}
               disabled={addingToCart || product.stock === 0}
-              className="w-full bg-rose-600 text-white py-4 px-8 rounded-full uppercase tracking-[0.15em] font-medium text-sm shadow-xl hover:shadow-2xl hover:-translate-y-0.5 hover:bg-rose-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all duration-300 flex items-center justify-center gap-3"
+              className="w-full bg-[#e3004b] text-white py-3.5 px-8 rounded-xl uppercase tracking-widest font-semibold text-sm shadow-md hover:shadow-lg hover:bg-[#cc0043] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-3 mb-6"
             >
               {addingToCart ? (
                 <>
@@ -682,11 +711,31 @@ const ProductDetails = () => {
                   Adding...
                 </>
               ) : (
-                product.stock === 0 ? 'Out of Stock' : 'Add to Cart'
+                <>
+                  <FaShoppingCart className="w-4 h-4" />
+                  {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                </>
               )}
             </button>
-            <div className="flex items-center justify-center gap-2 mt-5 text-gray-500 text-sm font-medium tracking-wide">
-              <FaTruck className="w-4 h-4 text-gray-400" />
+
+            {/* Features/Trust Badges */}
+            <div className="grid grid-cols-3 gap-2 pt-5 border-t border-gray-100">
+              <div className="flex flex-col items-center text-center gap-2">
+                <FaTint className="text-gray-400 text-xl" />
+                <span className="text-[10px] md:text-xs uppercase font-medium tracking-wide text-gray-500">Sweatproof</span>
+              </div>
+              <div className="flex flex-col items-center text-center gap-2">
+                <FaGem className="text-gray-400 text-xl" />
+                <span className="text-[10px] md:text-xs uppercase font-medium tracking-wide text-gray-500">Premium Finish</span>
+              </div>
+              <div className="flex flex-col items-center text-center gap-2">
+                <FaTruck className="text-gray-400 text-xl" />
+                <span className="text-[10px] md:text-xs uppercase font-medium tracking-wide text-gray-500">Free Shipping<br/>Above ₹999</span>
+              </div>
+            </div>
+            
+            {/* Original Shipping Notice */}
+            <div className="absolute -bottom-8 left-0 right-0 flex items-center justify-center gap-1.5 text-gray-400 text-[11px] font-medium tracking-wide">
               <span>{product.category?.toLowerCase().includes('apparel') ? 'Shipped in 7-10 business days' : 'Shipped in 5-7 business days'}</span>
             </div>
           </div>

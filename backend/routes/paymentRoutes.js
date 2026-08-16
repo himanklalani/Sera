@@ -13,7 +13,7 @@ router.post(
   '/create-order',
   protect,
   asyncHandler(async (req, res) => {
-    const { amount, currency, receipt } = req.body;
+    const { amount, currency, receipt, orderItems } = req.body;
 
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -26,6 +26,21 @@ router.post(
     if (!amount || amount <= 0) {
       res.status(400);
       throw new Error('Valid amount is required');
+    }
+
+    // ✅ VALIDATE STOCK BEFORE CREATING RAZORPAY ORDER
+    if (orderItems && Array.isArray(orderItems) && orderItems.length > 0) {
+      for (const item of orderItems) {
+        const product = await Product.findById(item.product);
+        if (!product) {
+          res.status(404);
+          throw new Error('Product not found in cart');
+        }
+        if (product.stock < item.quantity) {
+          res.status(400);
+          throw new Error(`Out of stock: ${product.name} only has ${product.stock} items left.`);
+        }
+      }
     }
 
     const orderPayload = {

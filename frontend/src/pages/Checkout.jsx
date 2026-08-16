@@ -344,6 +344,10 @@ const Checkout = () => {
         {
           amount: amountInPaise,
           currency: 'INR',
+          orderItems: cartItems.map(item => ({
+            product: item.product._id,
+            quantity: item.quantity
+          }))
         },
         config
       );

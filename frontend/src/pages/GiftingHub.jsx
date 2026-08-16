@@ -83,7 +83,7 @@ const GiftingHub = () => {
             </div>
             <div>
               <h4 className="font-bold text-gray-900 mb-2 text-lg">Free Shipping</h4>
-              <p className="text-gray-600">Complimentary fast shipping on all orders over ₹999.</p>
+              <p className="text-gray-600">Free shipping on all orders over ₹999.</p>
             </div>
           </div>
         </div>

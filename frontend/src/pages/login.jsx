@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCart } from '../components/CartContext';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const { fetchCart } = useCart();
@@ -27,6 +28,26 @@ const Login = () => {
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setIsLoading(true);
+    try {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
+        credential: credentialResponse.credential
+      });
+      localStorage.setItem('userInfo', JSON.stringify(data));
+      await fetchCart();
+      if (data.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Google Login failed');
     } finally {
       setIsLoading(false);
     }
@@ -61,6 +82,26 @@ const Login = () => {
             
             {error && <div className="bg-red-50 text-red-600 p-3 rounded mb-6 text-sm text-center border border-red-100">{error}</div>}
             
+            <div className="flex justify-center mb-6">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => {
+                  setError('Google Login Failed');
+                }}
+                useOneTap
+                theme="outline"
+                size="large"
+                shape="rectangular"
+                width="100%"
+              />
+            </div>
+
+            <div className="relative mb-6 flex items-center">
+              <div className="flex-grow border-t border-gray-300"></div>
+              <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">or sign in with email</span>
+              <div className="flex-grow border-t border-gray-300"></div>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>

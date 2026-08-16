@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { GoogleLogin } from '@react-oauth/google';
 
 
 const Register = () => {
@@ -37,6 +38,20 @@ const Register = () => {
       setLoading(false);
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    try {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
+        credential: credentialResponse.credential
+      });
+      localStorage.setItem('userInfo', JSON.stringify(data));
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Google Sign Up failed');
       setLoading(false);
     }
   };
@@ -112,6 +127,27 @@ const Register = () => {
                   
                   {error && <div className="bg-red-50 text-red-600 p-3 rounded mb-6 text-sm text-center border border-red-100">{error}</div>}
                   
+                  <div className="flex justify-center mb-6">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={() => {
+                        setError('Google Sign Up Failed');
+                      }}
+                      useOneTap
+                      theme="outline"
+                      size="large"
+                      shape="rectangular"
+                      text="signup_with"
+                      width="100%"
+                    />
+                  </div>
+
+                  <div className="relative mb-6 flex items-center">
+                    <div className="flex-grow border-t border-gray-300"></div>
+                    <span className="flex-shrink-0 mx-4 text-gray-400 text-sm">or sign up with email</span>
+                    <div className="flex-grow border-t border-gray-300"></div>
+                  </div>
+
                   <form onSubmit={handleRegister} className="space-y-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>

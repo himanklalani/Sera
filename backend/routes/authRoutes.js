@@ -9,6 +9,9 @@ const { protect } = require('../middleware/authMiddleware');
 const mongoose = require('mongoose');
 const { sendOTPEmail, sendPasswordResetEmail } = require('../services/emailService');
 const Coupon = require('../models/Coupon');
+const { OAuth2Client } = require('google-auth-library');
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '1044495202416-cl3arubdl0uc925ro9lg4f9fv13tjdr9.apps.googleusercontent.com');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'secret', {
@@ -219,6 +222,89 @@ router.post('/login', asyncHandler(async (req, res) => {
   } else {
     res.status(401);
     throw new Error('Invalid email or password');
+  }
+}));
+
+// @desc    Google Login
+// @route   POST /api/auth/google
+// @access  Public
+router.post('/google', asyncHandler(async (req, res) => {
+  const { credential } = req.body;
+  if (!credential) {
+    res.status(400);
+    throw new Error('Google token missing');
+  }
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID || '1044495202416-cl3arubdl0uc925ro9lg4f9fv13tjdr9.apps.googleusercontent.com',
+    });
+    
+    const payload = ticket.getPayload();
+    const { email, name, sub } = payload;
+
+    let user = await User.findOne({ email });
+
+    if (user) {
+      // User exists, log them in
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        token: generateToken(user._id),
+      });
+    } else {
+      // User doesn't exist, create them
+      // We generate a placeholder phone since it's required & unique in DB
+      const placeholderPhone = `google_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      // Generate a highly secure random password since they won't use it
+      const randomPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10) + '!@#';
+      
+      user = await User.create({
+        name,
+        email,
+        password: randomPassword,
+        phone: placeholderPhone,
+        isEmailVerified: true,
+        authProvider: 'google'
+      });
+
+      // Give them the first order coupon
+      const firstOrderCouponCode = process.env.FIRST_ORDER_COUPON_CODE || 'FIRST10';
+      await Coupon.findOneAndUpdate(
+        { code: firstOrderCouponCode },
+        {
+          $setOnInsert: {
+            code: firstOrderCouponCode,
+            discountType: 'percentage',
+            discountValue: 10,
+            minOrderValue: 0,
+            isActive: true,
+            isFirstOrderOnly: true,
+          },
+        },
+        { upsert: true, new: true }
+      );
+
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        isEmailVerified: user.isEmailVerified,
+        token: generateToken(user._id),
+        message: 'Registration successful! Welcome to Sera Jewelry.',
+        firstOrderCouponCode,
+      });
+    }
+  } catch (error) {
+    console.error('Google Auth Error:', error);
+    res.status(401);
+    throw new Error('Invalid Google Token');
   }
 }));
 

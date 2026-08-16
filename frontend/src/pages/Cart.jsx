@@ -149,8 +149,13 @@ const Cart = () => {
                           </span>
                         )}
                       </p>
-                      <p className="font-medium text-rose-600">
-                        INR {item.product.price || 0}
+                      <p className="font-medium text-rose-600 flex items-center gap-3">
+                        <span>INR {item.product.price || 0}</span>
+                        {item.product.stock === 0 && (
+                          <span className="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded">
+                            OUT OF STOCK
+                          </span>
+                        )}
                       </p>
                     </>
                   ) : (
@@ -166,12 +171,12 @@ const Cart = () => {
                 </div>
 
                 <div className="flex items-center gap-4 mt-4 sm:mt-0">
-                  <div className={`flex items-center border border-gray-300 rounded ${!item.product ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <div className={`flex items-center border border-gray-300 rounded ${!item.product || item.product.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <button
                       onClick={() =>
-                        item.product && handleQuantityChange(item.product._id, item.quantity - 1)
+                        item.product && item.product.stock > 0 && handleQuantityChange(item.product._id, item.quantity - 1)
                       }
-                      disabled={!item.product}
+                      disabled={!item.product || item.product.stock === 0}
                       className="p-2 hover:bg-gray-100 text-gray-600 disabled:cursor-not-allowed"
                     >
                       <FaMinus size={12} />
@@ -179,9 +184,9 @@ const Cart = () => {
                     <span className="px-4 font-medium">{item.quantity}</span>
                     <button
                       onClick={() =>
-                        item.product && handleQuantityChange(item.product._id, item.quantity + 1)
+                        item.product && item.product.stock > 0 && handleQuantityChange(item.product._id, item.quantity + 1)
                       }
-                      disabled={!item.product}
+                      disabled={!item.product || item.product.stock === 0}
                       className="p-2 hover:bg-gray-100 text-gray-600 disabled:cursor-not-allowed"
                     >
                       <FaPlus size={12} />

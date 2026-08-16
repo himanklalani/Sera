@@ -17,24 +17,14 @@ const getCleanCart = async (cartId) => {
 
   for (const item of cart.items) {
     if (item.product !== null) {
-      if (item.product.stock > 0) {
-        // Cap quantity to available stock
-        if (item.quantity > item.product.stock) {
-          item.quantity = item.product.stock;
-          stockAdjusted = true;
-        }
-        validItems.push(item);
-      } else {
-        // Out of stock completely
-        itemsRemoved = true;
-      }
+      validItems.push(item);
     } else {
-      // Product deleted
+      // Product deleted from DB entirely
       itemsRemoved = true;
     }
   }
 
-  if (itemsRemoved || stockAdjusted) {
+  if (itemsRemoved) {
     cart.items = validItems;
     await cart.save();
     // Re-populate after filtering to ensure consistency

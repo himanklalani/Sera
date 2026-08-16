@@ -20,6 +20,9 @@ const Checkout = () => {
   const [couponError, setCouponError] = useState('');
   const [razorpayLoading, setRazorpayLoading] = useState(false);
   const [addons, setAddons] = useState([]);
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [outOfStockItems, setOutOfStockItems] = useState([]);
+  const [proceedAfterRender, setProceedAfterRender] = useState(false);
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
@@ -40,6 +43,17 @@ const Checkout = () => {
       document.body.appendChild(script);
     });
   };
+
+  useEffect(() => {
+    if (proceedAfterRender && !showStockModal) {
+      setProceedAfterRender(false);
+      if (paymentMethod === 'cod') {
+        handlePlaceOrder();
+      } else {
+        handleRazorpayPayment();
+      }
+    }
+  }, [cartItems, proceedAfterRender, paymentMethod, showStockModal]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -200,6 +214,65 @@ const Checkout = () => {
     } finally {
       setCouponLoading(false);
     }
+  };
+
+
+  const handleCheckoutClick = async () => {
+    setRazorpayLoading(true);
+    try {
+      const storedUserInfo = localStorage.getItem('userInfo');
+      if (!storedUserInfo) {
+        navigate('/login');
+        return;
+      }
+      const userInfo = JSON.parse(storedUserInfo);
+      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+      
+      const cartRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, config);
+      const liveItems = cartRes.data.items || [];
+      
+      const unavailable = [];
+      const available = [];
+
+      cartItems.forEach(cartItem => {
+        const liveItem = liveItems.find(li => li.product._id === cartItem.product._id && (li.size === cartItem.size || !li.size));
+        if (!liveItem || liveItem.product.stock < cartItem.quantity) {
+          unavailable.push(cartItem);
+        } else {
+          available.push(cartItem);
+        }
+      });
+
+      if (unavailable.length > 0) {
+        if (available.length === 0) {
+          toast.error("All items in your cart are currently out of stock.");
+          setRazorpayLoading(false);
+          return;
+        }
+        setOutOfStockItems(unavailable);
+        setShowStockModal(true);
+        setRazorpayLoading(false);
+        return;
+      }
+      
+      // All items in stock
+      if (paymentMethod === 'cod') {
+        handlePlaceOrder();
+      } else {
+        handleRazorpayPayment();
+      }
+    } catch (e) {
+       console.error('Error validating stock:', e);
+       toast.error("Error validating stock before checkout.");
+       setRazorpayLoading(false);
+    }
+  };
+
+  const handleProceedWithAvailable = () => {
+    setShowStockModal(false);
+    const available = cartItems.filter(ci => !outOfStockItems.some(osi => osi.product._id === ci.product._id && osi.size === ci.size));
+    setCartItems(available);
+    setProceedAfterRender(true);
   };
 
 
@@ -660,7 +733,7 @@ const Checkout = () => {
 
 
               <button 
-                onClick={handleRazorpayPayment}
+                onClick={handleCheckoutClick}
                 disabled={cartItems.length === 0 || !selectedAddress || razorpayLoading}
                 className="w-full mt-8 bg-black text-white py-4 rounded uppercase tracking-widest hover:bg-gray-800 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -697,7 +770,47 @@ const Checkout = () => {
         </div>
       </div>
     </div>
-  
+
+      {showStockModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm transition-opacity duration-300">
+          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-lg w-full transform transition-all duration-300">
+            <h3 className="text-2xl font-serif text-gray-900 mb-4">Stock Update</h3>
+            <p className="text-gray-600 mb-6">
+              The following items are currently out of stock or have limited availability:
+            </p>
+            <div className="bg-gray-50 rounded-lg p-4 mb-6 max-h-48 overflow-y-auto">
+              <ul className="space-y-3">
+                {outOfStockItems.map((item, index) => (
+                  <li key={index} className="flex justify-between items-center text-sm border-b border-gray-200 pb-2 last:border-0 last:pb-0">
+                    <span className="font-medium text-gray-800">
+                      {item.product.name} {item.size && `(Size: ${item.size})`}
+                    </span>
+                    <span className="text-red-500 font-medium">Out of Stock</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p className="text-gray-700 font-medium mb-8">
+              Do you want to continue checking out with only the available items?
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-end">
+              <button
+                onClick={() => setShowStockModal(false)}
+                className="px-6 py-3 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleProceedWithAvailable}
+                className="px-6 py-3 bg-black text-white rounded-md font-medium hover:bg-gray-800 transition-colors shadow-lg"
+              >
+                Continue Checkout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 };

@@ -8,14 +8,34 @@ const Product = require('../models/Product'); // ADD THIS IMPORT
 // Helper to clean and populate cart
 const getCleanCart = async (cartId) => {
   let cart = await Cart.findById(cartId).populate('items.product');
-  if (!cart) return { cart: null, itemsRemoved: false };
+  if (!cart) return { cart: null, itemsRemoved: false, stockAdjusted: false };
 
-  const initialCount = cart.items.length;
-  cart.items = cart.items.filter(item => item.product !== null);
-  
   let itemsRemoved = false;
-  if (cart.items.length !== initialCount) {
-    itemsRemoved = true;
+  let stockAdjusted = false;
+
+  const validItems = [];
+
+  for (const item of cart.items) {
+    if (item.product !== null) {
+      if (item.product.stock > 0) {
+        // Cap quantity to available stock
+        if (item.quantity > item.product.stock) {
+          item.quantity = item.product.stock;
+          stockAdjusted = true;
+        }
+        validItems.push(item);
+      } else {
+        // Out of stock completely
+        itemsRemoved = true;
+      }
+    } else {
+      // Product deleted
+      itemsRemoved = true;
+    }
+  }
+
+  if (itemsRemoved || stockAdjusted) {
+    cart.items = validItems;
     await cart.save();
     // Re-populate after filtering to ensure consistency
     cart = await Cart.findById(cartId).populate('items.product');
@@ -23,6 +43,7 @@ const getCleanCart = async (cartId) => {
 
   const cartObj = cart.toObject();
   cartObj.itemsRemoved = itemsRemoved;
+  cartObj.stockAdjusted = stockAdjusted;
   return cartObj;
 };
 

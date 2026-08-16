@@ -289,6 +289,21 @@ const Checkout = () => {
       console.error('Error placing order:', error);
       const errorMsg = error.response?.data?.message || 'Failed to place order.';
       toast.error(errorMsg);
+      
+      // Auto-sync cart if stock error
+      if (errorMsg.toLowerCase().includes('stock') || errorMsg.toLowerCase().includes('left')) {
+        const storedUserInfo = localStorage.getItem('userInfo');
+        if (storedUserInfo) {
+          try {
+            const userInfo = JSON.parse(storedUserInfo);
+            const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+            const cartRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, config);
+            setCartItems(cartRes.data.items || []);
+          } catch (e) {
+            console.error('Failed to auto-sync cart:', e);
+          }
+        }
+      }
     }
   };
 
@@ -446,6 +461,21 @@ const Checkout = () => {
         'Failed to initiate payment. Please try again.';
       toast.error(message);
       setRazorpayLoading(false);
+
+      // Auto-sync cart if stock error
+      if (message.toLowerCase().includes('stock') || message.toLowerCase().includes('left')) {
+        const storedUserInfo = localStorage.getItem('userInfo');
+        if (storedUserInfo) {
+          try {
+            const userInfo = JSON.parse(storedUserInfo);
+            const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+            const cartRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, config);
+            setCartItems(cartRes.data.items || []);
+          } catch (e) {
+            console.error('Failed to auto-sync cart:', e);
+          }
+        }
+      }
     }
   };
 

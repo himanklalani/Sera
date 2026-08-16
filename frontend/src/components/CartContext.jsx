@@ -41,6 +41,11 @@ export const CartProvider = ({ children }) => {
           icon: 'ℹ️',
           duration: 4000
         });
+      } else if (data.stockAdjusted) {
+        toast('Some item quantities were reduced due to limited stock.', {
+          icon: 'ℹ️',
+          duration: 4000
+        });
       }
     } catch (error) {
       console.error('Error fetching cart:', error);

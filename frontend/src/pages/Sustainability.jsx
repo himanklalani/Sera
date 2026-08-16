@@ -50,14 +50,14 @@ const Sustainability = () => {
               </div>
             </div>
             <div className="md:w-2/3">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Eco-Conscious Packaging</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Thoughtful Packaging</h2>
               <p className="text-gray-600 leading-relaxed mb-4">
-                The luxury experience shouldn't mean excessive plastic. Our signature unboxing experience has been redesigned with the environment in mind.
+                The luxury experience shouldn't mean unnecessary waste. We carefully balance a premium unboxing experience with mindful material choices.
               </p>
               <ul className="list-disc list-inside text-gray-600 space-y-2">
-                <li>100% recyclable outer mailer boxes.</li>
-                <li>Reusable microfiber pouches meant to store and protect your jewelry for years.</li>
-                <li>Minimal plastic usage in our supply chain transit.</li>
+                <li>Sturdy, reusable boxes designed to store and protect your pieces long-term.</li>
+                <li>Optimized box sizing to reduce our shipping footprint.</li>
+                <li>Minimal single-use plastics in our supply chain transit.</li>
               </ul>
             </div>
           </div>

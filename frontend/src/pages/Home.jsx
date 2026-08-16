@@ -1472,16 +1472,16 @@ const BrandPromiseSection = () => {
   const pillars = [
     {
       label: 'Anti-Tarnish',
-      headline: 'Jewelry that lasts.',
-      body: 'Every Sera piece is crafted with PVD-grade plating that resists tarnish, sweat, water, and time. Wear it every day without a second thought.',
+      headline: 'Made to last. Born to be loved.',
+      body: 'Every Sera piece is crafted with a premium protective finish that resists tarnish, sweat, and water. Wear it every single day without a second thought.',
       accent: 'from-rose-50 to-pink-50',
       dot: 'bg-rose-400',
       span: 'md:col-span-2',
     },
     {
-      label: 'Skin-Safe Always',
-      headline: 'Zero green. Zero irritation.',
-      body: 'Hypoallergenic materials, tested on sensitive skin. Sera is designed for people who want beauty without the compromise.',
+      label: 'Everyday Elegance',
+      headline: 'Beauty without the weight.',
+      body: 'Thoughtfully designed to feel as good as it looks. Lightweight, incredibly comfortable, and perfect for seamlessly stacking or wearing solo from morning to night.',
       accent: 'from-stone-50 to-gray-50',
       dot: 'bg-stone-400',
       span: 'md:col-span-1',

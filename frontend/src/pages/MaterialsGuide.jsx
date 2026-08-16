@@ -8,26 +8,26 @@ const MaterialsGuide = () => {
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "What is anti tarnish jewelry made of?",
+        "name": "What is Sera jewelry made of?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Sera anti-tarnish jewelry is crafted with a high-quality stainless steel base and coated using Physical Vapor Deposition (PVD) coating. This makes it waterproof, highly durable, and resistant to tarnishing, unlike cheap brass or copper alloys."
+          "text": "Sera jewelry is crafted using high-quality base metals with a premium protective finish. This ensures durability, a beautiful shine, and a comfortable feel for everyday wear."
         }
       },
       {
         "@type": "Question",
-        "name": "Is stainless steel jewelry waterproof?",
+        "name": "Can I wear this jewelry every day?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes, our high-quality stainless steel base is inherently waterproof. When combined with our premium PVD coating, the jewelry is designed to be worn comfortably all day through workouts and showers without rusting or fading."
+          "text": "Yes, our pieces are thoughtfully designed to be worn comfortably all day. We recommend following our care instructions to keep the finish looking its absolute best over time."
         }
       },
       {
         "@type": "Question",
-        "name": "Will this jewelry turn my skin green?",
+        "name": "Is the jewelry comfortable to wear?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No. We refuse to use nickel or lead, and our stainless steel base does not oxidize quickly like brass or copper. Our entire collection is allergy-resistant and skin-friendly."
+          "text": "Absolutely. We focus on creating lightweight, beautifully finished pieces that feel as good as they look, perfect for seamlessly stacking or wearing solo from morning to night."
         }
       }
     ]
@@ -36,8 +36,8 @@ const MaterialsGuide = () => {
   return (
     <div className="max-w-4xl mx-auto px-6 py-16 md:py-24 font-serif">
       <SEO 
-        title="Our Materials | High Quality Anti-Tarnish Jewelry"
-        description="Discover the premium, skin-friendly materials behind Sera's waterproof and anti-tarnish jewelry. Crafted with high-quality stainless steel and premium coating."
+        title="Our Materials & Quality | Sera Jewelry"
+        description="Discover the premium materials and craftsmanship behind Sera's jewelry. Designed for everyday elegance, durability, and ultimate comfort."
         canonicalUrl="https://www.serastore.in/materials"
         schema={faqSchema}
       />
@@ -46,27 +46,27 @@ const MaterialsGuide = () => {
       
       <div className="prose prose-rose max-w-none text-gray-700">
         <p className="text-lg leading-relaxed mb-6">
-          We believe that everyday luxury should be accessible and enduring. That's why every piece of Sera jewelry is meticulously crafted using modern, high-performance materials designed to resist tarnishing, fading, and skin irritation.
+          We believe that everyday luxury should be both accessible and beautiful. That's why every piece of Sera jewelry is meticulously crafted using carefully selected materials designed for elegance, comfort, and longevity.
         </p>
 
-        <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">Premium Stainless Steel Base</h2>
+        <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">Quality Foundation</h2>
         <p className="mb-6">
-          The foundation of our jewelry is high-quality stainless steel—a premium, durable metal. Unlike cheap brass or copper alloys that oxidize quickly and turn your skin green, stainless steel is inherently highly durable, waterproof, and generally allergy-resistant. It provides the perfect, unyielding canvas for our finish.
+          The foundation of our jewelry relies on robust, high-quality base metals. Instead of cutting corners, we prioritize a solid core that provides the perfect, unyielding canvas for our signature finish, giving each piece a premium weight and feel.
         </p>
 
-        <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">Premium PVD Coating</h2>
+        <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">Premium Finish</h2>
         <p className="mb-6">
-          To achieve our signature luxurious finish, we use an advanced technique called Physical Vapor Deposition (PVD) to coat our stainless steel base. PVD coating binds to the steel at a molecular level, resulting in a finish that is up to 10 times thicker and vastly more durable than traditional methods.
+          To achieve our luxurious look, we apply an advanced, high-grade protective coating to every piece. This technique creates a rich, radiant shine that is designed to withstand the rigors of everyday life beautifully.
         </p>
 
-        <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">Skin-Friendly & Allergy-Resistant</h2>
+        <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">Designed for Comfort</h2>
         <p className="mb-6">
-          Say goodbye to itchy earlobes and green rings. Because we refuse to use nickel or lead in our manufacturing process, our entire collection is crafted to be allergy-resistant. It is designed to be gentle on sensitive skin and meant to be worn comfortably all day, every day.
+          Beauty shouldn't mean compromise. We are committed to ensuring our collection is lightweight and exceptionally smooth. It is designed to be gentle to the touch and meant to be worn comfortably all day, every day.
         </p>
 
         <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">The Sera Promise</h2>
         <p className="mb-6">
-          Our commitment to these premium materials ensures that your rings, necklaces, and bracelets are waterproof, sweatproof, and anti-tarnish. We create jewelry that lives with you, through workouts, showers, and celebrations.
+          Our commitment to quality craftsmanship ensures that your rings, necklaces, and bracelets look stunning when you put them on, and stay beautiful as you wear them. We create jewelry designed to seamlessly blend into your life and elevate your everyday style.
         </p>
       </div>
     </div>
@@ -74,3 +74,4 @@ const MaterialsGuide = () => {
 };
 
 export default MaterialsGuide;
+

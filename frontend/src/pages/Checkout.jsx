@@ -680,23 +680,37 @@ const Checkout = () => {
                 <h4 className="text-sm font-medium text-gray-700 mb-2">
                   Have a coupon?
                 </h4>
-                <div className={`flex gap-2 ${appliedCoupon ? 'opacity-50 pointer-events-none' : ''}`}>
+                <div className="flex gap-2">
                   <input
                     type="text"
                     disabled={couponLoading || appliedCoupon}
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                     placeholder="Enter coupon code"
-                    className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:ring-rose-500 focus:border-rose-500"
+                    className={`flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:ring-rose-500 focus:border-rose-500 ${appliedCoupon ? 'opacity-50' : ''}`}
                   />
-                  <button
-                    type="button"
-                    onClick={handleApplyCoupon}
-                    disabled={couponLoading || !couponCode.trim() || appliedCoupon}
-                    className="px-4 py-2 bg-rose-500 text-white rounded hover:bg-rose-600 transition-colors text-sm disabled:bg-gray-400"
-                  >
-                    Apply
-                  </button>
+                  {appliedCoupon ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAppliedCoupon(null);
+                        setCouponCode('');
+                        toast.success('Coupon removed.');
+                      }}
+                      className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors text-sm"
+                    >
+                      Remove
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={couponLoading || !couponCode.trim()}
+                      className="px-4 py-2 bg-rose-500 text-white rounded hover:bg-rose-600 transition-colors text-sm disabled:bg-gray-400"
+                    >
+                      Apply
+                    </button>
+                  )}
                 </div>
                 {appliedCoupon && (
                   <p className="mt-2 text-xs text-green-700">

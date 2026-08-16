@@ -189,6 +189,7 @@ router.post(
         landmark: shippingAddress.landmark || '',
       },
       totalPrice: totalAmount,
+      shippingPrice: req.body.shippingPrice !== undefined ? req.body.shippingPrice : (totalAmount > 999 ? 0 : 100),
       status: 'pending',
       paymentMethod: 'card',
       paymentStatus: 'paid',

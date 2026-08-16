@@ -483,6 +483,7 @@ const Checkout = () => {
               totalAmount: total,
               couponCode: appliedCoupon?.code || null,
               discountAmount: appliedCoupon?.discountAmount || 0,
+              shippingPrice: appliedCoupon?.isFreeShipping ? 0 : shipping,
             };
 
             await axios.post(

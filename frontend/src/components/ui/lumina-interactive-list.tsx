@@ -322,24 +322,24 @@ export function Component() {
       <main className="slider-wrapper w-full h-full relative" ref={containerRef}>
         <canvas className="webgl-canvas w-full h-full absolute inset-0"></canvas>
         
-        <div className="absolute inset-0 flex flex-col items-center justify-center pt-32 md:pt-48 text-white text-center pointer-events-none z-10 px-4">
+        <div className="absolute inset-0 flex flex-col items-center justify-end pb-[15vh] md:justify-center md:pb-0 md:pt-48 text-white text-center pointer-events-none z-10 px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center"
           >
-            <h2 className="text-sm md:text-xl lg:text-2xl font-light tracking-[0.4em] uppercase text-white/95">
+            <h2 className="text-xs md:text-xl lg:text-2xl font-light tracking-[0.2em] md:tracking-[0.4em] uppercase text-white/95">
               TIMELESS ELEGANCE
             </h2>
             
-            <div className="flex items-center gap-4 my-3 md:my-4">
-              <div className="h-px w-12 md:w-16 bg-rose-300/80"></div>
-              <span className="font-serif italic text-rose-300 text-3xl md:text-5xl lowercase">meets</span>
-              <div className="h-px w-12 md:w-16 bg-rose-300/80"></div>
+            <div className="flex items-center gap-3 md:gap-4 my-2 md:my-4">
+              <div className="h-px w-8 md:w-16 bg-rose-300/80"></div>
+              <span className="font-serif italic text-rose-300 text-2xl md:text-5xl lowercase">meets</span>
+              <div className="h-px w-8 md:w-16 bg-rose-300/80"></div>
             </div>
             
-            <h2 className="text-sm md:text-xl lg:text-2xl font-light tracking-[0.4em] uppercase text-white/95">
+            <h2 className="text-xs md:text-xl lg:text-2xl font-light tracking-[0.2em] md:tracking-[0.4em] uppercase text-white/95">
               MODERN INTENTION
             </h2>
           </motion.div>
@@ -348,7 +348,7 @@ export function Component() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-6 md:mt-8 text-white/90 text-sm md:text-base font-light max-w-sm leading-relaxed"
+            className="mt-4 md:mt-8 text-white/90 text-xs md:text-base font-light max-w-sm leading-relaxed"
           >
             Thoughtfully designed pieces<br />that speak your style.
           </motion.p>
@@ -357,7 +357,7 @@ export function Component() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-10 md:mt-12 pointer-events-auto"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 mt-6 md:mt-12 pointer-events-auto"
           >
             <FramerButton to="/shop" variant="light">SHOP COLLECTION</FramerButton>
             <TextArrowCTA to="/gifts" rightArrow={true}>GIFTING HUB</TextArrowCTA>

@@ -9,6 +9,7 @@ import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import CookieConsent from './components/CookieConsent';
 import { CartProvider } from './components/CartContext';
+import Preloader from './components/Preloader';
 
 // Lazy load page components for performance / code splitting
 const Home = React.lazy(() => import('./pages/Home'));
@@ -49,6 +50,7 @@ const Sitemap = React.lazy(() => import('./pages/Sitemap'));
 function App() {
   return (
     <HelmetProvider>
+      <Preloader />
       <Router>
         <CartProvider>
           <ScrollToTop />

@@ -68,7 +68,7 @@ export default function Navbar() {
 
   return (
     <>
-      <TopBanner />
+      <TopBanner isHome={isHome} />
       <motion.header
         initial={isHome ? { y: -100, opacity: 0 } : { y: 0, opacity: 1 }}
         animate={{ y: 0, opacity: 1 }}

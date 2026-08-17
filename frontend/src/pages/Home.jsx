@@ -7,6 +7,7 @@ import { FaInstagram } from 'react-icons/fa';
 import SEO from '../components/SEO';
 import FramerButton from '../components/FramerButton';
 import TextArrowCTA from '../components/TextArrowCTA';
+import { Component as LuminaSlider } from '../components/ui/lumina-interactive-list';
 
 
 // ============================================
@@ -870,21 +871,10 @@ const GiftingSection = () => {
 // ============================================
 const HeroSection = () => {
   const [showButton, setShowButton] = useState(false);
-  const [backgroundLoaded, setBackgroundLoaded] = useState(false);
   const [showFlyer, setShowFlyer] = useState(false);
-  const heroImage = 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780229969/hero_zvkcsm.avif';
-  
-  // Preload hero image
-  useEffect(() => {
-    const img = new Image();
-    img.src = heroImage;
-    img.onload = () => setBackgroundLoaded(true);
-  }, [heroImage]);
 
-  // Show flyer after hero content loads (text animations complete + 0.5s)
+  // Show flyer after hero content loads
   useEffect(() => {
-    // Text animations complete at 0.8s (0.6s duration + 0.2s delay)
-    // Add 0.5s wait = 1.3s total
     const flyerTimer = setTimeout(() => {
       setShowFlyer(true);
     }, 1300);
@@ -893,95 +883,20 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <div className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden bg-gray-900 safe-area">
+    <div className="relative w-full h-screen overflow-hidden bg-gray-900 safe-area">
       <Helmet>
         <title>Sera | Affordable Anti-Tarnish Jewelry</title>
         <meta name="description" content="Discover Sera's premium collection of waterproof, anti-tarnish jewelry. Shop affordable necklaces, rings, earrings, and bracelets that won't turn your skin green." />
       </Helmet>
       
-      {/* Optimized LCP Hero Image with Cinematic Zoom */}
-      <motion.img
-        src={heroImage}
-        alt="Sera Jewelry Hero"
-        initial={{ scale: 1.0, filter: 'brightness(0.65)' }}
-        animate={{ 
-          scale: 1.05, 
-          filter: 'brightness(0.85)' 
-        }}
-        transition={{ duration: 3, ease: "easeOut" }}
-        className={`absolute inset-0 w-full h-full object-cover z-0 transition-opacity duration-1000 pointer-events-none select-none ${
-          backgroundLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
-        fetchpriority="high"
-        loading="eager"
-        onLoad={() => setBackgroundLoaded(true)}
-      />
-
-      {/* Cinematic Overlays: Radial Vignette & Film Grain */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)] z-0 pointer-events-none transition-opacity duration-1000" />
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay z-0 pointer-events-none" />
-
-      {/* Loading placeholder */}
-      {!backgroundLoaded && (
-        <div className="absolute inset-0 bg-gray-900 z-0" />
-      )}
+      {/* Dynamic WebGL Slider */}
+      <LuminaSlider />
       
       {/* Flying Offer Banner - only shows after hero content loads */}
       {showFlyer && <FlyingOfferBanner onComplete={() => setShowButton(true)} />}
       
       {/* Floating Coupon Drawer appears after flyer disappears */}
       <FloatingCouponDrawer shouldShow={showButton} />
-      
-      <div className="relative z-10 flex flex-col items-center justify-center flex-1 text-white text-center px-4 py-16 sm:py-8 mt-12 sm:mt-16">
-        {/* Awwwards-Tier Typography Split Reveal */}
-        <div className="overflow-hidden pb-4 mb-2 px-2">
-          <motion.h1 
-            initial={{ y: "120%", opacity: 0, rotateZ: 4, scale: 0.95 }}
-            animate={{ y: 0, opacity: 1, rotateZ: 0, scale: 1 }}
-            transition={{ duration: 1.2, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-[14vw] sm:text-[10vw] md:text-8xl font-serif tracking-wide will-change-transform leading-[0.9] origin-bottom-left"
-          >
-            Welcome to Sera
-          </motion.h1>
-        </div>
-        <motion.p 
-          initial={{ opacity: 0, y: 30, filter: 'blur(4px)' }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="text-xs sm:text-sm md:text-base font-light tracking-[0.25em] uppercase text-white/80 mb-14 md:mb-16 text-center leading-relaxed"
-        >
-          timeless elegance <span className="font-serif italic text-rose-300 normal-case tracking-normal text-lg sm:text-xl md:text-2xl px-2 align-baseline">meets</span> modern intention
-        </motion.p>
-        
-        {/* Hero CTA — Button-in-Button Island Architecture */}
-        <motion.div
-          initial={{ opacity: 0, y: 30, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 1.2, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-24 relative z-20"
-        >
-          <FramerButton to="/shop" variant="light">Shop Collection</FramerButton>
-          <TextArrowCTA to="/gifts">Gifting Hub</TextArrowCTA>
-        </motion.div>
-        
-        {/* Sleek Minimalist Scroll Indicator */}
-        <motion.div 
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <span className="text-[9px] tracking-[0.4em] uppercase text-white/60 font-semibold font-sans">Scroll</span>
-          <div className="w-[1px] h-14 bg-white/20 relative overflow-hidden">
-            <motion.div 
-              className="absolute top-0 left-0 w-full h-full bg-white"
-              initial={{ y: "-100%" }}
-              animate={{ y: "100%" }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            />
-          </div>
-        </motion.div>
-      </div>
     </div>
   );
 };

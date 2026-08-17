@@ -36,18 +36,22 @@ function ParallaxText({ children, baseVelocity = 100 }) {
   );
 }
 
-export default function TopBanner() {
+export default function TopBanner({ isHome = false }) {
+  const containerClasses = isHome 
+    ? "absolute top-0 left-0 w-full bg-transparent text-white py-2 overflow-hidden z-50"
+    : "relative bg-gradient-to-r from-rose-50 via-pink-50 to-rose-50 text-gray-900 py-2 overflow-hidden z-50 border-b border-rose-100/50";
+
   return (
     <div 
-      className="relative bg-gradient-to-r from-rose-50 via-pink-50 to-rose-50 text-gray-900 py-2 overflow-hidden z-50 border-b border-rose-100/50"
+      className={containerClasses}
       role="region"
       aria-label="Promotional Banner"
     >
-      {/* Subtle decorative gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-50 pointer-events-none" />
-      
+      {!isHome && (
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-50 pointer-events-none" />
+      )}
       <ParallaxText baseVelocity={0.5}>
-        <span className="font-bold">Welcome to Sera  -  Handcrafted with Love  -  Free Shipping on Orders Above INR 999.</span>
+        <span className={`font-bold uppercase text-[10px] md:text-[11px] ${!isHome ? 'normal-case text-xs md:text-sm tracking-normal' : ''}`}>Welcome to Sera  -  Handcrafted with Love  -  Free Shipping on Orders Above INR 999.</span>
       </ParallaxText>
     </div>
   );

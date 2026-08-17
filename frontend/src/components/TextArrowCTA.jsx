@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-export default function TextArrowCTA({ children, to, className = '', variant = 'light' }) {
+export default function TextArrowCTA({ children, to, className = '', variant = 'light', rightArrow = false }) {
   const [isHovered, setIsHovered] = useState(false);
 
   const textColor = variant === 'dark' ? 'text-gray-900' : 'text-white';
   const lineColor = variant === 'dark' ? 'bg-gray-900' : 'bg-white';
+  
+  const isRight = rightArrow ? !isHovered : isHovered;
 
   return (
     <Link 
@@ -18,7 +20,7 @@ export default function TextArrowCTA({ children, to, className = '', variant = '
       <motion.div 
         layout
         className={`flex items-center gap-2 uppercase tracking-[0.2em] text-xs font-semibold ${textColor} pb-[2px]`}
-        style={{ flexDirection: isHovered ? 'row-reverse' : 'row' }}
+        style={{ flexDirection: isRight ? 'row-reverse' : 'row' }}
       >
         <motion.div layout transition={{ type: "spring", stiffness: 300, damping: 30 }}>
           <svg 

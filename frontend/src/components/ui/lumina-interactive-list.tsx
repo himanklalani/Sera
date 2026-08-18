@@ -113,21 +113,36 @@ export function Component() {
                 vec2 p = uv * uResolution; vec2 c = uResolution * 0.5;
                 float d = length(p - c); float nd = d / max(br, 0.001);
                 float param = smoothstep(br + 3.0, br - 3.0, d); // Inside circle
-                vec4 img;
-                if (param > 0.0) {
-                     float ro = 0.08 * uGlassRefractionStrength * uDistortionStrength * uGlobalIntensity * pow(max(0.0, smoothstep(0.3 * uGlassBubbleClarity, 1.0, nd)), 1.5);
-                     vec2 dir = (d > 0.0) ? (p - c) / d : vec2(0.0);
-                     vec2 distUV = uv2 - dir * ro;
-                     distUV += vec2(sin(time + nd * 10.0), cos(time * 0.8 + nd * 8.0)) * 0.015 * uGlassLiquidFlow * uSpeedMultiplier * nd * param;
-                     float ca = 0.02 * uGlassChromaticAberration * uGlobalIntensity * pow(max(0.0, smoothstep(0.3, 1.0, nd)), 1.2);
-                     img = vec4(texture2D(uTexture2, distUV + dir * ca * 1.2).r, texture2D(uTexture2, distUV + dir * ca * 0.2).g, texture2D(uTexture2, distUV - dir * ca * 0.8).b, 1.0);
-                     if (uGlassEdgeGlow > 0.0) {
-                        float rim = smoothstep(0.95, 1.0, nd) * (1.0 - smoothstep(1.0, 1.01, nd));
-                        img.rgb += rim * 0.08 * uGlassEdgeGlow * uGlobalIntensity;
-                     }
-                } else { img = texture2D(uTexture2, uv2); }
+                
+                // Unconditional math to avoid dynamic branching bugs on Mali GPUs
+                float ro = 0.08 * uGlassRefractionStrength * uDistortionStrength * uGlobalIntensity * pow(max(0.0, smoothstep(0.3 * uGlassBubbleClarity, 1.0, nd)), 1.5);
+                vec2 dir = (d > 0.0) ? (p - c) / d : vec2(0.0);
+                vec2 distUV = uv2 - dir * ro;
+                distUV += vec2(sin(time + nd * 10.0), cos(time * 0.8 + nd * 8.0)) * 0.015 * uGlassLiquidFlow * uSpeedMultiplier * nd * param;
+                float ca = 0.02 * uGlassChromaticAberration * uGlobalIntensity * pow(max(0.0, smoothstep(0.3, 1.0, nd)), 1.2);
+                
+                // Unconditional texture sampling
+                vec4 distortedImg = vec4(
+                    texture2D(uTexture2, distUV + dir * ca * 1.2).r, 
+                    texture2D(uTexture2, distUV + dir * ca * 0.2).g, 
+                    texture2D(uTexture2, distUV - dir * ca * 0.8).b, 
+                    1.0
+                );
+                
+                float rim = smoothstep(0.95, 1.0, nd) * (1.0 - smoothstep(1.0, 1.01, nd));
+                distortedImg.rgb += rim * 0.08 * uGlassEdgeGlow * uGlobalIntensity;
+                
+                vec4 normalImg = texture2D(uTexture2, uv2);
+                
+                // Mix between distorted and normal using step
+                vec4 img = mix(normalImg, distortedImg, step(0.001, param));
+                
                 vec4 oldImg = texture2D(uTexture1, uv1);
-                if (progress > 0.95) img = mix(img, texture2D(uTexture2, uv2), (progress - 0.95) / 0.05);
+                
+                // Another potential branching bug here with progress > 0.95, let's use mix
+                float endFade = smoothstep(0.95, 1.0, progress);
+                img = mix(img, normalImg, endFade);
+                
                 return mix(oldImg, img, param);
             }
             // Simplified stubs for other effects (to save space, logic is in glassEffect mainly for demo)

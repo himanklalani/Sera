@@ -100,14 +100,7 @@ export default function Preloader() {
             </motion.h1>
           </div>
           
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="mt-4 text-[9px] md:text-xs font-light tracking-[0.4em] uppercase text-gray-500 z-10 relative"
-          >
-            Fine Jewelry
-          </motion.div>
+        
 
           {/* Bottom Right Percentage Counter */}
           <div className="absolute bottom-8 right-8 md:bottom-12 md:right-12 z-10">

@@ -658,12 +658,12 @@ const GiftingSection = () => {
 
 
   const giftImages = useMemo(() => [
-    'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=65&w=1200&auto=format&fit=crop&fm=webp',
-    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230280/gift1_yugt68.avif',
-    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230275/gift2_cdwj05.avif',
-    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230276/gift3_dkqp7u.avif',
-    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230275/gift4_mpppql.avif',
-    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230276/gift5_j1siec.avif'
+    'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=65&w=600&auto=format&fit=crop&fm=webp',
+    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780230280/gift1_yugt68.avif',
+    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780230275/gift2_cdwj05.avif',
+    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780230276/gift3_dkqp7u.avif',
+    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780230275/gift4_mpppql.avif',
+    'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780230276/gift5_j1siec.avif'
   ], []);
 
 
@@ -791,7 +791,7 @@ const GiftingSection = () => {
                   ease: "easeOut"
                 }}
               >
-                <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+                <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg border-4 border-white">
                   <img
                     src={img}
                     alt={`Gift ${index + 1}`}

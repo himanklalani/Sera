@@ -883,7 +883,7 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-gray-900 safe-area">
+    <div className="relative w-full h-[100svh] overflow-hidden bg-gray-900 safe-area">
       <Helmet>
         <title>Sera | Affordable Anti-Tarnish Jewelry</title>
         <meta name="description" content="Discover Sera's premium collection of waterproof, anti-tarnish jewelry. Shop affordable necklaces, rings, earrings, and bracelets that won't turn your skin green." />

@@ -115,11 +115,11 @@ export function Component() {
                 float param = smoothstep(br + 3.0, br - 3.0, d); // Inside circle
                 vec4 img;
                 if (param > 0.0) {
-                     float ro = 0.08 * uGlassRefractionStrength * uDistortionStrength * uGlobalIntensity * pow(smoothstep(0.3 * uGlassBubbleClarity, 1.0, nd), 1.5);
+                     float ro = 0.08 * uGlassRefractionStrength * uDistortionStrength * uGlobalIntensity * pow(max(0.0, smoothstep(0.3 * uGlassBubbleClarity, 1.0, nd)), 1.5);
                      vec2 dir = (d > 0.0) ? (p - c) / d : vec2(0.0);
                      vec2 distUV = uv2 - dir * ro;
                      distUV += vec2(sin(time + nd * 10.0), cos(time * 0.8 + nd * 8.0)) * 0.015 * uGlassLiquidFlow * uSpeedMultiplier * nd * param;
-                     float ca = 0.02 * uGlassChromaticAberration * uGlobalIntensity * pow(smoothstep(0.3, 1.0, nd), 1.2);
+                     float ca = 0.02 * uGlassChromaticAberration * uGlobalIntensity * pow(max(0.0, smoothstep(0.3, 1.0, nd)), 1.2);
                      img = vec4(texture2D(uTexture2, distUV + dir * ca * 1.2).r, texture2D(uTexture2, distUV + dir * ca * 0.2).g, texture2D(uTexture2, distUV - dir * ca * 0.8).b, 1.0);
                      if (uGlassEdgeGlow > 0.0) {
                         float rim = smoothstep(0.95, 1.0, nd) * (1.0 - smoothstep(1.0, 1.01, nd));

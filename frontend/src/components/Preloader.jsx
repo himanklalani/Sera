@@ -7,14 +7,37 @@ export default function Preloader() {
   const isLoadedRef = useRef(false);
 
   useEffect(() => {
-    // Check if document is already complete
-    if (document.readyState === 'complete') {
-      isLoadedRef.current = true;
-    } else {
-      window.addEventListener('load', () => {
-        isLoadedRef.current = true;
-      });
-    }
+    // 1. Explicitly preload the heavy WebGL hero images
+    const heroImages = [
+      "https://res.cloudinary.com/dhby5v7rw/image/upload/v1782307100/jewelry-products/zvcq5yqjtbwlk2etcrmx.jpg",
+      "https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto/q_auto/v1786971801/new22_mgyrk6.jpg",
+      "https://res.cloudinary.com/dhby5v7rw/image/upload/q_auto/f_auto/v1786970934/new3_usglan.jpg",
+      "https://res.cloudinary.com/dhby5v7rw/image/upload/v1767446388/jewelry-products/d9jprpcgv9zfhuhfzljy.jpg"
+    ];
+
+    let loadedImagesCount = 0;
+    
+    const checkAllLoaded = () => {
+      loadedImagesCount++;
+      if (loadedImagesCount === heroImages.length) {
+        // Also ensure standard DOM load has happened, but the images are the main blocker
+        if (document.readyState === 'complete') {
+          isLoadedRef.current = true;
+        } else {
+          window.addEventListener('load', () => { isLoadedRef.current = true; }, { once: true });
+        }
+      }
+    };
+
+    heroImages.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+      img.onload = checkAllLoaded;
+      img.onerror = checkAllLoaded; // don't hang if one fails
+    });
+
+    // Failsafe: if network is extremely slow, don't let them stare at a preloader forever
+    setTimeout(() => { isLoadedRef.current = true; }, 8000);
 
     const duration = 1800; // Base animation time
     const startTime = performance.now();

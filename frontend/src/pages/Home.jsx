@@ -1107,7 +1107,7 @@ const BentoCollectionsSection = () => {
     {
       name: 'Our Bestsellers',
       description: 'Customer favorites that never go out of style',
-      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227857/bestsellers_zffy5n.jpg',
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780227857/bestsellers_zffy5n.jpg',
       size: 'large',
       color: 'from-rose-100 to-pink-50',
       link: '/shop?tags=bestseller'
@@ -1115,7 +1115,7 @@ const BentoCollectionsSection = () => {
     {
       name: 'Everyday Essentials',
       description: 'Chic daily pieces',
-      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227859/everyday_s8miea.jpg',
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780227859/everyday_s8miea.jpg',
       size: 'tall',
       color: 'from-pink-50 to-rose-50',
       link: '/shop?tags=everyday'
@@ -1123,7 +1123,7 @@ const BentoCollectionsSection = () => {
     {
       name: 'Accent Pairs',
       description: 'Bold & beautiful',
-      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227858/pair_cqurjg.jpg',
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780227858/pair_cqurjg.jpg',
       size: 'small',
       color: 'from-rose-50 to-white',
       link: '/shop?tags=accent'
@@ -1131,7 +1131,7 @@ const BentoCollectionsSection = () => {
     {
       name: 'Minimalist',
       description: 'Less is more',
-      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227859/minimalist_cdynyl.jpg',
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780227859/minimalist_cdynyl.jpg',
       size: 'small',
       color: 'from-white to-rose-50',
       link: '/shop?tags=minimalist'
@@ -1139,7 +1139,7 @@ const BentoCollectionsSection = () => {
     {
       name: 'Boho Vibes',
       description: 'Free-spirited designs',
-      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227858/boho_ejcz5g.png',
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780227858/boho_ejcz5g.png',
       size: 'wider',
       color: 'from-rose-50 to-pink-100',
       link: '/shop?tags=boho'
@@ -1251,12 +1251,12 @@ const BentoCollectionsSection = () => {
 // ============================================
 const FloatingGallerySection = () => {
   const galleryItems = useMemo(() => [
-    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230150/gallery2_yxa0cq.avif', height: 'h-64', delay: 0 },
-    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230149/gallery1_wd75ie.avif', height: 'h-80', delay: 0.05 },
-    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230150/gallery3_hgea56.avif', height: 'h-72', delay: 0.1 },
-    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230149/gallery4_zkqgaa.avif', height: 'h-96', delay: 0.15 },
-    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230153/gallery5_tasn9g.avif', height: 'h-64', delay: 0.2 },
-    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780230150/gallery6_igxgvk.avif', height: 'h-88', delay: 0.25 },
+    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_600/v1780230150/gallery2_yxa0cq.avif', height: 'h-64', delay: 0 },
+    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_600/v1780230149/gallery1_wd75ie.avif', height: 'h-80', delay: 0.05 },
+    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_600/v1780230150/gallery3_hgea56.avif', height: 'h-72', delay: 0.1 },
+    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_600/v1780230149/gallery4_zkqgaa.avif', height: 'h-96', delay: 0.15 },
+    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_600/v1780230153/gallery5_tasn9g.avif', height: 'h-64', delay: 0.2 },
+    { img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_600/v1780230150/gallery6_igxgvk.avif', height: 'h-88', delay: 0.25 },
   ], []);
 
 

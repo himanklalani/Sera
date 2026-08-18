@@ -877,7 +877,7 @@ const HeroSection = () => {
   useEffect(() => {
     const flyerTimer = setTimeout(() => {
       setShowFlyer(true);
-    }, 1300);
+    }, 3300);
 
     return () => clearTimeout(flyerTimer);
   }, []);

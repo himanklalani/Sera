@@ -40,7 +40,7 @@ const LazyImage = ({
         }
       },
       { 
-        rootMargin: '100px',
+        rootMargin: '1200px',
         threshold: 0.01
       }
     );

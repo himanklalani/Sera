@@ -7,19 +7,24 @@ export default function Preloader() {
   const isLoadedRef = useRef(false);
 
   useEffect(() => {
-    // 1. Explicitly preload the heavy WebGL hero images
-    const heroImages = [
+    // 1. Explicitly preload heavy hero images AND category images
+    const imagesToPreload = [
+      // Hero Images
       "https://res.cloudinary.com/dhby5v7rw/image/upload/v1782307100/jewelry-products/zvcq5yqjtbwlk2etcrmx.jpg",
       "https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto/q_auto/v1786971801/new22_mgyrk6.jpg",
       "https://res.cloudinary.com/dhby5v7rw/image/upload/q_auto/f_auto/v1786970934/new3_usglan.jpg",
-      "https://res.cloudinary.com/dhby5v7rw/image/upload/v1767446388/jewelry-products/d9jprpcgv9zfhuhfzljy.jpg"
+      "https://res.cloudinary.com/dhby5v7rw/image/upload/v1767446388/jewelry-products/d9jprpcgv9zfhuhfzljy.jpg",
+      // Category Images
+      "https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227856/earring_xq3tnr.jpg",
+      "https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227859/bracelet_euzi0c.png",
+      "https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780227857/necklace_mfa0eu.jpg"
     ];
 
     let loadedImagesCount = 0;
     
     const checkAllLoaded = () => {
       loadedImagesCount++;
-      if (loadedImagesCount === heroImages.length) {
+      if (loadedImagesCount === imagesToPreload.length) {
         // Also ensure standard DOM load has happened, but the images are the main blocker
         if (document.readyState === 'complete') {
           isLoadedRef.current = true;
@@ -29,7 +34,7 @@ export default function Preloader() {
       }
     };
 
-    heroImages.forEach((src) => {
+    imagesToPreload.forEach((src) => {
       const img = new Image();
       img.src = src;
       img.onload = checkAllLoaded;

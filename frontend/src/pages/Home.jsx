@@ -488,7 +488,7 @@ export const FloatingCouponDrawer = ({ shouldShow }) => {
               ease: [0.34, 1.56, 0.64, 1],
               delay: 0.2 
             }}
-            className="fixed left-4 top-[13%] md:top-[32%] z-50"
+            className="fixed left-4 top-[25%] md:top-[32%] z-50"
           >
             <motion.button
               onClick={() => setIsOpen(!isOpen)}
@@ -558,7 +558,7 @@ export const FloatingCouponDrawer = ({ shouldShow }) => {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: -100, scale: 0.9 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed left-4 top-[19%] md:top-[39%] z-40 w-72 bg-white/70 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/40 overflow-hidden"
+            className="fixed left-4 top-[31%] md:top-[39%] z-40 w-72 bg-white/70 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/40 overflow-hidden"
           >
             <div className="bg-gradient-to-r from-rose-400/80 to-pink-400/80 backdrop-blur-sm p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">

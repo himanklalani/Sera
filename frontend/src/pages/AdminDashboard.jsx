@@ -59,6 +59,7 @@ const AdminDashboard = () => {
     restrictedToUserEmail: '',
   });
   const [editingCouponId, setEditingCouponId] = useState(null);
+  const [comboSearch, setComboSearch] = useState('');
   
   const fetchAllProducts = async () => {
     try {
@@ -2327,8 +2328,17 @@ const AdminDashboard = () => {
                 {formData.isCombo && (
                   <div className="mt-3">
                     <p className="text-xs text-blue-700 mb-2">Select the products that make up this combo:</p>
+                    <input
+                      type="text"
+                      placeholder="Search products..."
+                      value={comboSearch}
+                      onChange={(e) => setComboSearch(e.target.value)}
+                      className="w-full border border-blue-200 p-2 rounded mb-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                    />
                     <div className="max-h-48 overflow-y-auto border border-blue-200 rounded bg-white p-2 space-y-2">
-                      {allProducts.filter(p => !p.isCombo).map(p => (
+                      {allProducts
+                        .filter(p => !p.isCombo && (p.stock > 0 || formData.comboItems.includes(p._id)) && p.name.toLowerCase().includes(comboSearch.toLowerCase()))
+                        .map(p => (
                         <label key={p._id} className="flex items-center gap-2 cursor-pointer p-1 hover:bg-gray-50 rounded">
                           <input
                             type="checkbox"

@@ -93,6 +93,14 @@ const productSchema = new mongoose.Schema({
   accentPairs: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Product'
+  }],
+  isCombo: {
+    type: Boolean,
+    default: false
+  },
+  comboItems: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product'
   }]
 }, { 
   timestamps: true 

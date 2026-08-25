@@ -626,6 +626,36 @@ const ProductDetails = () => {
             </div>
           )}
 
+          {/* Bundle Contents shown only for combo products */}
+          {product.isCombo && product.comboItems && product.comboItems.length > 0 && (
+            <div className="mt-6 border-t border-gray-100 pt-6">
+              <p className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                What is Inside This Bundle
+              </p>
+              <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
+                {product.comboItems.map((bundleItem) => (
+                  <div
+                    key={bundleItem._id}
+                    onClick={() => navigate("/product/" + bundleItem._id)}
+                    className="flex-shrink-0 w-28 cursor-pointer group"
+                  >
+                    <div className="w-28 h-28 rounded-xl overflow-hidden border border-gray-200 group-hover:border-rose-400 transition-colors shadow-sm">
+                      <img
+                        src={bundleItem.images?.[0] || FALLBACK_IMAGE}
+                        alt={bundleItem.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}
+                      />
+                    </div>
+                    <p className="text-xs font-medium text-gray-600 mt-1.5 truncate group-hover:text-rose-500 transition-colors text-center">
+                      {bundleItem.name}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Size Selector for Apparel */}
           {product.category?.toLowerCase().includes('apparel') && (
             <div className="mt-6 border-t border-gray-100 pt-6">

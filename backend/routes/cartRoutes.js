@@ -7,7 +7,10 @@ const Product = require('../models/Product'); // ADD THIS IMPORT
 
 // Helper to clean and populate cart
 const getCleanCart = async (cartId) => {
-  let cart = await Cart.findById(cartId).populate('items.product');
+  let cart = await Cart.findById(cartId).populate({
+    path: 'items.product',
+    populate: { path: 'comboItems', select: 'stock' }
+  });
   if (!cart) return { cart: null, itemsRemoved: false, stockAdjusted: false };
 
   let itemsRemoved = false;
@@ -28,14 +31,27 @@ const getCleanCart = async (cartId) => {
     cart.items = validItems;
     await cart.save();
     // Re-populate after filtering to ensure consistency
-    cart = await Cart.findById(cartId).populate('items.product');
+    cart = await Cart.findById(cartId).populate({
+      path: 'items.product',
+      populate: { path: 'comboItems', select: 'stock' }
+    });
   }
 
+  // Convert to plain object FIRST, then mutate virtual stock safely
   const cartObj = cart.toObject();
   cartObj.itemsRemoved = itemsRemoved;
   cartObj.stockAdjusted = stockAdjusted;
+
+  // Apply virtual stock calculation on plain object
+  for (const item of cartObj.items) {
+    if (item.product && item.product.isCombo && item.product.comboItems && item.product.comboItems.length > 0) {
+      item.product.stock = Math.min(...item.product.comboItems.map(i => i?.stock || 0));
+    }
+  }
+
   return cartObj;
 };
+
 
 // @desc    Get abandoned carts / cart updates from last 14 days
 // @route   GET /api/cart/abandoned
@@ -78,10 +94,14 @@ router.post('/', protect, asyncHandler(async (req, res) => {
   const { productId, quantity, size } = req.body;
   
   // ADDED: Validate product exists and check stock
-  const product = await Product.findById(productId);
+  const product = await Product.findById(productId).populate('comboItems', 'stock');
   if (!product) {
     res.status(404);
     throw new Error('Product not found');
+  }
+  
+  if (product.isCombo && product.comboItems && product.comboItems.length > 0) {
+    product.stock = Math.min(...product.comboItems.map(i => i.stock || 0));
   }
   
   // ADDED: Check if requested quantity exceeds stock
@@ -150,11 +170,15 @@ router.put('/:productId', protect, asyncHandler(async (req, res) => {
   const { quantity } = req.body;
   
   // ADDED: Validate product and stock before updating
-  const product = await Product.findById(req.params.productId);
+  const product = await Product.findById(req.params.productId).populate('comboItems', 'stock');
   if (!product) {
     // If we're trying to update quantity of a missing product, let cleanup handle it later or fail now
     res.status(404);
     throw new Error('Product not found');
+  }
+  
+  if (product.isCombo && product.comboItems && product.comboItems.length > 0) {
+    product.stock = Math.min(...product.comboItems.map(i => i.stock || 0));
   }
   
   // ADDED: Check if new quantity exceeds stock

@@ -30,22 +30,46 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     throw new Error('Complete shipping address is required');
   }
 
-  // Validate stock for all items FIRST
+  // ── STEP 1: Fetch all product details and build demand maps ──────────────
+  // physicalStockDemand: the total qty of each BASE physical product needed.
+  // This correctly handles cross-combo component sharing within a single cart.
+  const physicalStockDemand = {}; // { productId: totalQtyNeeded }
+
   for (const item of orderItems) {
-    const product = await Product.findById(item.product);
-    
+    const product = await Product.findById(item.product)
+      .populate('comboItems', 'stock name _id');
+
     if (!product) {
       res.status(404);
       throw new Error(`Product not found`);
     }
-    
-    if (product.stock < item.quantity) {
-      res.status(400);
-      throw new Error(`Insufficient stock for ${product.name}. Only ${product.stock} items available`);
+
+    if (product.isCombo && product.comboItems && product.comboItems.length > 0) {
+      // Accumulate demand for each physical component
+      for (const comp of product.comboItems) {
+        const cId = comp._id.toString();
+        physicalStockDemand[cId] = (physicalStockDemand[cId] || 0) + item.quantity;
+      }
+    } else {
+      const pId = product._id.toString();
+      physicalStockDemand[pId] = (physicalStockDemand[pId] || 0) + item.quantity;
     }
-    
-    // Attach product details for calculation
+
     item.productDetails = product;
+  }
+
+  // ── STEP 2: Validate aggregated demand against current stock ──────────────
+  // This catches the case where multiple combos share a component and together
+  // exceed its available stock — a bug the previous per-item loop could not catch.
+  for (const [productId, totalDemand] of Object.entries(physicalStockDemand)) {
+    const stockProduct = await Product.findById(productId).select('name stock');
+    if (!stockProduct || stockProduct.stock < totalDemand) {
+      res.status(400);
+      throw new Error(
+        `Insufficient stock for ${stockProduct?.name || 'a product'}. ` +
+        `Your cart requires ${totalDemand} but only ${stockProduct?.stock || 0} available.`
+      );
+    }
   }
 
   // Calculate values securely on the backend
@@ -133,12 +157,25 @@ router.post('/', protect, asyncHandler(async (req, res) => {
       }
     }
 
-    // ✅ STEP 3: ALL VALIDATIONS PASSED - NOW INCREMENT
-    const updatedCoupon = await Coupon.findByIdAndUpdate(
-      coupon._id,
+    // ✅ STEP 3: ALL VALIDATIONS PASSED — atomic increment with condition to
+    // prevent the race condition where two users redeem the last use simultaneously.
+    const updatedCoupon = await Coupon.findOneAndUpdate(
+      {
+        _id: coupon._id,
+        // Only increment if we're still under the limit (or limit is uncapped)
+        ...(typeof coupon.usageLimit === 'number' && coupon.usageLimit > 0
+          ? { usageCount: { $lt: coupon.usageLimit } }
+          : {})
+      },
       { $inc: { usageCount: 1 } },
       { new: true }
     );
+
+    if (!updatedCoupon) {
+      // Another concurrent request just took the last use
+      res.status(400);
+      throw new Error('Coupon was just used by another order. Please try again without the coupon.');
+    }
 
     // ✅ CALCULATE DISCOUNT
     if (updatedCoupon.isFreeShipping) {
@@ -160,12 +197,51 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     appliedCoupon = updatedCoupon;
   }
 
-  // All validations passed - now update stock and sales
+  // ── STEP 4: Atomic stock deduction with rollback ─────────────────────────
+  // Use findOneAndUpdate with { stock: { $gte: needed } } as a condition.
+  // If another concurrent request already deducted the stock, the update
+  // will return null, and we roll back all previous deductions gracefully.
+  const successfulDeductions = []; // track for rollback
+  try {
+    for (const [productId, totalDemand] of Object.entries(physicalStockDemand)) {
+      const updated = await Product.findOneAndUpdate(
+        { _id: productId, stock: { $gte: totalDemand } },
+        { $inc: { stock: -totalDemand } },
+        { new: true }
+      );
+
+      if (!updated) {
+        // Concurrent order beat us — roll back all previous deductions
+        for (const { id, qty } of successfulDeductions) {
+          await Product.findByIdAndUpdate(id, { $inc: { stock: qty } });
+        }
+        // Also undo coupon increment if one was applied
+        if (appliedCoupon) {
+          await Coupon.findByIdAndUpdate(appliedCoupon._id, { $inc: { usageCount: -1 } });
+        }
+        res.status(400);
+        throw new Error('Stock changed during checkout. Please review your cart and try again.');
+      }
+
+      successfulDeductions.push({ id: productId, qty: totalDemand });
+    }
+  } catch (err) {
+    throw err; // re-throw after rollback
+  }
+
+  // Increment sales counters (separately from stock — non-critical, no rollback needed)
   for (const item of orderItems) {
-    await Product.findByIdAndUpdate(
-      item.product,
-      { $inc: { stock: -item.quantity, sales: item.quantity } }
-    );
+    const product = item.productDetails;
+    if (product.isCombo && product.comboItems && product.comboItems.length > 0) {
+      // Sales on each component
+      for (const comp of product.comboItems) {
+        await Product.findByIdAndUpdate(comp._id, { $inc: { sales: item.quantity } });
+      }
+      // Sales on the combo product itself (for bestseller ranking)
+      await Product.findByIdAndUpdate(product._id, { $inc: { sales: item.quantity } });
+    } else {
+      await Product.findByIdAndUpdate(product._id, { $inc: { sales: item.quantity } });
+    }
   }
 
   // Create the order
@@ -175,7 +251,13 @@ router.post('/', protect, asyncHandler(async (req, res) => {
       product: item.product,
       quantity: item.quantity,
       price: item.price,
-      size: item.size
+      size: item.size,
+      name: item.productDetails?.name,
+      // Historical snapshot: which physical products were in this combo at purchase time.
+      // Used by cancel/exchange to restore stock to the correct items.
+      comboItems: (item.productDetails?.isCombo && item.productDetails?.comboItems?.length > 0)
+        ? item.productDetails.comboItems.map(c => c._id)
+        : []
     })),
     shippingAddress: {
       street: shippingAddress.street,
@@ -518,12 +600,22 @@ router.put('/:id/cancel', protect, asyncHandler(async (req, res) => {
     cancellationFee = 100;
   }
 
-  // Restore product stock and decrease sales count
+  // Restore product stock — use stored snapshot so historical combo components
+  // get their stock back, even if the admin changed the combo definition since.
   for (const item of order.items) {
-    await Product.findByIdAndUpdate(
-      item.product._id,
-      { $inc: { stock: item.quantity, sales: -item.quantity } }
-    );
+    if (item.comboItems && item.comboItems.length > 0) {
+      // This is a combo: restore component stocks using the historical snapshot
+      for (const compId of item.comboItems) {
+        await Product.findByIdAndUpdate(compId, { $inc: { stock: item.quantity, sales: -item.quantity } });
+      }
+      // Decrement combo's own sales counter
+      await Product.findByIdAndUpdate(item.product._id || item.product, { $inc: { sales: -item.quantity } });
+    } else {
+      await Product.findByIdAndUpdate(
+        item.product._id || item.product,
+        { $inc: { stock: item.quantity, sales: -item.quantity } }
+      );
+    }
   }
 
   // ✅ RESTORE COUPON USAGE COUNT on cancellation
@@ -614,12 +706,18 @@ router.put('/:id/exchange/approve', protect, asyncHandler(async (req, res) => {
   if (approved) {
     order.status = 'exchange_approved';
     
-    // Restore stock for old items
+    // Restore stock — use the stored snapshot for historical accuracy
     for (const item of order.items) {
-      await Product.findByIdAndUpdate(
-        item.product._id,
-        { $inc: { stock: item.quantity } }
-      );
+      if (item.comboItems && item.comboItems.length > 0) {
+        for (const compId of item.comboItems) {
+          await Product.findByIdAndUpdate(compId, { $inc: { stock: item.quantity } });
+        }
+      } else {
+        await Product.findByIdAndUpdate(
+          item.product._id || item.product,
+          { $inc: { stock: item.quantity } }
+        );
+      }
     }
   } else {
     // Rejected - back to delivered
@@ -695,12 +793,33 @@ router.put('/:id/update', protect, asyncHandler(async (req, res) => {
 
       // Validate new items and check stock
       for (const item of req.body.items) {
-        if (!item.product) continue; // Skip invalid items
+        if (!item.product) {
+          if (item.isDeletedSnapshot && item._id) {
+            // Find the original item in the unpopulated order to grab its raw product ID
+            const originalItem = order.items.find(i => i._id.toString() === item._id.toString());
+            if (originalItem) {
+              newItemsProcessed.push({
+                product: originalItem.product,
+                name: originalItem.name,
+                quantity: Number(item.quantity),
+                price: originalItem.price,
+                size: originalItem.size,
+                comboItems: originalItem.comboItems || []
+              });
+              runningTotalPrice += originalItem.price * Number(item.quantity);
+            }
+          }
+          continue; 
+        }
         
-        const product = await Product.findById(item.product);
+        const product = await Product.findById(item.product).populate('comboItems', 'stock');
         if (!product) {
           res.status(404);
           throw new Error(`Product not found: ${item.product}`);
+        }
+        
+        if (product.isCombo && product.comboItems && product.comboItems.length > 0) {
+          product.stock = Math.min(...product.comboItems.map(i => i.stock || 0));
         }
         
         // Calculate available stock considering what we already hold in the order
@@ -716,31 +835,51 @@ router.put('/:id/update', protect, asyncHandler(async (req, res) => {
           product: product._id,
           name: product.name,
           quantity: Number(item.quantity),
-          price: product.price // Update price to current product price
+          price: product.price, // Update price to current product price
+          size: item.size || '', // Preserve original size if present
+          comboItems: (product.isCombo && product.comboItems?.length > 0)
+            ? product.comboItems.map(c => c._id || c)
+            : []
         });
         runningTotalPrice += product.price * item.quantity;
       }
 
       // If validation passes, apply stock changes
       
-      // 1. Restore stock for ALL old items
+      // 1. Restore stock for ALL old items using the snapshot
       for (const item of order.items) {
         if (item.product) {
-            await Product.findByIdAndUpdate(item.product, {
-            $inc: { stock: item.quantity, sales: -item.quantity }
+          if (item.comboItems && item.comboItems.length > 0) {
+            for (const compId of item.comboItems) {
+              await Product.findByIdAndUpdate(compId, { $inc: { stock: item.quantity, sales: -item.quantity } });
+            }
+            await Product.findByIdAndUpdate(item.product._id || item.product, { $inc: { sales: -item.quantity } });
+          } else {
+            await Product.findByIdAndUpdate(item.product._id || item.product, {
+              $inc: { stock: item.quantity, sales: -item.quantity }
             });
+          }
         }
       }
 
       // 2. Deduct stock for ALL new items
       for (const item of newItemsProcessed) {
-        await Product.findByIdAndUpdate(item.product, {
-          $inc: { stock: -item.quantity, sales: item.quantity }
-        });
+        const product = await Product.findById(item.product);
+        if (product && product.isCombo && product.comboItems && product.comboItems.length > 0) {
+          for (const compId of product.comboItems) {
+            await Product.findByIdAndUpdate(compId, { $inc: { stock: -item.quantity, sales: item.quantity } });
+          }
+          await Product.findByIdAndUpdate(product._id, { $inc: { sales: item.quantity } });
+        } else {
+          await Product.findByIdAndUpdate(item.product, {
+            $inc: { stock: -item.quantity, sales: item.quantity }
+          });
+        }
       }
 
       order.items = newItemsProcessed;
-      order.totalPrice = runningTotalPrice; // Recalculate total price
+      // Recalculate total price ensuring we keep original shipping and coupon discounts
+      order.totalPrice = Math.max(0, runningTotalPrice + (order.shippingPrice || 0) - (order.couponDiscount || 0)); 
     }
 
     const updatedOrder = await order.save();

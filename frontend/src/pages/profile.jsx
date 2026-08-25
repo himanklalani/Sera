@@ -300,6 +300,7 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
+    if (!window.confirm('Are you sure you want to log out?')) return;
     localStorage.removeItem('userInfo');
     navigate('/login');
   };
@@ -523,7 +524,14 @@ const Profile = () => {
                               )}
                             </div>
                             <div className="flex-1">
-                              <h4 className="font-serif text-gray-900">{item.product?.name || 'Product'}</h4>
+                              <h4 className="font-serif text-gray-900 flex items-center flex-wrap gap-2">
+                                <span>{item.name || item.product?.name || 'Product'}</span>
+                                {(!item.product || item.product?.stock <= 0) && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-red-50 text-red-600 border border-red-100">
+                                    Out of Stock
+                                  </span>
+                                )}
+                              </h4>
                               <p className="text-sm text-gray-500">Qty: {item.quantity}{item.size && ` | Size: ${item.size}`}</p>
                             </div>
                             <div className="text-right">

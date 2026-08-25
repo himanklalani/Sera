@@ -26,7 +26,14 @@ const orderSchema = new mongoose.Schema({
       type: String,
       trim: true
     },
-    name: String // Add product name for reference
+    name: String, // Product name snapshot for reference
+    // Snapshot of combo components at time of purchase.
+    // Ensures cancellations/exchanges restore stock to the ORIGINAL components,
+    // even if the admin later changes the combo definition.
+    comboItems: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product'
+    }]
   }],
   totalPrice: { 
     type: Number, 

@@ -62,7 +62,7 @@ const AdminDashboard = () => {
   
   const fetchAllProducts = async () => {
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products?limit=1000`);
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products?limit=1000&isAddon=all`);
       setAllProducts(
         Array.isArray(data?.products) 
           ? data.products 
@@ -85,6 +85,8 @@ const AdminDashboard = () => {
     selectedStyles: [],
     accentPairs: '',
     isAddon: false,
+    isCombo: false,
+    comboItems: [],
   });
 
   const convertDriveLink = (link) => {
@@ -485,7 +487,12 @@ const AdminDashboard = () => {
       },
       status: order.status || 'pending',
       items: order.items.map(item => ({
+        _id: item._id,
         product: item.product?._id || item.product || '',
+        name: item.name || item.product?.name || 'Deleted Product',
+        price: item.price || 0,
+        size: item.size || '',
+        isDeletedSnapshot: !item.product,
         quantity: item.quantity || 1
       }))
     });
@@ -496,7 +503,7 @@ const AdminDashboard = () => {
   const handleUpdateOrder = async (e) => {
     e.preventDefault();
 
-    const validItems = orderForm.items.filter(item => item.product && item.quantity > 0);
+    const validItems = orderForm.items.filter(item => (item.product || item.isDeletedSnapshot) && item.quantity > 0);
     if (validItems.length === 0) {
       alert('Order must have at least one valid item');
       return;
@@ -702,13 +709,15 @@ const AdminDashboard = () => {
         setFormData({
           name: data.name || '',
           price: data.price || '',
-          category: data.category || 'NECKLACE',
+          category: data.category || 'necklace',
           stock: data.stock || '',
           description: data.description || '',
           images: Array.isArray(data.images) ? data.images : [],
           selectedStyles: foundStyles,
           accentPairs: data.accentPairs ? data.accentPairs.map(p => (typeof p === 'object' ? p.name : p)).join(', ') : '',
           isAddon: data.isAddon || false,
+          isCombo: data.isCombo || false,
+          comboItems: data.comboItems ? data.comboItems.map(item => (typeof item === 'object' ? item._id : item)) : [],
         });
       } catch (error) {
         console.error("Failed to fetch product details", error);
@@ -716,13 +725,15 @@ const AdminDashboard = () => {
         setFormData({
             name: product.name || '',
             price: product.price || '',
-            category: product.category || 'NECKLACE',
+            category: product.category || 'necklace',
             stock: product.stock || '',
             description: product.description || '',
             images: Array.isArray(product.images) ? product.images : [],
             selectedStyles: [],
             accentPairs: product.accentPairs ? product.accentPairs.join(', ') : '',
             isAddon: product.isAddon || false,
+            isCombo: product.isCombo || false,
+            comboItems: product.comboItems || [],
         });
       }
     } else {
@@ -730,16 +741,20 @@ const AdminDashboard = () => {
       setFormData({
         name: '',
         price: '',
-        category: 'NECKLACE',
+        category: 'necklace',
         stock: '',
         description: '',
         images: [],
         selectedStyles: [],
         accentPairs: '',
         isAddon: false,
+        isCombo: false,
+        comboItems: [],
       });
     }
     setIsModalOpen(true);
+    // Fetch all products for combo selection
+    fetchAllProducts();
   };
 
   const uploadFileHandler = async (e) => {
@@ -810,9 +825,9 @@ const AdminDashboard = () => {
 
     const productData = {
       name: formData.name,
-      price: parseFloat(formData.price),
+      price: parseFloat(formData.price) || 0,
       category: formData.category,
-      stock: parseInt(formData.stock),
+      stock: formData.isCombo ? 0 : (parseInt(formData.stock) || 0),
       description: formData.description,
       images: formData.images
         .map((img) => {
@@ -825,6 +840,8 @@ const AdminDashboard = () => {
       tags: tags,
       accentPairs: formData.accentPairs ? formData.accentPairs.split(',').map(id => id.trim()).filter(id => id) : [],
       isAddon: formData.isAddon,
+      isCombo: formData.isCombo,
+      comboItems: formData.isCombo ? formData.comboItems : [],
     };
 
     try {
@@ -1362,7 +1379,7 @@ const AdminDashboard = () => {
                     <ul className="list-disc pl-4 space-y-1">
                       {cart.items.map((item, i) => (
                         <li key={i}>
-                          {item.product?.name || 'Unknown Product'} (x{item.quantity})
+                          {item.name || item.product?.name || 'Unknown Product'} (x{item.quantity})
                         </li>
                       ))}
                     </ul>
@@ -2271,7 +2288,7 @@ const AdminDashboard = () => {
                     required
                   />
                 </div>
-                <div>
+                <div className={formData.isCombo ? 'hidden' : 'block'}>
                   <label className="block text-sm font-medium text-gray-700">
                     Stock
                   </label>
@@ -2282,9 +2299,49 @@ const AdminDashboard = () => {
                       setFormData({ ...formData, stock: e.target.value })
                     }
                     className="w-full border p-2 rounded"
-                    required
+                    required={!formData.isCombo}
                   />
                 </div>
+              </div>
+
+              {/* IS COMBO TOGGLE */}
+              <div className="mt-4 mb-2 bg-blue-50 p-4 rounded-lg border border-blue-100">
+                <label className="flex items-center gap-2 cursor-pointer font-medium text-blue-900 mb-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.isCombo}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isCombo: e.target.checked })
+                    }
+                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  Is this a Combo / Bundle?
+                </label>
+                
+                {formData.isCombo && (
+                  <div className="mt-3">
+                    <p className="text-xs text-blue-700 mb-2">Select the products that make up this combo:</p>
+                    <div className="max-h-48 overflow-y-auto border border-blue-200 rounded bg-white p-2 space-y-2">
+                      {allProducts.filter(p => !p.isCombo).map(p => (
+                        <label key={p._id} className="flex items-center gap-2 cursor-pointer p-1 hover:bg-gray-50 rounded">
+                          <input
+                            type="checkbox"
+                            checked={formData.comboItems.includes(p._id)}
+                            onChange={(e) => {
+                              const newItems = e.target.checked
+                                ? [...formData.comboItems, p._id]
+                                : formData.comboItems.filter(id => id !== p._id);
+                              setFormData({ ...formData, comboItems: newItems });
+                            }}
+                            className="w-4 h-4 text-blue-500 rounded"
+                          />
+                          <img src={p.images?.[0] || 'https://picsum.photos/150/150?grayscale'} alt={p.name} className="w-8 h-8 rounded object-cover" />
+                          <span className="text-sm text-gray-700 truncate">{p.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="mt-2 mb-4 bg-rose-50 p-3 rounded-lg border border-rose-100">
@@ -2315,11 +2372,11 @@ const AdminDashboard = () => {
                   disabled={formData.isAddon}
                   className="w-full border p-2 rounded disabled:bg-gray-100 disabled:text-gray-400"
                 >
-                  <option value="NECKLACE">NECKLACE</option>
-                  <option value="EARRINGS">EARRINGS</option>
-                  <option value="BRACELET">BRACELET</option>
-                  <option value="COMBOS">COMBOS</option>
-                  <option value="APPAREL">APPAREL</option>
+                  <option value="necklace">NECKLACE</option>
+                  <option value="earrings">EARRINGS</option>
+                  <option value="bracelet">BRACELET</option>
+                  <option value="combos">COMBOS</option>
+                  <option value="apparel">APPAREL</option>
                 </select>
               </div>
               <div>
@@ -2614,22 +2671,28 @@ const AdminDashboard = () => {
                     <div key={index} className="flex gap-2 items-start bg-white p-3 rounded border">
                       <div className="flex-1">
                         <label className="block text-xs text-gray-500 mb-1">Product</label>
-                        <select
-                          value={item.product || ''}
-                          onChange={(e) => {
-                            const newItems = [...orderForm.items];
-                            newItems[index].product = e.target.value;
-                            setOrderForm({ ...orderForm, items: newItems });
-                          }}
-                          className="w-full border p-1 rounded text-sm"
-                        >
-                          <option value="">Select Product</option>
-                          {allProducts.map(p => (
-                            <option key={p._id} value={p._id}>
-                              {p.name} (Stock: {p.stock})
-                            </option>
-                          ))}
-                        </select>
+                        {item.isDeletedSnapshot ? (
+                          <div className="w-full border p-1 rounded text-sm bg-red-50 text-red-600 font-medium">
+                            {item.name} (Deleted)
+                          </div>
+                        ) : (
+                          <select
+                            value={item.product || ''}
+                            onChange={(e) => {
+                              const newItems = [...orderForm.items];
+                              newItems[index].product = e.target.value;
+                              setOrderForm({ ...orderForm, items: newItems });
+                            }}
+                            className="w-full border p-1 rounded text-sm"
+                          >
+                            <option value="">Select Product</option>
+                            {allProducts.map(p => (
+                              <option key={p._id} value={p._id}>
+                                {p.name} (Stock: {p.stock})
+                              </option>
+                            ))}
+                          </select>
+                        )}
                       </div>
                       <div className="w-20">
                         <label className="block text-xs text-gray-500 mb-1">Qty</label>

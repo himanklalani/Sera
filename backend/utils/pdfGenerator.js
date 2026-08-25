@@ -65,7 +65,7 @@ const generateInvoiceBase64 = (order) => {
         const itemPrice = formatAmount(item.price);
         const itemTotal = formatAmount(itemPrice * item.quantity);
 
-        doc.text(item.product?.name || 'Product', 60, y, { width: 220 });
+        doc.text(item.name || item.product?.name || 'Product', 60, y, { width: 220 });
         doc.text(`Rs. ${itemPrice}`, 280, y, { width: 90, align: 'right' });
         doc.text(item.quantity.toString(), 370, y, { width: 90, align: 'right' });
         doc.text(`Rs. ${itemTotal}`, 460, y, { width: 90, align: 'right' });

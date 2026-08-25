@@ -37,16 +37,22 @@ const resolveProductNamesToIds = async (identifiers) => {
 
 // Input validation middleware
 const validateProductInput = (req, res, next) => {
-  const { name, price, description, category, images, stock } = req.body;
+  const { name, price, description, category, images, stock, isCombo } = req.body;
   
   if (!name || !price || !category) {
     res.status(400);
     throw new Error('Name, price, and category are required');
   }
   
-  if (price < 0 || stock < 0) {
+  if (price < 0) {
     res.status(400);
-    throw new Error('Price and stock cannot be negative');
+    throw new Error('Price cannot be negative');
+  }
+  
+  // Only enforce stock check for non-combo products
+  if (!isCombo && (stock === undefined || stock === null || stock < 0)) {
+    res.status(400);
+    throw new Error('Stock is required and cannot be negative for non-combo products');
   }
   
   if (images && !Array.isArray(images)) {
@@ -82,12 +88,22 @@ const validateReviewInput = (req, res, next) => {
 router.get('/bestsellers', asyncHandler(async (req, res) => {
   const limit = 12; // Top 12 best-selling products
   
-  // Simple query: sort by sales descending, only in-stock items
-  const products = await Product.find({ stock: { $gt: 0 } })
+  // Simple query: sort by sales descending, only in-stock items or combos
+  const rawProducts = await Product.find({ $or: [{ stock: { $gt: 0 } }, { isCombo: true }] })
     .sort({ sales: -1, createdAt: -1 })
-    .limit(limit)
-    .select('name price category images stock rating numReviews sales createdAt tags')
+    .select('name price category images stock rating numReviews sales createdAt tags isCombo comboItems')
+    .populate('comboItems', 'stock')
     .lean();
+
+  const products = rawProducts
+    .map(p => {
+      if (p.isCombo && p.comboItems && p.comboItems.length > 0) {
+        p.stock = Math.min(...p.comboItems.map(item => item?.stock || 0));
+      }
+      return p;
+    })
+    .filter(p => p.stock > 0) // ensure virtual combos with 0 stock don't show
+    .slice(0, limit);
 
   res.json({
     products,
@@ -140,7 +156,7 @@ router.get('/', asyncHandler(async (req, res) => {
 
   // Filter by stock availability
   if (req.query.inStock === 'true') {
-    query.stock = { $gt: 0 };
+    query.$or = [{ stock: { $gt: 0 } }, { isCombo: true }];
   }
 
   // Handle Add-ons filter
@@ -178,12 +194,20 @@ router.get('/', asyncHandler(async (req, res) => {
   }
 
   // Fetch products with optimized select
-  const products = await Product.find(query)
+  const rawProducts = await Product.find(query)
     .sort(sortOption)
     .limit(limit)
     .skip(skip)
-    .select('name price category images stock rating numReviews sales createdAt tags')
+    .select('name price category images stock rating numReviews sales createdAt tags isCombo comboItems')
+    .populate('comboItems', 'stock')
     .lean();
+
+  const products = rawProducts.map(p => {
+    if (p.isCombo && p.comboItems && p.comboItems.length > 0) {
+      p.stock = Math.min(...p.comboItems.map(item => item?.stock || 0));
+    }
+    return p;
+  });
 
   res.json({
     products,
@@ -201,12 +225,24 @@ router.get('/top-bestsellers', asyncHandler(async (req, res) => {
   const topBestsellerIds = [];
 
   for (const cat of categories) {
-    const topProduct = await Product.findOne({ category: { $regex: new RegExp(`^${cat}$`, 'i') }, stock: { $gt: 0 } })
+    const topProducts = await Product.find({ category: { $regex: new RegExp(`^${cat}$`, 'i') }, $or: [{ stock: { $gt: 0 } }, { isCombo: true }] })
       .sort({ sales: -1, views: -1, createdAt: -1 })
-      .select('_id')
+      .select('_id isCombo comboItems stock')
+      .populate('comboItems', 'stock')
+      .limit(5)
       .lean();
-    if (topProduct) {
-      topBestsellerIds.push(topProduct._id);
+      
+    for (const p of topProducts) {
+      if (p.isCombo && p.comboItems && p.comboItems.length > 0) {
+        const vStock = Math.min(...p.comboItems.map(i => i?.stock || 0));
+        if (vStock > 0) {
+          topBestsellerIds.push(p._id);
+          break;
+        }
+      } else if (p.stock > 0) {
+        topBestsellerIds.push(p._id);
+        break;
+      }
     }
   }
 
@@ -288,13 +324,19 @@ router.get('/:id', asyncHandler(async (req, res) => {
       select: 'rating comment name createdAt user',
       populate: { path: 'user', select: 'name' }
     })
-    .populate('accentPairs', 'name price images category');
+    .populate('accentPairs', 'name price images category')
+    .populate('comboItems', 'name images price stock category');
   
   if (product) {
+    const productObj = product.toObject();
+    if (productObj.isCombo && productObj.comboItems && productObj.comboItems.length > 0) {
+      productObj.stock = Math.min(...productObj.comboItems.map(item => item?.stock || 0));
+    }
+    
     // Increment views asynchronously
     Product.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } }).exec().catch(err => console.error('Failed to update views:', err));
     
-    res.json(product);
+    res.json(productObj);
   } else {
     res.status(404);
     throw new Error('Product not found');
@@ -306,7 +348,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 router.post('/', protect, admin, validateProductInput, asyncHandler(async (req, res) => {
-  const { name, price, description, category, images, stock, tags, accentPairs, isAddon } = req.body;
+  const { name, price, description, category, images, stock, tags, accentPairs, isAddon, isCombo, comboItems } = req.body;
 
   const resolvedAccentPairs = await resolveProductNamesToIds(accentPairs);
 
@@ -316,10 +358,12 @@ router.post('/', protect, admin, validateProductInput, asyncHandler(async (req, 
     description,
     category,
     images,
-    stock,
+    stock: isCombo ? 0 : stock, // Combos don't have physical stock
     tags,
     accentPairs: resolvedAccentPairs,
     isAddon: Boolean(isAddon),
+    isCombo: Boolean(isCombo),
+    comboItems: isCombo ? comboItems : [],
     user: req.user._id,
   });
 
@@ -358,6 +402,12 @@ router.put('/:id', protect, admin, validateProductInput, asyncHandler(async (req
     
     if (req.body.isAddon !== undefined) {
       product.isAddon = Boolean(req.body.isAddon);
+    }
+
+    if (req.body.isCombo !== undefined) {
+      product.isCombo = Boolean(req.body.isCombo);
+      product.comboItems = req.body.isCombo ? (req.body.comboItems || []) : [];
+      if (product.isCombo) product.stock = 0; // ensure no physical stock is tracked
     }
     
     if (req.body.accentPairs) {
@@ -413,9 +463,17 @@ router.delete('/:id', protect, admin, asyncHandler(async (req, res) => {
   if (product) {
     await Review.deleteMany({ product: req.params.id });
     
+    // Remove from accentPairs of other products
     await Product.updateMany(
       { accentPairs: req.params.id },
       { $pull: { accentPairs: req.params.id } }
+    );
+
+    // Remove from comboItems of any combos that reference this product.
+    // Without this, combo populate calls would return null and crash the API.
+    await Product.updateMany(
+      { comboItems: req.params.id },
+      { $pull: { comboItems: req.params.id } }
     );
 
     await product.deleteOne();

@@ -6,12 +6,12 @@ const SizeGuide = () => {
   const [unit, setUnit] = useState('in');
 
   const apparelData = [
-    { name: 'Bust', sizes: [32, 34, 36, 38, 40] },
-    { name: 'Under Bust', sizes: [27, 29, 31, 33, 35] },
-    { name: 'Waist', sizes: [24, 26, 28, 30, 32] },
-    { name: 'High Hip', sizes: [32, 34, 36, 38, 40] },
-    { name: 'Shoulder', sizes: [13, 13.5, 14, 14.5, 15] },
-    { name: 'Armhole', sizes: [15, 16, 17, 18, 19] },
+    { name: 'Bust', sizes: [32, 34, 36, 38] },
+    { name: 'Under Bust', sizes: [27, 29, 31, 33] },
+    { name: 'Waist', sizes: [24, 26, 28, 30] },
+    { name: 'High Hip', sizes: [32, 34, 36, 38] },
+    { name: 'Shoulder', sizes: [13, 13.5, 14, 14.5] },
+    { name: 'Armhole', sizes: [15, 16, 17, 18] },
   ];
 
   // Helper to format values elegantly
@@ -83,7 +83,6 @@ const SizeGuide = () => {
                 <th className="py-8 px-4 font-semibold text-lg md:text-xl text-gray-900 text-center">S</th>
                 <th className="py-8 px-4 font-semibold text-lg md:text-xl text-gray-900 text-center">M</th>
                 <th className="py-8 px-4 font-semibold text-lg md:text-xl text-gray-900 text-center">L</th>
-                <th className="py-8 px-4 font-semibold text-lg md:text-xl text-gray-900 text-center">XL</th>
               </tr>
             </thead>
             <tbody>

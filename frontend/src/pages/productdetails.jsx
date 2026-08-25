@@ -666,7 +666,6 @@ const ProductDetails = () => {
                    selectedSize === 'S'  ? <span>Chest 34" <span className="text-gray-300 font-light mx-1.5">|</span> Waist 26" <span className="text-gray-300 font-light mx-1.5">|</span> Hip 34"</span> :
                    selectedSize === 'M'  ? <span>Chest 36" <span className="text-gray-300 font-light mx-1.5">|</span> Waist 28" <span className="text-gray-300 font-light mx-1.5">|</span> Hip 36"</span> :
                    selectedSize === 'L'  ? <span>Chest 38" <span className="text-gray-300 font-light mx-1.5">|</span> Waist 30" <span className="text-gray-300 font-light mx-1.5">|</span> Hip 38"</span> :
-                   selectedSize === 'XL' ? <span>Chest 40" <span className="text-gray-300 font-light mx-1.5">|</span> Waist 32" <span className="text-gray-300 font-light mx-1.5">|</span> Hip 40"</span> :
                    <span className="text-gray-500">Select a size to view measurements</span>}
                 </div>
                 <button 
@@ -679,7 +678,7 @@ const ProductDetails = () => {
 
               {/* Size Buttons */}
               <div className="flex flex-wrap gap-3 mb-6">
-                {['XS', 'S', 'M', 'L', 'XL'].map((size) => (
+                {['XS', 'S', 'M', 'L'].map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
@@ -1155,7 +1154,6 @@ const ProductDetails = () => {
                   { size: 'S',  chestIn: '34–35', chestCm: '86–89', lengthIn: '24', lengthCm: '61' },
                   { size: 'M',  chestIn: '36–37', chestCm: '91–94', lengthIn: '25', lengthCm: '63' },
                   { size: 'L',  chestIn: '38–40', chestCm: '96–101', lengthIn: '26', lengthCm: '66' },
-                  { size: 'XL', chestIn: '41–43', chestCm: '104–109', lengthIn: '27', lengthCm: '68' },
                 ].map((row, i) => (
                   <tr key={row.size} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="px-3 py-3 font-semibold text-gray-900 text-center">{row.size}</td>

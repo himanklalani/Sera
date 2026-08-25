@@ -2310,9 +2310,15 @@ const AdminDashboard = () => {
                   <input
                     type="checkbox"
                     checked={formData.isCombo}
-                    onChange={(e) =>
-                      setFormData({ ...formData, isCombo: e.target.checked })
-                    }
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        isCombo: checked,
+                        category: checked ? 'combos' : prev.category,
+                        isAddon: checked ? false : prev.isAddon
+                      }));
+                    }}
                     className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                   />
                   Is this a Combo / Bundle?
@@ -2352,7 +2358,8 @@ const AdminDashboard = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, isAddon: e.target.checked })
                     }
-                    className="w-4 h-4 text-rose-500 border-gray-300 rounded focus:ring-rose-500"
+                    disabled={formData.isCombo}
+                    className="w-4 h-4 text-rose-500 border-gray-300 rounded focus:ring-rose-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <span className="text-sm font-medium text-gray-700">
                     Is this an Add-on / Upsell item? (Hidden from main shop, shown in Cart)
@@ -2369,7 +2376,7 @@ const AdminDashboard = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  disabled={formData.isAddon}
+                  disabled={formData.isAddon || formData.isCombo}
                   className="w-full border p-2 rounded disabled:bg-gray-100 disabled:text-gray-400"
                 >
                   <option value="necklace">NECKLACE</option>

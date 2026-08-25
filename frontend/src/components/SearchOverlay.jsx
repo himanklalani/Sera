@@ -15,7 +15,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
     if (!isOpen) return;
     setLoading(true);
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`);
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products?limit=1000`);
       // ✅ Handle ALL response formats
       setProducts(Array.isArray(data.products) ? data.products : Array.isArray(data) ? data : []);
     } catch (error) {

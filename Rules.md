@@ -33,7 +33,7 @@ The React frontend utilizes standard Vite configs and React Router DOM v7 client
 
 ### Router Map (`App.jsx`)
 * **Core Pages**:
-  * `/` ➔ `Home` (Hero sections, sliding flyers, category panels, gifting slider)
+  * `/` ➔ `Home` (Hero sections, WebGL shader slider, category panels, gifting slider, bento collections)
   * `/shop` ➔ `Shop` (Dynamic search/filter catalogue synced to URL query string parameters)
   * `/product/:id` ➔ `ProductDetails` (Individual item pages, reviews, sharing utilities, and coordinate items)
   * `/cart` ➔ `Cart` (Shopping drawer list, quantity adjustments)
@@ -51,8 +51,17 @@ The React frontend utilizes standard Vite configs and React Router DOM v7 client
   * `/terms` ➔ `TermsPage`
   * `/returns` ➔ `Returns`
   * `/contact` ➔ `Contact`
+  * `/jewelry-care` ➔ `JewelryCare`
+  * `/materials` ➔ `MaterialsGuide`
+* **SEO & Content Discovery Pages**:
+  * `/gifts` ➔ `GiftingHub` (Curated gifting collections)
+  * `/size-guide` ➔ `SizeGuide` (Jewelry sizing charts)
+  * `/sustainability` ➔ `Sustainability` (Eco-friendly standards and sourcing)
+  * `/sitemap` ➔ `Sitemap` (HTML sitemap for user navigation & crawler indexing)
+  * `/journal` ➔ `BlogList` (SEO Editorial & Brand Blog index)
+  * `/journal/:slug` ➔ `BlogPost` (Individual blog articles)
 * **Administrative Pages**:
-  * `/admin` ➔ `AdminDashboard` (Controls products, orders, categories, contacts, and coupons)
+  * `/admin` ➔ `AdminDashboard` (Controls products, orders, categories, contacts, blogs, and coupons)
 
 ---
 
@@ -105,6 +114,14 @@ All animations utilize `framer-motion` to keep the UI smooth and responsive.
   exit={{ opacity: 0, y: -20 }}
   ```
 * **Hover elements**: `whileHover={{ scale: 1.02 }}` over search results list.
+
+### Hero WebGL Shader Slider (`lumina-interactive-list.tsx`)
+* **WebGL Shaders (Three.js + GSAP)**: Custom fragment shader driving glass refraction, frost, and ripple transitions.
+* **Low-End GPU Stabilization (Mali GPUs)**: GLSL fragment shaders use **branchless math** (avoiding conditional `if` statements in favor of `mix()` and `step()` functions) to prevent shader compilation crashes and expanding circle artifacts on mobile Mali GPUs.
+
+### Preloader Component (`Preloader.jsx`)
+* **Asset Prefetching**: Blocks UI render until all 4 core Hero WebGL slide textures AND primary Category images (Earrings, Bracelet, Necklace) are fully loaded into browser memory.
+* **Cinematic Easing**: Smooth cubic-bezier animation with fallback network timeout safety.
 
 ### Flying Offers Flyer Banner (`Home.jsx`)
 * **Flyer Entrance**: Slides, scales, and rotates in:
@@ -209,13 +226,15 @@ Images are divided into local assets and optimized Cloudinary URLs.
 * Implements an `IntersectionObserver` to trigger image downloads with `rootMargin: '100px'` and `threshold: 0.01`.
 * Replaces standard links with custom resolution bounds if hosting via Unsplash (`q=75&auto=format&fit=crop&w=2000`).
 
-### Cloudinary Integration Pipeline
+### Cloudinary Integration & Image Optimization Pipeline
 * **API Route**: `/api/upload` (single upload) and `/api/upload/multiple` (batch upload up to 10 images)
 * **Backend Controller**: Multer captures media into memory buffer blocks and forwards it directly to Cloudinary streams.
 * **Cloudinary Auto-optimization rules**:
   * Folder target: `jewelry-products`
   * Scaling transform: `width: 2000, height: 2000, crop: 'limit'`
   * Auto quality rules: `quality: 'auto:best'`
+* **Mobile Payload & Dimension Constraints**:
+  * Carousel cards & Bento Grid images must specify explicit width caps (`f_auto,q_auto,w_800` or `w_600`) in Cloudinary URLs to eliminate mobile rendering lag and frame drops.
 * **Database Mapping**: The secure URL (`result.secure_url`) is stored in the database under `Product.images`.
 
 ---

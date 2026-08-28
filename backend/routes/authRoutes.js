@@ -210,7 +210,12 @@ router.post('/login', asyncHandler(async (req, res) => {
   // Only search in User collection (verified users only)
   const user = await User.findOne({ email });
 
-  if (user && (await user.matchPassword(password))) {
+  if (!user) {
+    res.status(401);
+    throw new Error('No account found with this email. Please register first.');
+  }
+
+  if (await user.matchPassword(password)) {
     res.json({
       _id: user._id,
       name: user.name,
@@ -221,7 +226,7 @@ router.post('/login', asyncHandler(async (req, res) => {
     });
   } else {
     res.status(401);
-    throw new Error('Invalid email or password');
+    throw new Error('Incorrect password. Please try again.');
   }
 }));
 

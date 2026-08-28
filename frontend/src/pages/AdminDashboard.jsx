@@ -381,12 +381,9 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error('Error fetching data:', error);
       
-      // If token is invalid or expired, log them out completely
-      if (error.response?.status === 401 || error.response?.status === 403) {
-        localStorage.removeItem('userInfo');
-        navigate('/login');
-        return;
-      }
+      // 401/403 errors are now handled globally by AxiosInterceptor
+      // which will wipe localStorage and redirect with ?redirect=/admin preserved
+      if (error.response?.status === 401 || error.response?.status === 403) return;
       
       toast.error(`Failed to fetch ${activeTab}: ` + (error.response?.data?.message || error.message));
       

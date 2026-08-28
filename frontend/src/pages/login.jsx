@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCart } from '../components/CartContext';
 import { GoogleLogin } from '@react-oauth/google';
@@ -13,6 +13,10 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Read the ?redirect= param set by AxiosInterceptor when session expires
+  const redirectTo = new URLSearchParams(location.search).get('redirect') || null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +25,9 @@ const Login = () => {
       const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, { email, password });
       localStorage.setItem('userInfo', JSON.stringify(data));
       await fetchCart();
-      if (data.role === 'admin') {
+      if (redirectTo) {
+        navigate(redirectTo);
+      } else if (data.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/');
@@ -41,7 +47,9 @@ const Login = () => {
       });
       localStorage.setItem('userInfo', JSON.stringify(data));
       await fetchCart();
-      if (data.role === 'admin') {
+      if (redirectTo) {
+        navigate(redirectTo);
+      } else if (data.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/');

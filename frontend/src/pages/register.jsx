@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 // Register.jsx
 import { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { GoogleLogin } from '@react-oauth/google';
@@ -18,6 +18,8 @@ const Register = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = new URLSearchParams(location.search).get('redirect') || null;
 
 
   const handleRegister = async (e) => {
@@ -49,7 +51,7 @@ const Register = () => {
         credential: credentialResponse.credential
       });
       localStorage.setItem('userInfo', JSON.stringify(data));
-      navigate('/');
+      navigate(redirectTo || '/');
     } catch (err) {
       setError(err.response?.data?.message || 'Google Sign Up failed');
       setLoading(false);
@@ -70,7 +72,7 @@ const Register = () => {
       });
       
       localStorage.setItem('userInfo', JSON.stringify(data));
-      navigate('/');
+      navigate(redirectTo || '/');
     } catch (err) {
       setError(err.response?.data?.message || 'OTP verification failed');
       setLoading(false);

@@ -767,7 +767,9 @@ const Shop = () => {
             {/* SEO Content Block */}
             <div className="mt-16 pt-8 border-t border-gray-100 pb-12">
               <h2 className="text-xl md:text-2xl font-serif text-gray-900 mb-4">
-                {selectedCategory === 'All' ? 'Affordable Anti-Tarnish Jewelry' : `High-Quality Anti-Tarnish ${selectedCategory}`}
+                {selectedCategory === 'All' ? 'Affordable Anti-Tarnish Jewelry' 
+                  : selectedCategory === 'Apparel' ? 'Premium Everyday Apparel'
+                  : `High-Quality Anti-Tarnish ${selectedCategory}`}
               </h2>
               <p className="text-gray-600 text-sm md:text-base leading-relaxed max-w-4xl">
                 {seoDescriptions[selectedCategory] || seoDescriptions['All']}

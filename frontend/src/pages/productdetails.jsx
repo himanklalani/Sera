@@ -424,8 +424,8 @@ const ProductDetails = () => {
   return (
     <>
       <SEO 
-        title={`${product.name} | Affordable Anti-Tarnish ${product.category}`}
-        description={product.description?.substring(0, 160) || `Buy the ${product.name}. Affordable, waterproof, and high-quality anti-tarnish jewelry.`}
+        title={`${product.name} | ${product.category === 'Apparel' ? 'Premium Everyday Apparel' : `Affordable Anti-Tarnish ${product.category}`}`}
+        description={product.description?.substring(0, 160) || `Buy the ${product.name}. ${product.category === 'Apparel' ? 'Premium, minimal, and everyday comfortable apparel.' : 'Affordable, waterproof, and high-quality anti-tarnish jewelry.'}`}
         canonicalUrl={`https://www.serastore.in/product/${product._id}`}
         ogImage={product.images?.[0] || FALLBACK_IMAGE}
         schema={[jsonLd, breadcrumbSchema]}

@@ -906,75 +906,66 @@ const HeroSection = () => {
 // ApparelDropSection
 // ============================================
 const ApparelDropSection = () => (
-  <section className="relative overflow-hidden bg-[#0c0c0c]">
-    <div className="flex flex-col md:flex-row min-h-[90vh]">
+  <section className="relative w-full min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden">
+    {/* Background Image */}
+    <div className="absolute inset-0">
+      <img
+        src="https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto/q_auto/v1788087694/good12_kzhffe.jpg"
+        alt="Sera Apparel Collection"
+        className="w-full h-full object-cover object-[center_30%]"
+      />
+      {/* Gradient Overlay for Text Readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-black/50 to-black/30" />
+    </div>
 
-      {/* LEFT: Image with Double-Bezel outer shell */}
-      <div className="relative w-full md:w-[58%] min-h-[55vw] md:min-h-full">
-        {/* Outer shell — the tray */}
-        <div className="absolute inset-3 rounded-[2rem] ring-1 ring-white/8 overflow-hidden">
-          {/* Inner core — the glass plate */}
-          <div className="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-[#0c0c0c] rounded-[calc(2rem-0.375rem)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] flex items-center justify-center overflow-hidden">
-            {/* Placeholder: replace src with your Cloudinary URL */}
-            <span className="text-stone-600 text-[10px] tracking-[0.3em] uppercase select-none">COMING SOON</span>
-            {/* Subtle radial glow */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_60%,rgba(244,63,94,0.08)_0%,transparent_65%)]" />
-          </div>
-        </div>
-        {/* Bottom depth shadow */}
-        <div className="absolute -bottom-px left-8 right-8 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      </div>
+    {/* Content Overlay */}
+    <div className="relative z-10 w-full max-w-5xl mx-auto px-6 md:px-12 flex flex-col items-center text-center py-20">
+      {/* Headline */}
+      <motion.h2
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, delay: 0.1, ease: [0.32, 0.72, 0, 1] }}
+        viewport={{ once: true }}
+        className="font-serif text-5xl sm:text-6xl md:text-[5.5rem] lg:text-[6.5rem] text-white leading-[0.95] tracking-tight mb-6 drop-shadow-lg"
+      >
+        Wear the
+        <span className="block italic text-rose-300 mt-2">Sera world.</span>
+      </motion.h2>
 
-      {/* RIGHT: Editorial text */}
-      <div className="relative w-full md:w-[42%] flex flex-col justify-center px-8 sm:px-12 md:px-16 lg:px-20 py-20 md:py-32">
+      {/* Body */}
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2, ease: [0.32, 0.72, 0, 1] }}
+        viewport={{ once: true }}
+        className="text-stone-300 text-sm md:text-base leading-[1.8] mb-10 max-w-xl mx-auto font-light tracking-wide drop-shadow-md"
+      >
+        Minimal. Intentional. Made to move with you. Our debut apparel drop pairs effortlessly with every Sera piece you love, soft basics with an elevated edge.
+      </motion.p>
 
-        {/* Headline */}
-        <motion.h2
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.85, delay: 0.08, ease: [0.32,0.72,0,1] }}
-          viewport={{ once: true }}
-          className="font-serif text-5xl sm:text-6xl md:text-[4rem] lg:text-[5rem] text-white leading-[0.92] tracking-tight mb-8"
-        >
-          Wear the
-          <span className="block italic text-rose-300 mt-1">Sera world.</span>
-        </motion.h2>
+      {/* Button-in-Button CTAs */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.3, ease: [0.32, 0.72, 0, 1] }}
+        viewport={{ once: true }}
+        className="flex flex-col sm:flex-row gap-4"
+      >
+        <FramerButton to="/shop?category=APPAREL" variant="light">Explore Apparel</FramerButton>
+        <FramerButton to="/size-guide" variant="transparent">Size Guide</FramerButton>
+      </motion.div>
 
-        {/* Body */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.16, ease: [0.32,0.72,0,1] }}
-          viewport={{ once: true }}
-          className="text-stone-400 text-sm md:text-[15px] leading-[1.8] mb-12 max-w-[320px]"
-        >
-          Minimal. Intentional. Made to move with you. Our debut apparel drop pairs effortlessly with every Sera piece you love, soft basics with an elevated edge.
-        </motion.p>
-
-        {/* Button-in-Button CTAs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.24, ease: [0.32,0.72,0,1] }}
-          viewport={{ once: true }}
-          className="flex flex-col sm:flex-row gap-3"
-        >
-          <FramerButton to="/shop?category=APPAREL" variant="light">Explore Apparel</FramerButton>
-          <FramerButton to="/size-guide" variant="transparent">Size Guide</FramerButton>
-        </motion.div>
-
-        {/* Micro-label at bottom */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.5, ease: [0.32,0.72,0,1] }}
-          viewport={{ once: true }}
-          className="mt-16 flex items-center gap-4"
-        >
-          <div className="h-px w-10 bg-stone-700" />
-          <span className="text-stone-600 text-[10px] tracking-[0.28em] uppercase">Soft. Minimal. Effortless.</span>
-        </motion.div>
-      </div>
+      {/* Micro-label at bottom */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 0.6, ease: [0.32, 0.72, 0, 1] }}
+        viewport={{ once: true }}
+        className="mt-16 flex flex-col items-center gap-4"
+      >
+        <div className="h-[30px] w-px bg-stone-500/50" />
+        <span className="text-stone-400 text-[10px] tracking-[0.3em] uppercase drop-shadow-sm">Soft. Minimal. Effortless.</span>
+      </motion.div>
     </div>
   </section>
 );

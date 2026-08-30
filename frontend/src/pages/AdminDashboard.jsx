@@ -223,6 +223,72 @@ const AdminDashboard = () => {
     });
   }, [debouncedSearch, filters]);
 
+  const exportToCSV = (data, filename, type) => {
+    if (!data || !data.length) {
+      toast.error('No data to export');
+      return;
+    }
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    
+    let headers = [];
+    if (type === 'products') {
+      headers = ['ID', 'Name', 'Category', 'Price', 'Stock', 'Is Combo', 'Is Addon'];
+      csvContent += headers.join(",") + "\r\n";
+      data.forEach(item => {
+        const row = [
+          item._id,
+          `"${(item.name || '').replace(/"/g, '""')}"`,
+          item.category,
+          item.price,
+          item.stock,
+          item.isCombo ? 'Yes' : 'No',
+          item.isAddon ? 'Yes' : 'No'
+        ];
+        csvContent += row.join(",") + "\r\n";
+      });
+    } else if (type === 'users') {
+      headers = ['ID', 'Name', 'Email', 'Role', 'Phone', 'Created At'];
+      csvContent += headers.join(",") + "\r\n";
+      data.forEach(item => {
+        const row = [
+          item._id,
+          `"${(item.name || '').replace(/"/g, '""')}"`,
+          item.email,
+          item.role,
+          item.phone || 'N/A',
+          new Date(item.createdAt).toLocaleDateString()
+        ];
+        csvContent += row.join(",") + "\r\n";
+      });
+    } else if (type === 'orders') {
+      headers = ['Order ID', 'Customer Name', 'Customer Email', 'Status', 'Total Price', 'Payment Method', 'Payment Status', 'Created At'];
+      csvContent += headers.join(",") + "\r\n";
+      data.forEach(item => {
+        const row = [
+          item._id,
+          `"${(item.user?.name || 'Guest').replace(/"/g, '""')}"`,
+          item.user?.email || 'N/A',
+          item.status,
+          item.totalPrice,
+          item.paymentMethod,
+          item.isPaid ? 'Paid' : 'Unpaid',
+          new Date(item.createdAt).toLocaleDateString()
+        ];
+        csvContent += row.join(",") + "\r\n";
+      });
+    }
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`${filename} exported successfully!`);
+  };
+
   const downloadInvoice = async (orderId) => {
     try {
       const ui = getUserInfo();
@@ -1930,19 +1996,34 @@ const AdminDashboard = () => {
         <div>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-serif">Product Management</h2>
-            <button
-              onClick={() => handleOpenModal()}
-              className="bg-rose-500 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-rose-600 transition-colors disabled:opacity-50"
-              disabled={loading}
-            >
-              <FaPlus /> Add Product
-            </button>
+            <div className="flex gap-2">
+              <button onClick={() => exportToCSV(filteredProducts, 'Products', 'products')} className="bg-emerald-600 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-emerald-700 transition-colors">
+                <FaDownload /> Export CSV
+              </button>
+              <button
+                onClick={() => handleOpenModal()}
+                className="bg-rose-500 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-rose-600 transition-colors disabled:opacity-50"
+                disabled={loading}
+              >
+                <FaPlus /> Add Product
+              </button>
+            </div>
           </div>
           {renderProductsTable()}
         </div>
       )}
 
-      {activeTab === 'users' && <div>{renderUsersTable()}</div>}
+      {activeTab === 'users' && (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-serif">User Management</h2>
+            <button onClick={() => exportToCSV(filteredUsers, 'Users', 'users')} className="bg-emerald-600 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-emerald-700 transition-colors w-max">
+              <FaDownload /> Export CSV
+            </button>
+          </div>
+          {renderUsersTable()}
+        </div>
+      )}
 
       {activeTab === 'categories' && <div>{renderCategoriesTable()}</div>}
 
@@ -2197,13 +2278,18 @@ const AdminDashboard = () => {
         <div className="space-y-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-serif">Order Management</h2>
-            <button
-              onClick={fetchData}
-              className="text-sm text-rose-500 hover:underline"
-              disabled={loading}
-            >
-              Refresh
-            </button>
+            <div className="flex items-center gap-4">
+              <button onClick={() => exportToCSV(filteredOrders, 'Orders', 'orders')} className="bg-emerald-600 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-emerald-700 transition-colors">
+                <FaDownload /> Export CSV
+              </button>
+              <button
+                onClick={fetchData}
+                className="text-sm text-rose-500 hover:underline"
+                disabled={loading}
+              >
+                Refresh
+              </button>
+            </div>
           </div>
           {renderOrdersTable()}
         </div>

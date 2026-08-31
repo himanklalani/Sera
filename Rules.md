@@ -1,23 +1,42 @@
-# SERA Jewelry - Technical Architecture & SEO Master Blueprint
+# SERA Jewelry & Apparel - Technical Architecture & SEO Master Blueprint
 
-This document serves as the master technical blueprint and search engine optimization (SEO) reference for **Sera Jewels** (`https://www.serastore.in`). It provides deep context on brand rules, technical SEO infrastructure, indexing strategy, URL taxonomy, OpenGraph bot intercepts, Core Web Vitals optimizations, component structures, database schemas, and API endpoints.
+This document serves as the master technical blueprint and search engine optimization (SEO) reference for **Sera** (`https://www.serastore.in`). It provides exhaustive context on brand rules, keyword targeting strategy, apparel & jewelry taxonomy, technical SEO infrastructure, indexing strategy, URL taxonomy, OpenGraph bot intercepts, Core Web Vitals optimizations, motion animation specifications, database schemas, and API endpoints.
 
 ---
 
-## 1. Brand Guidelines & Keyword Terminology Policy
+## 1. Brand Guidelines, Target Categories & Keyword Terminology Policy
 
-Sera positions itself as a premium, cutesy, everyday luxury anti-tarnish jewelry brand. The copy across product titles, meta descriptions, image alt tags, and editorial blog posts must adhere strictly to the following terminology rules:
+Sera positions itself as a premium, cutesy, everyday luxury brand specializing in **anti-tarnish waterproof jewelry** and **chic women's apparel & tops**. The copy across product titles, category listings, meta descriptions, image alt tags, and editorial blog posts must strictly adhere to the following keyword and terminology rules:
 
-### Terminology Rules
+### Terminology Rules & Brand Language
 * **STRICTLY FORBIDDEN TERMS**: **Do NOT use "18k", "plating", or "plated"** anywhere in website copy, product descriptions, meta tags, schema markup, or seed scripts.
-* **APPROVED TARGET KEYWORDS**: 
+* **APPROVED JEWELRY TARGET KEYWORDS**: 
   - "PVD Coating" / "18k Gold PVD Coating"
   - "Anti-Tarnish" / "Anti-Tarnish Jewelry"
   - "Waterproof" / "Waterproof Jewelry"
   - "Hypoallergenic Stainless Steel"
-  - "Everyday Luxury"
+  - "Everyday Luxury Jewelry"
   - "Skin-Friendly Jewelry"
-  - "Sweatproof"
+  - "Sweatproof Jewelry"
+* **APPROVED APPAREL & CLOTHES TARGET KEYWORDS**:
+  - "Women's Tops" / "Chic Tops"
+  - "Cotton Blend Tops" / "Premium Cotton Blend"
+  - "Affordable Women's Apparel" / "Trendy Clothes"
+  - "Breathable Fabric Tops"
+  - "Minimalist Women's Wear"
+* **APPROVED COMBOS & GIFTING TARGET KEYWORDS**:
+  - "Jewelry Combo Sets" / "Matching Jewelry Combos"
+  - "Gifting Hub" / "Jewelry Gift Boxes"
+  - "Gifts for Her" / "Birthday Gift Jewelry"
+  - "Anniversary Gift Sets"
+
+### Product Category Taxonomy
+1. **EARRINGS**: Anti-tarnish studs, hoops, drop earrings, and huggies.
+2. **NECKLACES**: Minimalist pendants, layered chains, and statement chokers.
+3. **BRACELETS**: Cuff bracelets, chain bracelets, and charm bangles.
+4. **RINGS**: Adjustable rings, stackable band rings, and solitaire rings.
+5. **COMBOS**: Curated jewelry sets combining matching necklaces, earrings, and bracelets at bundle prices.
+6. **APPAREL**: Premium women's tops, clothes, and everyday wear crafted from breathable cotton blend fabrics.
 
 ### Brand Design Tokens
 * **Primary Typography**: `"Playfair Display", serif` (Enforced on all page headers `h1-h6`, category titles, and luxury banners).
@@ -28,12 +47,13 @@ Sera positions itself as a premium, cutesy, everyday luxury anti-tarnish jewelry
   - Rose 500 (`#f43f5e`): Primary interactive elements, buttons, active states, and callouts.
   - Gold Accent (`#c5a666`): Luxury callout badges, header details, and email templates.
   - Body Text (`#1a1a1a`): High-contrast charcoal black.
+* **Alert & Dialog Policy**: **Native browser dialogs (`window.confirm`, `window.alert`) are strictly prohibited in the UI.** All user confirmations (logout, order cancellation, item deletion) must use custom `toast.custom()` notifications from `react-hot-toast` with styled React components.
 
 ---
 
 ## 2. Technical SEO Architecture & Strategy
 
-Sera is built as a single-page application (SPA) using React, Vite, and Vercel. Because standard SPAs rely on client-side rendering (CSR), specific server-side interceptors, dynamic sitemaps, and canonical management systems are implemented.
+Sera is built as a single-page application (SPA) using React, Vite, and Vercel. Specific server-side interceptors, dynamic XML sitemaps, and canonical management systems ensure flawless search engine indexing and bot rendering.
 
 ### A. Non-WWW to WWW 301 Redirects (`vercel.json`)
 * All requests arriving at `serastore.in` are permanently redirected via 301 response headers to `https://www.serastore.in/$1`.
@@ -94,16 +114,16 @@ Sitemap: https://www.serastore.in/sitemap.xml
 
 | Route URL | Page Component | Change Frequency | Priority | Target User Intent & Keyword Strategy |
 | :--- | :--- | :--- | :--- | :--- |
-| `/` | `Home.jsx` | Daily | `1.0` | Core brand landing page; targets "Anti-Tarnish Jewelry", "Affordable Luxury Jewelry India". |
-| `/shop` | `Shop.jsx` | Daily | `0.9` | E-commerce catalog; targets "Buy Anti Tarnish Earrings", "Waterproof Necklaces Online". |
-| `/shop/collection/:aesthetic` | `Shop.jsx` | Weekly | `0.85` | Targeted collection landings (e.g. `/shop/collection/minimalist`, `/shop/collection/boho-vibes`). |
-| `/product/:id` | `ProductDetails.jsx` | Weekly | `0.8` | Product-specific transaction pages targeting exact product search queries. |
-| `/journal` | `BlogList.jsx` | Daily | `0.8` | Content hub targeting long-tail jewelry care, styling, and gift guide search queries. |
+| `/` | `Home.jsx` | Daily | `1.0` | Core brand landing page; targets "Anti-Tarnish Jewelry", "Affordable Luxury Jewelry India", "Chic Women's Tops". |
+| `/shop` | `Shop.jsx` | Daily | `0.9` | E-commerce catalog; targets "Buy Anti Tarnish Earrings", "Waterproof Necklaces Online", "Buy Tops & Apparel". |
+| `/shop/collection/:aesthetic` | `Shop.jsx` | Weekly | `0.85` | Targeted collection landings (e.g. `/shop/collection/minimalist`, `/shop/collection/boho-vibes`, `/shop/collection/combos`). |
+| `/product/:id` | `ProductDetails.jsx` | Weekly | `0.8` | Product-specific transaction pages targeting exact product search queries (jewelry & clothes). |
+| `/journal` | `BlogList.jsx` | Daily | `0.8` | Content hub targeting long-tail jewelry care, styling, cotton blend clothes guide, and gift guide search queries. |
 | `/journal/:slug` | `BlogPost.jsx` | Monthly | `0.7` | In-depth editorial articles targeting specific long-tail keywords. |
-| `/gifts` | `GiftingHub.jsx` | Weekly | `0.8` | Targets "Jewelry Gift Sets", "Gifts for Her", "Birthday Gift Jewelry". |
+| `/gifts` | `GiftingHub.jsx` | Weekly | `0.8` | Targets "Jewelry Gift Sets", "Gifts for Her", "Birthday Gift Jewelry Boxes", "Combo Gift Sets". |
 | `/jewelry-care` | `JewelryCare.jsx` | Monthly | `0.7` | Educational landing targeting "How to clean anti-tarnish jewelry", "PVD coating maintenance". |
-| `/materials` | `MaterialsGuide.jsx` | Monthly | `0.7` | Educational page explaining PVD coating and stainless steel waterproofing. |
-| `/size-guide` | `SizeGuide.jsx` | Monthly | `0.6` | Utility guide targeting "Ring Size Chart India", "Necklace Length Guide". |
+| `/materials` | `MaterialsGuide.jsx` | Monthly | `0.7` | Educational page explaining PVD coating, stainless steel waterproofing, and cotton blend fabric quality. |
+| `/size-guide` | `SizeGuide.jsx` | Monthly | `0.6` | Utility guide targeting "Ring Size Chart India", "Necklace Length Guide", "Top Size Chart". |
 | `/sustainability` | `Sustainability.jsx` | Monthly | `0.6` | Eco-friendly packaging and ethical sourcing commitments. |
 | `/about` | `InfoPages.jsx` | Monthly | `0.6` | Brand origin, mission statement, and craft details. |
 | `/faq` | `InfoPages.jsx` | Weekly | `0.7` | FAQ page targeting customer service and shipping inquiries. |
@@ -124,7 +144,7 @@ High search rankings depend on fast load times, zero cumulative layout shift (CL
 * **Auto-Format & Quality**: Cloudinary URLs automatically inject `f_auto,q_auto` to deliver modern WebP/AVIF images based on the user's browser capabilities.
 * **Width Restrictions**: Images rendered in carousels and product grids specify strict width caps (`w_600`, `w_800`, `w_2000`) to eliminate unnecessary mobile bandwidth usage.
 * **Automated Alt Text**: Product images dynamically compute keyword-rich alt tags:
-  `alt={`${product.name} - Anti-Tarnish Premium Jewelry`}`.
+  `alt={`${product.name} - Anti-Tarnish Premium Jewelry & Clothes`}`.
 
 ### B. Preloader & Texture Prefetching (`Preloader.jsx`)
 * Prevents Cumulative Layout Shift (CLS) on the homepage by prefetching all 4 WebGL hero slider textures and core category images into browser memory before revealing the UI.
@@ -137,7 +157,61 @@ High search rankings depend on fast load times, zero cumulative layout shift (CL
 
 ---
 
-## 5. Full Component & Page Architecture
+## 5. Full Motion Engine & Animation Specifications
+
+All UI transitions utilize `framer-motion` for fluid 60fps animations.
+
+### 1. Parallax Text Ticker (`TopBanner.jsx`)
+* **Continuous Marquee**: Uses `useMotionValue(0)`, `useTransform(baseX, (v) => wrap(-20, -45, v)%)`, and `useAnimationFrame()` to continuously scroll text horizontally.
+* **Content**: Promotes "Free Shipping on orders above INR 999" and "Handcrafted with Love".
+
+### 2. Global Header (`Navbar.jsx` & `MotionMenuIcon.jsx`)
+* **Entrance**: Slides down from top `y: -100` to `y: 0` over 0.8s with `easeOut`.
+* **Hover States**: Icons scale to `1.1` and shift color to `#f43f5e` over `0.2s`.
+* **Animated Cart Badge**: Wrapped in `<AnimatePresence>` with `scale` pop transition.
+* **Interactive Menu Toggle**: `MotionMenuIcon.jsx` animates hamburger lines into an 'X' shape using SVG path transitions.
+
+### 3. Navigation Drawer (`NavOverlay.jsx`)
+* **Backdrop**: Fades to `opacity: 1` over 0.3s.
+* **Drawer Slide**: Horizontally translates from `x: "100%"` to `0` with cubic bezier `[0.165, 0.84, 0.44, 1]`.
+* **Staggered Menu Items**: Items slide in from `x: 20` with staggered delay (`0.1s + index * 0.1s`).
+* **Submenu Expansion**: Dynamic height expansion from `0` to `"auto"`.
+
+### 4. Search Popover (`SearchOverlay.jsx`)
+* **Entrance**: Drops down `y: -20` to `y: 0` with fade in.
+* **Live Search Filtering**: Debounced query execution highlighting matching products dynamically.
+
+### 5. WebGL Shader Hero Slider (`lumina-interactive-list.tsx`)
+* **Shader Engine**: Three.js + GSAP driving custom fragment shaders for glass refraction, ripple effects, and frost distortions during slide changes.
+* **Mobile GPU Protection**: Fragment GLSL shader logic uses **branchless math** (eliminating `if` conditional branches in favor of `mix()` and `step()`) to prevent rendering crashes on mobile ARM Mali GPUs.
+
+### 6. Preloader Component (`Preloader.jsx`)
+* **Asset Pre-computation**: Blocks hero renders until all slide textures and core category images (Earrings, Bracelets, Necklaces, Combos, Apparel) are preloaded into browser cache.
+
+### 7. Welcome Offer Modal / Flying Banner (`Home.jsx`)
+* **Dynamic Backend Sync**: Fetches active flyer coupons from `/api/coupons/public`. Auto-hides completely if no flyer coupons exist.
+* **Free Shipping Badge**: Explicitly displays `"FREE SHIPPING"` badge for 0-discount free shipping coupons instead of `"INR 0 OFF"`.
+* **Spring Entrance**: `initial={{ x: 400, y: 400, opacity: 0, rotate: 20, scale: 0.7 }}` to `animate={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}` over 1s.
+* **Rotation**: Auto-rotates active offers every 2.5s.
+
+### 8. Floating Coupon Drawer (`Home.jsx`)
+* **Dynamic Trigger**: Button hides automatically if no flyer coupons exist.
+* **Viewport Clipping Protection**: Constrained to `max-h-[45vh] md:max-h-[40vh]` to prevent the drawer from extending past the bottom edge of mobile or desktop viewports.
+* **Copy Feedback**: Clicking any coupon copies code to clipboard and triggers a toast feedback popup.
+
+### 9. 3D Stacked Gifting Carousel (`Home.jsx`)
+* **Gesture Tracking**: Touch-swipe enabled (`onTouchStart`/`onTouchEnd`, 50px threshold).
+* **Depth Transformations**: Rotates and offsets cards dynamically based on stack position:
+  ```javascript
+  rotateZ: offset * 3, y: offset * 15, x: offset * 10, scale: isActive ? 1 : 0.9 - Math.abs(offset) * 0.05
+  ```
+
+### 10. Framer Button (`FramerButton.jsx`)
+* Reusable button wrapper providing magnetic hover scale (`scale: 1.03`), tap compression (`scale: 0.97`), and animated arrow translate effects.
+
+---
+
+## 6. Complete Component & Page Architecture
 
 ### Component Map (`frontend/src/components/`)
 1. **`Navbar.jsx`**: Sticky header with animated brand logo, route links, cart counter badge, and mobile drawer trigger.
@@ -159,7 +233,7 @@ High search rankings depend on fast load times, zero cumulative layout shift (CL
 
 ---
 
-## 6. Business Logic, Operations & Payment Pipeline
+## 7. Business Logic, Operations & Payment Pipeline
 
 ### Free Shipping Threshold
 * **Rule**: Orders with subtotal **exceeding INR 999** automatically qualify for **Free Shipping**.
@@ -177,17 +251,22 @@ High search rankings depend on fast load times, zero cumulative layout shift (CL
 
 ---
 
-## 7. Database Schemas (`backend/models/`)
+## 8. Database Schemas (`backend/models/`)
 
 * **`User.js`**: `name`, `email`, `password`, `phone`, `role`, `addresses` array, `wishlist` array.
+* **`TempUser.js`**: Holds pending registrations with OTP, expires automatically in 10 minutes.
 * **`Product.js`**: `name`, `price`, `description`, `images`, `category`, `aesthetics` array, `tags`, `stock`, `sales`, `rating`, `numReviews`, `accentPairs`.
 * **`Coupon.js`**: `code`, `discountType`, `discountValue`, `isFreeShipping`, `minOrderValue`, `expiryDate`, `isActive`, `showInFlyer`, `description`, `usageLimit`, `usageCount`, `isFirstOrderOnly`.
 * **`Order.js`**: `user`, `items`, `shippingAddress`, `paymentMethod`, `paymentResult`, `totalPrice`, `status`, `cancellationFee`, `refundAmount`.
 * **`Blog.js`**: `title`, `slug`, `content`, `excerpt`, `author`, `coverImage`, `published`.
+* **`Category.js`**: `name`, `image`, `description`.
+* **`Contact.js`**: `name`, `email`, `subject`, `message`, `status`.
+* **`Newsletter.js`**: `email`.
+* **`Review.js`**: `product`, `user`, `name`, `rating`, `comment`.
 
 ---
 
-## 8. Complete API Endpoint Inventory
+## 9. Complete API Endpoint Inventory
 
 ### Auth Endpoints (`/api/auth`)
 * `POST /api/auth/register`: Initiate OTP verification.

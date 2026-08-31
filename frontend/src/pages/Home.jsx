@@ -110,7 +110,7 @@ const FlyingOfferBanner = ({ onComplete }) => {
         const formattedOffers = data.map((c) => ({
           code: c.code,
           title: c.isFirstOrderOnly ? '✨ First Order Special ✨' : '✨ Special Offer ✨',
-          discount: c.discountType === 'percentage' ? `${c.discountValue}%` : `INR ${c.discountValue}`,
+          discount: c.isFreeShipping ? 'FREE SHIPPING' : (c.discountType === 'percentage' ? `${c.discountValue}%` : `INR ${c.discountValue}`),
           description: c.description || (c.isFirstOrderOnly ? `Save ${c.discountType === 'percentage' ? c.discountValue + '%' : 'INR ' + c.discountValue} on your first order` : 'Limited time offer just for you!'),
           icon: (
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="text-white drop-shadow-md">
@@ -472,7 +472,7 @@ export const FloatingCouponDrawer = ({ shouldShow }) => {
         
         const formattedCoupons = data.map((c) => ({
           code: c.code,
-          discount: c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `INR ${c.discountValue} OFF`,
+          discount: c.isFreeShipping ? 'FREE SHIPPING' : (c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `INR ${c.discountValue} OFF`),
           description: c.description || (c.isFirstOrderOnly ? 'Valid only for first order' : 'Special offer just for you!'),
           validTill: c.expiryDate ? (
             <span className="flex items-center gap-1 text-xs text-gray-500">

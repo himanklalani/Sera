@@ -90,14 +90,14 @@ export default function Preloader() {
 
           {/* Logo Reveal */}
           <div className="overflow-hidden z-10 relative">
-            <motion.h1 
+            <motion.img 
+              src="/logo.avif"
+              alt="SERA Logo"
               initial={{ y: "100%", opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="text-4xl md:text-5xl lg:text-6xl font-serif tracking-[0.2em] text-gray-900"
-            >
-              SERA
-            </motion.h1>
+              className="h-28 md:h-36 w-auto object-contain"
+            />
           </div>
           
         

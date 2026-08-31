@@ -1000,7 +1000,7 @@ const CategoriesSection = () => {
     },
     { 
       name: 'APPAREL', 
-      img: '', // TODO: Add Cloudinary URL for Apparel
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto/q_auto/v1788169399/aparrel_jtnjpa.avif', 
       srcSet: ''
     },
   ], []);

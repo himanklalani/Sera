@@ -26,7 +26,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-rose-50 pt-16 pb-8 px-6 md:px-12 text-gray-900 border-t border-rose-200 min-h-[400px]" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 400px' }}>
+    <footer className="bg-rose-50 pt-16 pb-8 px-6 md:px-12 text-gray-900 border-t border-rose-200 min-h-[400px]">
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-12 gap-12">
         {/* Left Section: Brand & Description */}
         <div className="md:col-span-5 space-y-6">

@@ -219,7 +219,7 @@ const Cart = () => {
               >
                 {/* Clickable Image */}
                 {item.product ? (
-                  item.product.isAddon ? (
+                  item.product.name === 'Greeting Card' ? (
                     <div className="w-24 h-24 flex-shrink-0 bg-rose-50 rounded overflow-hidden mb-4 sm:mb-0 sm:mr-6 flex items-center justify-center">
                       <FaEnvelopeOpenText className="text-rose-400" size={32} />
                     </div>
@@ -249,7 +249,7 @@ const Cart = () => {
                 <div className="flex-grow text-center sm:text-left">
                   {item.product ? (
                     <>
-                      {item.product.isAddon ? (
+                      {item.product.name === 'Greeting Card' ? (
                         <h3 className="font-serif text-xl mb-1">{item.product.name}</h3>
                       ) : (
                         <Link to={`/product/${item.product._id}`} className="hover:text-rose-600 transition-colors">

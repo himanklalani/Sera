@@ -615,7 +615,7 @@ export const FloatingCouponDrawer = ({ shouldShow }) => {
               </button>
             </div>
             
-            <div className="p-4 pb-6 space-y-3 max-h-[60vh] overflow-y-auto">
+            <div className="p-4 pb-6 space-y-3 max-h-[45vh] md:max-h-[40vh] overflow-y-auto">
               {coupons.map((coupon, index) => (
                 <motion.div
                   key={coupon.code}

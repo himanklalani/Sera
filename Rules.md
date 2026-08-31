@@ -1,312 +1,248 @@
 # SERA Jewelry - Reference Rules & Technical Architecture
 
-This document outlines the design tokens, component interactions, database schemas, routing paths, and animations across the Sera frontend and backend applications.
+This document provides a comprehensive, exhaustive overview of the design tokens, component interactions, database schemas, routing paths, animation engines, business logic rules, and API endpoints across the Sera frontend and backend applications.
 
 ---
 
-## 1. Brand Styling & Color System
+## 1. Brand Styling, Design System & Color Tokens
 
-Sera uses a customized Tailwind CSS v4 design system configured with standard serif and sans typography to reflect a premium luxury brand aesthetic.
+Sera utilizes a custom luxury design system built on Tailwind CSS v4, combining elegant serif typography, harmonious rose palette accents, and subtle glassmorphism effects.
 
 ### Typography
-* **Serif Font**: `"Playfair Display", serif` (Applied to all headers: `h1, h2, h3, h4, h5, h6` and premium sections)
-* **Sans Font**: `"Inter", sans-serif` (Applied to body copy and default UI inputs)
+* **Serif Font**: `"Playfair Display", serif` (Enforced on all titles, section headings `h1-h6`, product names, and high-level marketing sections).
+* **Sans Font**: `"Inter", sans-serif` (Enforced on body text, form fields, badges, price labels, and operational UI components).
 
-### Color Palette (Tailwind CSS v4 `@theme` & Global CSS Variables)
-* **Baby Pink**: `#ffe4e6` (Used for page backgrounds, overlay containers, and soft highlights)
-* **Rose 50**: `#fff1f2` (Light pink background tint for secondary banners, product highlights, and cards)
-* **Rose 500**: `#f43f5e` (Theme accent color used for buttons, interactive states, badges, and primary text links)
-* **Gold Accent**: `#c5a666` (Applied to luxury elements, contact pages, header typography, and Brevo SMTP email banners)
-* **Body Background**: `#ffffff`
-* **Body Text**: `#1a1a1a` (High contrast charcoal/black for primary readability)
+### Color Palette (Tailwind CSS v4 `@theme` & Global CSS)
+* **Baby Pink**: `#ffe4e6` (Soft page backgrounds, overlay containers, subtle highlight fills)
+* **Rose 50**: `#fff1f2` (Light pink background tint for secondary banners, cards, and hover states)
+* **Rose 500 / Theme Accent**: `#f43f5e` (Primary interactive color: buttons, badge highlights, active links, focused input borders)
+* **Gold Accent**: `#c5a666` (Applied to luxury callouts, decorative accents, header details, and transactional email headers)
+* **Body Background**: `#ffffff` (Clean white background for primary readability)
+* **Body Text**: `#1a1a1a` (High-contrast charcoal for sharp readability)
 
----
-
-## 2. Frontend Architecture & Routing
-
-The React frontend utilizes standard Vite configs and React Router DOM v7 client-side history navigation.
-
-### Routing Layout (`App.jsx`)
-* **Root Provider**: `<CartProvider>` supplies cart state and API synchronizations.
-* **Page-Reset Hook**: `<ScrollToTop />` handles scrolling window offset to `(0,0)` on location adjustments.
-* **Notification & Alerts System**: `<Toaster position="top-center" />` captures popups. *Rule: Native browser alerts (`window.confirm`) are strictly prohibited in the user-facing UI (e.g. for Logout or Actions). Use `toast.custom` UI components to render branded, animated confirmation modals instead.*
-
-### Router Map (`App.jsx`)
-* **Core Pages**:
-  * `/` ➔ `Home` (Hero sections, WebGL shader slider, category panels, gifting slider, bento collections)
-  * `/shop` ➔ `Shop` (Dynamic search/filter catalogue synced to URL query string parameters)
-  * `/product/:id` ➔ `ProductDetails` (Individual item pages, reviews, sharing utilities, and coordinate items)
-  * `/cart` ➔ `Cart` (Shopping drawer list, quantity adjustments)
-  * `/checkout` ➔ `Checkout` (Delivery address inputs, coupon apply, Razorpay Web payment integration)
-  * `/order-success` ➔ `OrderSuccess` (Displays invoice metadata and confetti effects)
-  * `/profile` ➔ `Profile` (Manages user history, saved addresses, wishlist, and cancellation/exchanges)
-* **Authentication Pages**:
-  * `/login` (Email and password entry)
-  * `/register` (Multi-step flow verified by Email OTP)
-  * `/forgot-password` (Triggers Brevo verification code)
-  * `/reset-password` (Resets authentication credentials)
-* **Information & Compliance Pages**:
-  * `/about` & `/faq` ➔ `InfoPages`
-  * `/privacy-policy` ➔ `PrivacyPolicy`
-  * `/terms` ➔ `TermsPage`
-  * `/returns` ➔ `Returns`
-  * `/contact` ➔ `Contact`
-  * `/jewelry-care` ➔ `JewelryCare`
-  * `/materials` ➔ `MaterialsGuide`
-* **SEO & Content Discovery Pages**:
-  * `/gifts` ➔ `GiftingHub` (Curated gifting collections)
-  * `/size-guide` ➔ `SizeGuide` (Jewelry sizing charts)
-  * `/sustainability` ➔ `Sustainability` (Eco-friendly standards and sourcing)
-  * `/sitemap` ➔ `Sitemap` (HTML sitemap for user navigation & crawler indexing)
-  * `/journal` ➔ `BlogList` (SEO Editorial & Brand Blog index)
-  * `/journal/:slug` ➔ `BlogPost` (Individual blog articles)
-* **Administrative Pages**:
-  * `/admin` ➔ `AdminDashboard` (Controls products, orders, categories, contacts, blogs, and coupons)
+### Micro-Interactions & Styling Guidelines
+* **Glassmorphism**: Backdrop blur utility `backdrop-blur-md` / `backdrop-blur-lg` paired with semi-transparent white fills (`bg-white/70`, `bg-white/40`) and soft white borders (`border-white/40`).
+* **Toast & Alert Rule**: **Native browser dialogs (`window.confirm`, `window.alert`) are strictly prohibited.** All confirmations (logout, order cancellation, deletion actions) must use `toast.custom()` from `react-hot-toast` with styled React components.
 
 ---
 
-## 3. Core Frontend Animations & Motion Controls
+## 2. Frontend Architecture, State Management & Routing Map
 
-All animations utilize `framer-motion` to keep the UI smooth and responsive.
+The React single-page application (SPA) uses Vite and React Router DOM v7.
 
-### Parallax Text Ticker (`TopBanner.jsx`)
-* **Velocity**: `0.5`
-* **Motion Hooks**: `useMotionValue(0)`, `useTransform(baseX, (v) => wrap(-20, -45, v)%)`, and `useAnimationFrame()`
-* **Behavior**: Shifts text horizontally from left to right continuously, wrapping coordinate strings seamlessly.
+### Application Root & Context Providers (`App.jsx`)
+* **`<CartProvider>` (`CartContext.jsx`)**: Manages shopping cart state, local storage persistence, item count calculations, subtotal calculations, and API synchronization with MongoDB.
+* **`<ScrollToTop />` (`ScrollToTop.jsx`)**: Automatically resets window scroll offset to top `(0, 0)` on every route change.
+* **`<AxiosInterceptor />` (`AxiosInterceptor.jsx`)**: Intercepts outgoing HTTP requests to attach JWT tokens and handles global 401 unauthenticated redirects.
+* **`<Toaster position="top-center" />`**: Renders toast notifications at top-center viewport.
 
-### Global Header Header (`Navbar.jsx`)
-* **Slide down on mount**:
-  ```javascript
-  initial={isHome ? { y: -100, opacity: 0 } : { y: 0, opacity: 1 }}
-  animate={{ y: 0, opacity: 1 }}
-  transition={{ duration: 0.8, ease: "easeOut" }}
-  ```
-* **Icon States (Menu, Search, Cart)**:
-  * `whileHover={{ color: '#f43f5e', scale: 1.1 }}`
-  * `whileTap={{ scale: 0.95 }}`
-  * Transition duration is locked at `0.2` seconds.
-* **Badge (Cart items)**:
-  * Wrapped in `<AnimatePresence>`
-  * `initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}`
+### Full Router Map (`App.jsx`)
 
-### Side Navigation Overlay Drawer (`NavOverlay.jsx`)
-* **Backdrop**: Fades to `opacity: 1` from `0` using a `0.3` second transition.
-* **Drawer Slide**: Slides horizontally from `x: "100%"` to `0` with cubic bezier ease-out timing:
-  ```javascript
-  transition={{ duration: 0.5, ease: [0.165, 0.84, 0.44, 1] }}
-  ```
-* **Menu Items Stagger**: Fades and moves in horizontally from `x: 20` using dynamic delay offsets:
-  ```javascript
-  transition={{ delay: 0.1 + index * 0.1 }}
-  ```
-* **Submenu Drawer**: Expands height vertically using height boundaries:
-  ```javascript
-  initial={{ height: 0, opacity: 0 }}
-  animate={{ height: "auto", opacity: 1 }}
-  exit={{ height: 0, opacity: 0 }}
-  ```
+#### Core E-Commerce Pages
+* `/` ➔ `Home.jsx`: Hero WebGL slider, dynamic flyer popups, category bento cards, gifting 3D carousel, aesthetics collections, floating coupon drawer.
+* `/shop` ➔ `Shop.jsx`: Dynamic product catalog with keyword search, category filter, aesthetic collection filter, sorting, and price range filters synced to URL query strings.
+* `/shop/collection/:aesthetic` ➔ `Shop.jsx`: Direct collection deep-linking (e.g., `/shop/collection/minimalist`).
+* `/product/:id` ➔ `ProductDetails.jsx`: Product view with image gallery, size options, add-to-cart, review creation/listing, share popover, and "Complete the Look" accent pairs.
+* `/cart` ➔ `Cart.jsx`: Full cart management page, item quantities, free shipping progress bar (threshold ₹999), promo code input, subtotal summary.
+* `/checkout` ➔ `Checkout.jsx`: Shipping address selector/form, coupon code validation, order breakdown, Razorpay online payment integration.
+* `/order-success` ➔ `OrderSuccess.jsx`: Order confirmation view displaying order summary, delivery timeline, invoice download button, and confetti particle effects.
+* `/profile` ➔ `profile.jsx`: User account management with tabs for Orders (with invoice download, cancellation, exchange request), Addresses (CRUD), Wishlist, Account Details, and custom styled Logout toast.
 
-### Search drawer popover (`SearchOverlay.jsx`)
-* **Animation properties**: Slides down and fades in:
-  ```javascript
-  initial={{ opacity: 0, y: -20 }}
-  animate={{ opacity: 1, y: 0 }}
-  exit={{ opacity: 0, y: -20 }}
-  ```
-* **Hover elements**: `whileHover={{ scale: 1.02 }}` over search results list.
+#### Authentication Pages
+* `/login` ➔ `login.jsx`: User login form with JWT token storage.
+* `/register` ➔ `register.jsx`: Registration form triggering email OTP verification via TempUser pipeline.
+* `/forgot-password` ➔ `ForgotPassword.jsx`: Triggers password reset OTP via Brevo SMTP.
+* `/reset-password` ➔ `ResetPassword.jsx`: Verifies reset OTP and updates user password.
 
-### Hero WebGL Shader Slider (`lumina-interactive-list.tsx`)
-* **WebGL Shaders (Three.js + GSAP)**: Custom fragment shader driving glass refraction, frost, and ripple transitions.
-* **Low-End GPU Stabilization (Mali GPUs)**: GLSL fragment shaders use **branchless math** (avoiding conditional `if` statements in favor of `mix()` and `step()` functions) to prevent shader compilation crashes and expanding circle artifacts on mobile Mali GPUs.
+#### Information & Institutional Pages
+* `/about` & `/faq` ➔ `InfoPages.jsx`: Brand storytelling, FAQs, customer support details.
+* `/privacy-policy` ➔ `PrivacyPolicy.jsx`: Compliance policies.
+* `/terms` ➔ `TermsPage.jsx`: Terms of service.
+* `/returns` ➔ `Returns.jsx`: Returns, exchange policy, and cancellation policy documentation.
+* `/contact` ➔ `Contact.jsx`: Contact form submitting messages directly to backend database.
+* `/jewelry-care` ➔ `JewelryCare.jsx`: Instructions for maintaining anti-tarnish and PVD coated jewelry.
+* `/materials` ➔ `MaterialsGuide.jsx`: Explanations of materials used (PVD Coating, Waterproof Stainless Steel).
 
-### Preloader Component (`Preloader.jsx`)
-* **Asset Prefetching**: Blocks UI render until all 4 core Hero WebGL slide textures AND primary Category images (Earrings, Bracelet, Necklace) are fully loaded into browser memory.
-* **Cinematic Easing**: Smooth cubic-bezier animation with fallback network timeout safety.
+#### SEO & Content Pages
+* `/gifts` ➔ `GiftingHub.jsx`: Curated gifting collection guide.
+* `/size-guide` ➔ `SizeGuide.jsx`: Sizing guide for rings, necklaces, and bracelets.
+* `/sustainability` ➔ `Sustainability.jsx`: Ethical sourcing and eco-friendly packaging commitments.
+* `/sitemap` ➔ `Sitemap.jsx`: HTML sitemap for crawlers and site navigation.
+* `/journal` ➔ `BlogList.jsx`: Editorial blog index.
+* `/journal/:slug` ➔ `BlogPost.jsx`: Single article view with dynamic markdown rendering.
 
-### Flying Offers Flyer Banner (`Home.jsx`)
-* **Dynamic Content**: Fetches active flyer-enabled coupons from `/api/coupons/public`. Auto-hides if no flyer coupons exist in the database. Recognizes `isFreeShipping` coupons to render distinct "FREE SHIPPING" badges instead of `0` value defaults.
-* **Flyer Entrance**: Slides, scales, and rotates in:
-  ```javascript
-  initial={{ x: 400, y: 400, opacity: 0, rotate: 20, scale: 0.7 }}
-  animate={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}
-  transition={{ duration: 1, ease: [0.34, 1.56, 0.64, 1] }} // Spring effect
-  ```
-* **Flyer Exit**: Slides out towards the bottom left:
-  ```javascript
-  exit={{ x: -420, y: mobile ? 55 : 280, opacity: 0, scale: 0.4, rotate: -8 }}
-  transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
-  ```
-* **Auto-rotation Loop**: Rotates current active offer index every `2.5` seconds.
-* **Progress Bar indicator**: Animates horizontally at the base of the banner from `width: "0%"` to `"100%"` over `6` seconds (the banner's visible lifetime).
-* **Infinite Sparkle animations**: Rotates and pulses scales continuously:
-  ```javascript
-  animate={{ scale: [1, 1.5, 1], opacity: [0.7, 1, 0.7], rotate: [0, 180, 360] }}
-  transition={{ duration: 2.5, repeat: Infinity }}
-  ```
-* **Infinite Heart pulse**:
-  ```javascript
-  animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.8, 0.5] }}
-  transition={{ duration: 2.2, repeat: Infinity }}
-  ```
-* **Shimmer Overlays**: Translates a gradient sweep across the card to indicate interactivity:
-  ```javascript
-  animate={{ x: ['-100%', '200%'] }}
-  transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1, ease: "easeInOut" }}
-  ```
-
-### Floating Coupon Drawer (`Home.jsx`)
-* **Dynamic Content**: Connected directly to `/api/coupons/public`. The drawer dynamically hides its trigger button if no coupons are toggled for flyer visibility.
-* **Responsive UI Design**: Height is restricted using `max-h-[45vh] md:max-h-[40vh]` to prevent the scrollable drawer from extending past the viewport boundary on devices with varying vertical space.
-* **Drawer Entry**: Slides from the left boundary:
-  ```javascript
-  initial={{ opacity: 0, scale: 0.5, x: -50 }}
-  animate={{ opacity: 1, scale: 1, x: 0 }}
-  transition={{ duration: 0.6, ease: [0.34, 1.56, 0.64, 1], delay: 0.2 }}
-  ```
-* **Heartbeat Indicator Dot**:
-  ```javascript
-  animate={{ scale: [1, 1.2, 1], opacity: [1, 0.8, 1] }}
-  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-  ```
-
-### Gifting Section Stacked Carousel (`Home.jsx`)
-* **Carousel Mechanics**: A touch-responsive stacked cards layout tracking touch gestures (`onTouchStart` and `onTouchEnd` distance threshold: `50px`).
-* **Active Card transitions**: Cards stack sequentially by adjusting depth and angles according to index offset:
-  ```javascript
-  animate={{
-    rotateZ: offset * 3,
-    y: offset * 15,
-    x: offset * 10,
-    scale: isActive ? 1 : 0.9 - Math.abs(offset) * 0.05,
-    zIndex: giftImages.length - Math.abs(offset),
-  }}
-  transition={{ duration: 0.3, ease: "easeOut" }}
-  ```
-
-### Shop Catalog Grid (`Shop.jsx`)
-* **Card Hover**: Cards elevate slightly: `whileHover={{ y: -8 }}`.
-* **Shopping Cart button reveal**: Button slides up when card is hovered:
-  ```css
-  opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300
-  ```
-* **Mobile Sidebar Filters drawer**: Slides from the left using a spring:
-  ```javascript
-  initial={{ x: -300, opacity: 0 }}
-  animate={{ x: 0, opacity: 1 }}
-  exit={{ x: -300, opacity: 0 }}
-  transition={{ type: "spring", damping: 25 }}
-  ```
-
-### Product Detail Actions (`productdetails.jsx`)
-* **Image swap**: Fades the main image in on selection swap: `key={selectedImage} initial={{ opacity: 0 }} animate={{ opacity: 1 }}`.
-* **Share dropdown menu**:
-  ```javascript
-  initial={{ opacity: 0, scale: 0.95, y: -10 }}
-  animate={{ opacity: 1, scale: 1, y: 0 }}
-  exit={{ opacity: 0, scale: 0.95, y: -10 }}
-  ```
-* **Review Form slide-down**:
-  ```javascript
-  initial={{ opacity: 0, height: 0 }}
-  animate={{ opacity: 1, height: 'auto' }}
-  exit={{ opacity: 0, height: 0 }}
-  ```
+#### Admin Pages
+* `/admin` ➔ `AdminDashboard.jsx`: Comprehensive admin control panel containing tabs for Products, Orders, Categories, Coupons (with flyer visibility toggle & custom descriptions), Contacts, and Blogs.
 
 ---
 
-## 4. Media & Image Asset Architecture
+## 3. Core Frontend Animations & Motion Engines
 
-Images are divided into local assets and optimized Cloudinary URLs.
+All UI transitions utilize `framer-motion` for fluid 60fps animations.
 
-### Local Assets Folder Map (`/public/`)
-* **Logo**: `/logo.avif`
-* **Hero Image**: `/hero.avif`
-* **Category images**: `/images/earring.jpg`, `/images/bracelet.png`, `/images/ring.png`, `/images/necklace.jpg`
-* **Curated section covers**: `/images/bestsellers.jpg`, `/images/everyday.jpg`, `/images/pair.jpg`, `/images/minimalist.jpg`, `/images/boho.png`
-* **Slider panels**: `/images/tinified/gift1.avif` to `gift5.avif`, `/images/tinified/gallery1.avif` to `gallery6.avif`
+### 1. Parallax Text Ticker (`TopBanner.jsx`)
+* **Continuous Marquee**: Uses `useMotionValue(0)`, `useTransform(baseX, (v) => wrap(-20, -45, v)%)`, and `useAnimationFrame()` to continuously scroll text horizontally.
+* **Content**: Promotes "Free Shipping on orders above INR 999" and "Handcrafted with Love".
 
-### LazyImage Optimization Component (`Home.jsx`)
-* Implements an `IntersectionObserver` to trigger image downloads with `rootMargin: '100px'` and `threshold: 0.01`.
-* Replaces standard links with custom resolution bounds if hosting via Unsplash (`q=75&auto=format&fit=crop&w=2000`).
+### 2. Global Header (`Navbar.jsx` & `MotionMenuIcon.jsx`)
+* **Entrance**: Slides down from top `y: -100` to `y: 0` over 0.8s with `easeOut`.
+* **Hover States**: Icons scale to `1.1` and shift color to `#f43f5e` over `0.2s`.
+* **Animated Cart Badge**: Wrapped in `<AnimatePresence>` with `scale` pop transition.
+* **Interactive Menu Toggle**: `MotionMenuIcon.jsx` animates hamburger lines into an 'X' shape using SVG path transitions.
 
-### Cloudinary Integration & Image Optimization Pipeline
-* **API Route**: `/api/upload` (single upload) and `/api/upload/multiple` (batch upload up to 10 images)
-* **Backend Controller**: Multer captures media into memory buffer blocks and forwards it directly to Cloudinary streams.
-* **Cloudinary Auto-optimization rules**:
-  * Folder target: `jewelry-products`
-  * Scaling transform: `width: 2000, height: 2000, crop: 'limit'`
-  * Auto quality rules: `quality: 'auto:best'`
-* **Mobile Payload & Dimension Constraints**:
-  * Carousel cards & Bento Grid images must specify explicit width caps (`f_auto,q_auto,w_800` or `w_600`) in Cloudinary URLs to eliminate mobile rendering lag and frame drops.
-* **Database Mapping**: The secure URL (`result.secure_url`) is stored in the database under `Product.images`.
+### 3. Navigation Drawer (`NavOverlay.jsx`)
+* **Backdrop**: Fades to `opacity: 1` over 0.3s.
+* **Drawer Slide**: Horizontally translates from `x: "100%"` to `0` with cubic bezier `[0.165, 0.84, 0.44, 1]`.
+* **Staggered Menu Items**: Items slide in from `x: 20` with staggered delay (`0.1s + index * 0.1s`).
+* **Submenu Expansion**: Dynamic height expansion from `0` to `"auto"`.
 
----
+### 4. Search Popover (`SearchOverlay.jsx`)
+* **Entrance**: Drops down `y: -20` to `y: 0` with fade in.
+* **Live Search Filtering**: Debounced query execution highlighting matching products dynamically.
 
-## 5. Backend Logic, APIs & Data Schema
+### 5. WebGL Shader Hero Slider (`lumina-interactive-list.tsx`)
+* **Shader Engine**: Three.js + GSAP driving custom fragment shaders for glass refraction, ripple effects, and frost distortions during slide changes.
+* **Mobile GPU Protection**: Fragment GLSL shader logic uses **branchless math** (eliminating `if` conditional branches in favor of `mix()` and `step()`) to prevent rendering crashes on mobile ARM Mali GPUs.
 
-The backend is built with Node, Express, MongoDB/Mongoose, and includes:
+### 6. Preloader Component (`Preloader.jsx`)
+* **Asset Pre-computation**: Blocks hero renders until all slide textures and core category images (Earrings, Bracelets, Necklaces) are preloaded into browser cache.
 
-### Database Schemas (`backend/models/`)
-* **User (`User.js`)**: Fields for `name`, `email` (unique, lowercase), `password` (hashed with bcrypt), `phone` (mandatory), `role` (`'user'` or `'admin'`), `addresses` (array of address subdocuments), and `wishlist` (array of Product object references).
-* **TempUser (`TempUser.js`)**: Transient registration documents featuring email details and an `otp` code validation field with a 10-minute expiry window.
-* **Product (`Product.js`)**: Fields for `name`, `price`, `images` (Cloudinary URLs), `category`, `tags` (e.g. `'bestseller'`, `'minimalist'`), `stock`, `sales` count, `rating`, `numReviews`, `reviews` array, and `accentPairs` (related accessories to Complete the Look).
-* **Order (`Order.js`)**: Tracks `user`, `items`, `shippingAddress`, `totalPrice`, `status` (`'pending'`, `'processing'`, `'shipped'`, `'delivered'`, `'cancelled'`, `'exchange_requested'`, `'exchange_approved'`, `'exchanged'`), payment details, and returns metadata.
-* **Coupon (`Coupon.js`)**: Code rules, discount mappings (`'percentage'` or `'fixed'`), `minOrderValue`, global `usageLimit`, `perUserLimit`, user exclusions, `showInFlyer` (boolean for website visibility), and `description`.
+### 7. Welcome Offer Modal / Flying Banner (`Home.jsx`)
+* **Dynamic Backend Sync**: Fetches active flyer coupons from `/api/coupons/public`. Auto-hides completely if no flyer coupons exist.
+* **Free Shipping Badge**: Explicitly displays `"FREE SHIPPING"` badge for 0-discount free shipping coupons instead of `"INR 0 OFF"`.
+* **Spring Entrance**: `initial={{ x: 400, y: 400, opacity: 0, rotate: 20, scale: 0.7 }}` to `animate={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}` over 1s.
+* **Rotation**: Auto-rotates active offers every 2.5s.
 
-### API Endpoints List
+### 8. Floating Coupon Drawer (`Home.jsx`)
+* **Dynamic Trigger**: Button hides automatically if no flyer coupons exist.
+* **Viewport Clipping Protection**: Constrained to `max-h-[45vh] md:max-h-[40vh]` to prevent the drawer from extending past the bottom edge of mobile or desktop viewports.
+* **Copy Feedback**: Clicking any coupon copies code to clipboard and triggers a toast feedback popup.
 
-#### 1. Authentication (`/api/auth`)
-* `POST /api/auth/register` (Stages registration data, generates and emails OTP)
-* `POST /api/auth/verify-otp` (Validates registration OTP, activates the `User` profile)
-* `POST /api/auth/login` (Authenticates user, signs and returns a JWT)
-* `GET /api/auth/profile` (Fetches user details, addresses, and wishlist)
-* `PUT /api/auth/profile` (Updates user profile and addresses array)
+### 9. 3D Stacked Gifting Carousel (`Home.jsx`)
+* **Gesture Tracking**: Touch-swipe enabled (`onTouchStart`/`onTouchEnd`, 50px threshold).
+* **Depth Transformations**: Rotates and offsets cards dynamically based on stack position:
+  ```javascript
+  rotateZ: offset * 3, y: offset * 15, x: offset * 10, scale: isActive ? 1 : 0.9 - Math.abs(offset) * 0.05
+  ```
 
-#### 2. Products (`/api/products`)
-* `GET /api/products` (Fetches list of products with filters, sorting, search keyword, and pagination support)
-* `GET /api/products/bestsellers` (Returns list of top sellers sorted by sales volume)
-* `GET /api/products/:id` (Returns single product metadata and verified customer reviews)
-* `POST /api/products/:id/reviews` (Adds customer review, calculates and updates average rating)
-
-#### 3. Shopping Cart (`/api/cart`)
-* `GET /api/cart` (Fetches the user's cart subtotal and items from MongoDB)
-* `POST /api/cart` (Adds an item or updates quantity in the active cart document)
-* `PUT /api/cart` (Updates cart item quantity)
-* `DELETE /api/cart/:productId` (Removes item from cart)
-
-#### 4. Checkout & Flyer Coupons (`/api/coupons`)
-* `GET /api/coupons/public` (Public unauthenticated route that exclusively returns active coupons marked `showInFlyer: true`. Automatically sanitizes internal tracking fields like `usageCount` and `allowedUsers` before transmitting payload to the frontend.)
-* `POST /api/coupons/validate` (Validates active coupon criteria: minimum cart values, first order checks, expiry, and user restrictions. Runs as a read-only query; does *not* increment the coupon usage count)
-
-#### 5. Payments & Orders (`/api/payment` & `/api/orders`)
-* `POST /api/payment/create-order` (Initiates payment order session with Razorpay API)
-* `POST /api/payment/verify-payment` (Verifies payment signatures, decreases product stock, clears shopping cart, increments coupon usage counts, and saves the final `Order` document with status `'paid'`)
-* `GET /api/orders/:id/invoice` (Generates a clean PDF invoice using `pdfkit` stream buffers)
-* `PUT /api/orders/:id/cancel` (Applies a cancellation fee if status is `'processing'`)
-* `PUT /api/orders/:id/exchange` (Logs exchange requests, checking that it is within the 3-day delivery window)
+### 10. Framer Button (`FramerButton.jsx`)
+* Reusable button wrapper providing magnetic hover scale (`scale: 1.03`), tap compression (`scale: 0.97`), and animated arrow translate effects.
 
 ---
 
-## 6. Technical SEO & Brand Compliance (Phase 18)
+## 4. Business Logic & E-Commerce Policies
 
-Sera strictly enforces premium brand aesthetics and high-performance technical SEO routing.
+### Free Shipping Policy
+* **Core Rule**: Shipping is **FREE (INR 0)** on all orders where cart subtotal exceeds **INR 999**.
+* **Standard Shipping Fee**: **INR 100** applied if subtotal is INR 999 or below.
+* **Execution Locations**: Hardcoded consistently across `Cart.jsx`, `Checkout.jsx`, and `TopBanner.jsx`.
 
-### Brand Terminology
-* **Prohibited Terms**: Do NOT use "18k", "plating", or "plated" anywhere in the copy, frontend UI, or backend seed scripts.
-* **Approved Alternatives**: Use "PVD Coating", "Premium Finish", "Waterproof", and "Anti-Tarnish".
-* **Trust Badges**: Must use clean SVG/React Icons (`react-icons`) rather than emojis (e.g., `FaTint` for Sweatproof, `FaGem` for Premium Finish, `FaTruck` for Free Shipping).
+### Order Cancellation Policy
+* **Pending Orders**: Can be cancelled by user in `/profile` with **0 cancellation fee** (100% refund).
+* **Processing Orders**: Can be cancelled by user in `/profile` with a fixed **INR 100 cancellation fee** deducted from refund.
+* **Shipped / Delivered Orders**: Cannot be cancelled directly.
 
-### Aesthetic Collection Routing
-* **Schema Upgrade**: The `Product` model includes an `aesthetics` array (e.g., `['boho vibes', 'minimalist']`).
-* **Frontend Routing**: Supports deep-linking collections via `/shop/collection/:aesthetic` instead of URL query parameters. This is natively parsed by `Shop.jsx` to filter products dynamically.
+### Exchange Policy
+* **Window**: Customers can request an exchange within **3 days** of delivery.
+* **Defective / Damaged / Wrong Item**: Free exchange (0 fee).
+* **Changed Mind / Size Exchange**: **INR 100 fee** applied to exchange request.
 
-### SEO & Social Interceptors
-* **Image Alt-Text Automation**: Product images append target keywords to the product name (e.g., `alt={`${product.name} - Anti-Tarnish Premium Jewelry`}`).
-* **Canonical Routing**: `Shop.jsx` implements strict canonical URLs via the `<SEO>` component to prevent Google from indexing empty parameter-based queries (preventing "Soft 404" errors).
-* **WhatsApp / Social OG Interceptor**: 
-  * Problem: SPAs on Vercel send generic `index.html` meta tags to social bots.
-  * Solution: `vercel.json` utilizes a regex `user-agent` matcher to identify bots (WhatsApp, Facebook, LinkedIn, Pinterest) and rewrite `/product/:id` requests to the backend endpoint `GET /api/products/share/:id`.
-  * The backend returns raw HTML with dynamic OpenGraph meta tags and instantly redirects human clicks back to the React SPA URL.
+### Coupon Validation Rules (`/api/coupons/validate`)
+1. **Minimum Order Value**: Cart subtotal must meet `minOrderValue`.
+2. **First Order Only**: If `isFirstOrderOnly: true`, checks user's previous order history in MongoDB.
+3. **Usage Limits**: Verifies global `usageLimit` and per-user limit.
+4. **Read-Only**: `/validate` checks criteria without mutating usage counters (counters update only upon successful payment verification).
 
-### Performance Protections
-* **Lazy-Loaded Integrations**: Heavy 3rd-party scripts (like the Instagram Embed Feed) must never block the main thread. They are deferred using an `IntersectionObserver` (loading only when scrolled into view) or a fallback 5-second timer.
+---
+
+## 5. Backend Architecture & Database Schemas
+
+Built with Node.js, Express, MongoDB, and Mongoose.
+
+### Models (`backend/models/`)
+* **`User.js`**: `name`, `email` (lowercase, unique), `password` (bcrypt hash), `phone`, `role` (`'user'` | `'admin'`), `addresses` array, `wishlist` references.
+* **`TempUser.js`**: Holds pending registrations with OTP, expires automatically in 10 minutes.
+* **`Product.js`**: `name`, `price`, `description`, `images` array (Cloudinary URLs), `category`, `aesthetics` array, `tags`, `stock`, `sales`, `rating`, `numReviews`, `accentPairs` array.
+* **`Order.js`**: `user`, `items` array, `shippingAddress`, `paymentMethod`, `paymentResult`, `totalPrice`, `status` (`'pending'`, `'processing'`, `'shipped'`, `'delivered'`, `'cancelled'`, `'exchange_requested'`, `'exchange_approved'`, `'exchanged'`), `cancellationFee`, `refundAmount`, `exchangeReason`.
+* **`Coupon.js`**: `code` (uppercase), `discountType` (`'percentage'` | `'fixed'`), `discountValue`, `isFreeShipping`, `minOrderValue`, `expiryDate`, `isActive`, `showInFlyer` (boolean), `description`, `usageLimit`, `usageCount`, `isFirstOrderOnly`.
+* **`Blog.js`**: `title`, `slug`, `content`, `excerpt`, `author`, `coverImage`, `published`.
+* **`Category.js`**: `name`, `image`, `description`.
+* **`Contact.js`**: `name`, `email`, `subject`, `message`, `status` (`'unread'` | `'read'`).
+* **`Newsletter.js`**: `email` (unique).
+* **`Review.js`**: `product`, `user`, `name`, `rating`, `comment`.
+
+---
+
+## 6. Complete API Endpoints Map
+
+### Authentication (`/api/auth`)
+* `POST /api/auth/register`: Stage user and send registration OTP.
+* `POST /api/auth/verify-otp`: Validate OTP and activate user account.
+* `POST /api/auth/login`: Authenticate and return JWT token.
+* `GET /api/auth/profile`: Get current user details, saved addresses, and wishlist.
+* `PUT /api/auth/profile`: Update user profile data and addresses.
+* `POST /api/auth/forgot-password`: Send password reset OTP via email.
+* `POST /api/auth/reset-password`: Reset password using verified OTP.
+* `GET /api/auth/wishlist`: Get user's wishlist items.
+* `POST /api/auth/wishlist/:productId`: Toggle item in user wishlist.
+
+### Products (`/api/products`)
+* `GET /api/products`: Search, filter by category/aesthetic/price, and sort products.
+* `GET /api/products/bestsellers`: Fetch top products sorted by sales volume.
+* `GET /api/products/:id`: Get detailed metadata for a single product.
+* `POST /api/products/:id/reviews`: Post a product review.
+* `POST /api/products` *(Admin)*: Create new product.
+* `PUT /api/products/:id` *(Admin)*: Update product details.
+* `DELETE /api/products/:id` *(Admin)*: Delete product.
+
+### Cart (`/api/cart`)
+* `GET /api/cart`: Get current user's server-persisted cart.
+* `POST /api/cart`: Add item or update quantity in cart.
+* `PUT /api/cart`: Update item quantity.
+* `DELETE /api/cart/:productId`: Remove item from cart.
+* `DELETE /api/cart`: Clear entire cart.
+
+### Coupons (`/api/coupons`)
+* `GET /api/coupons/public`: Fetch active flyer coupons (`showInFlyer: true`) for frontend modals.
+* `POST /api/coupons/validate`: Validate promo code against cart subtotal and user history.
+* `GET /api/coupons` *(Admin)*: List all coupons.
+* `POST /api/coupons` *(Admin)*: Create new coupon.
+* `PUT /api/coupons/:id` *(Admin)*: Update coupon.
+* `DELETE /api/coupons/:id` *(Admin)*: Delete coupon.
+
+### Orders (`/api/orders`)
+* `POST /api/orders`: Create new order.
+* `GET /api/orders`: Get logged-in user's order history.
+* `GET /api/orders/:id`: Get order details.
+* `GET /api/orders/:id/invoice`: Stream PDF invoice generated with `pdfkit`.
+* `PUT /api/orders/:id/cancel`: Process order cancellation request.
+* `PUT /api/orders/:id/exchange`: Process order exchange request.
+* `GET /api/orders/admin/all` *(Admin)*: Get all customer orders.
+* `PUT /api/orders/:id/status` *(Admin)*: Update order fulfillment status.
+
+### Payment (`/api/payment`)
+* `POST /api/payment/create-order`: Initialize Razorpay payment session.
+* `POST /api/payment/verify-payment`: Verify Razorpay signature, decrement stock, clear cart, update coupon count, set order status to `'processing'`.
+
+### Blogs (`/api/blogs`)
+* `GET /api/blogs`: Fetch published blog posts.
+* `GET /api/blogs/:slug`: Fetch single blog post by slug.
+* `POST /api/blogs` *(Admin)*: Create blog post.
+* `PUT /api/blogs/:id` *(Admin)*: Update blog post.
+* `DELETE /api/blogs/:id` *(Admin)*: Delete blog post.
+
+### Media Upload (`/api/upload`)
+* `POST /api/upload`: Upload single image to Cloudinary `jewelry-products` folder.
+* `POST /api/upload/multiple`: Upload multiple images (up to 10) to Cloudinary.
+
+---
+
+## 7. Technical SEO & Brand Compliance Rules
+
+### Terminology Enforcement
+* **Forbidden Terms**: Do **NOT** use "18k", "plating", or "plated" in copy or seed data.
+* **Required Terms**: Use "PVD Coating", "Premium Finish", "Waterproof", and "Anti-Tarnish".
+
+### WhatsApp OpenGraph Bot Interceptor
+* `vercel.json` intercepts WhatsApp/Facebook social crawler user agents and redirects `/product/:id` requests to `/api/products/share/:id`.
+* The backend returns static HTML with OpenGraph dynamic meta tags (`og:image`, `og:title`) so product previews display high-res Cloudinary images in WhatsApp chats.

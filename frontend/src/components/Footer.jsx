@@ -34,7 +34,7 @@ const Footer = () => {
           <div className="space-y-4 text-sm leading-relaxed max-w-md">
             <p className="font-medium">Where elegance meets intention.</p>
             <p>
-              SERA was born from a love of timeless simplicity, bringing together thoughtfully tailored apparel and refined jewellery. Every piece in our collection is designed to celebrate you — your story, your strength, your softness. From romantic, effortless silhouettes to delicate necklaces, bracelets, and earrings, our creations are crafted with care to blend seamlessly into your daily life while standing out with quiet grace.
+              SERA was born from a love of timeless simplicity, bringing together thoughtfully tailored apparel and refined jewellery. Every piece in our collection is designed to celebrate you your story, your strength, your softness. From romantic, effortless silhouettes to delicate necklaces, bracelets, and earrings, our creations are crafted with care to blend seamlessly into your daily life while standing out with quiet grace.
             </p>
             <p>Let <span className="font-bold">SERA</span> be your everyday luxury.</p>
           </div>

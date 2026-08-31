@@ -9,9 +9,10 @@ This document serves as the master technical blueprint and search engine optimiz
 Sera positions itself as a premium, cutesy, everyday luxury brand specializing in **anti-tarnish waterproof jewelry** and **chic women's apparel & tops**. The copy across product titles, category listings, meta descriptions, image alt tags, and editorial blog posts must strictly adhere to the following keyword and terminology rules:
 
 ### Terminology Rules & Brand Language
-* **STRICTLY FORBIDDEN / AVOIDED TERMS**: **Do NOT use "18k", "plating", "plated", "PVD Coating", "PVD", "Waterproof", "Hypoallergenic", "Stainless Steel", "Everyday Luxury", or "Skin-Friendly"** anywhere in website copy, product descriptions, meta tags, schema markup, or seed scripts.
-* **ONLY APPROVED JEWELRY TARGET KEYWORD**: 
-  - **"Anti-Tarnish" / "Anti-Tarnish Jewelry"** (This is the single approved jewelry quality descriptor).
+* **STRICTLY FORBIDDEN / AVOIDED TERMS**: **Do NOT use "18k", "plating", "plated", "PVD Coating", "PVD", "Hypoallergenic", "Stainless Steel", "Everyday Luxury", or "Skin-Friendly"** anywhere in website copy, product descriptions, meta tags, schema markup, or seed scripts.
+* **APPROVED JEWELRY TARGET KEYWORDS**: 
+  - **"Anti-Tarnish" / "Anti-Tarnish Jewelry"**
+  - **"Waterproof" / "Waterproof Jewelry"**
 * **APPROVED APPAREL & CLOTHES TARGET KEYWORDS**:
   - "Women's Tops" / "Chic Tops"
   - "Cotton Blend Tops" / "Premium Cotton Blend"

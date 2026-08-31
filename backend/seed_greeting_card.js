@@ -30,10 +30,10 @@ const seedGreetingCard = async () => {
     const greetingCard = new Product({
       name: 'Greeting Card',
       description: 'A beautiful greeting card for your personalized note.',
-      price: 0,
+      price: 15,
       stock: 999999,
       category: 'add-on',
-      images: ['https://res.cloudinary.com/dhby5v7rw/image/upload/v1786780068/gift-box.png'],
+      images: ['https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto/q_auto/v1788173333/bdaycard_yl0wq5.avif'],
       isAddon: true,
       features: ['Personalized Note'],
       user: adminUser._id,

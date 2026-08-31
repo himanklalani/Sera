@@ -14,6 +14,7 @@ const Cart = () => {
   const { cartItems, loading, updateQuantity, removeFromCart, fetchCart, addToCart } = useCart();
   const navigate = useNavigate();
   const [addons, setAddons] = useState([]);
+  const [greetingCard, setGreetingCard] = useState(null); // full object from DB
   const [greetingCardId, setGreetingCardId] = useState(null);
 
   // Note popup state
@@ -37,7 +38,10 @@ const Cart = () => {
         // Find the greeting card separately so it can be shown as a special hardcoded item
         const card = all.find(a => a.name === 'Greeting Card');
         const otherAddons = all.filter(a => a.name !== 'Greeting Card');
-        if (card) setGreetingCardId(card._id);
+        if (card) {
+          setGreetingCardId(card._id);
+          setGreetingCard(card);
+        }
         setAddons(otherAddons);
       } catch (error) {
         console.error('Error fetching addons:', error);
@@ -183,7 +187,7 @@ const Cart = () => {
                   disabled={addingCard || !cardNote.trim()}
                   className="flex-1 py-3 bg-rose-500 text-white rounded-xl text-sm font-semibold hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {addingCard ? 'Adding...' : 'Add to Cart — Free'}
+                  {addingCard ? 'Adding...' : `Add to Cart — ${greetingCard ? (greetingCard.price === 0 ? 'Free' : `INR ${greetingCard.price}`) : ''}`}
                 </button>
               </div>
             </motion.div>
@@ -220,8 +224,12 @@ const Cart = () => {
                 {/* Clickable Image */}
                 {item.product ? (
                   item.product.name === 'Greeting Card' ? (
-                    <div className="w-24 h-24 flex-shrink-0 bg-rose-50 rounded overflow-hidden mb-4 sm:mb-0 sm:mr-6 flex items-center justify-center">
-                      <FaEnvelopeOpenText className="text-rose-400" size={32} />
+                    <div className="w-24 h-24 flex-shrink-0 bg-rose-50 rounded overflow-hidden mb-4 sm:mb-0 sm:mr-6">
+                      <img
+                        src={item.product.images?.[0] || 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto/q_auto/v1788173333/bdaycard_yl0wq5.avif'}
+                        alt="Greeting Card"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   ) : (
                     <Link
@@ -328,14 +336,20 @@ const Cart = () => {
               <p className="text-sm text-gray-600 mb-6">Add premium packaging or a little extra something to make it perfect.</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-                {/* Hardcoded Greeting Card */}
+                {/* Greeting Card from DB */}
                 <div className="flex items-center bg-white p-3 rounded shadow-sm border border-rose-200 hover:border-rose-400 transition-colors">
-                  <div className="w-16 h-16 bg-rose-50 rounded overflow-hidden mr-4 flex-shrink-0 flex items-center justify-center">
-                    <FaEnvelopeOpenText className="text-rose-400" size={28} />
+                  <div className="w-16 h-16 bg-rose-50 rounded overflow-hidden mr-4 flex-shrink-0">
+                    <img
+                      src={greetingCard?.images?.[0] || 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto/q_auto/v1788173333/bdaycard_yl0wq5.avif'}
+                      alt="Greeting Card"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-grow">
                     <h4 className="font-medium text-sm text-gray-800">Greeting Card</h4>
-                    <p className="text-rose-600 font-semibold text-sm">Free</p>
+                    <p className="text-rose-600 font-semibold text-sm">
+                      {greetingCard ? (greetingCard.price === 0 ? 'Free' : `INR ${greetingCard.price}`) : '...'}
+                    </p>
                     <p className="text-xs text-gray-400 mt-0.5">Add a personal note</p>
                   </div>
                   <button

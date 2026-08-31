@@ -142,7 +142,7 @@ const Cart = () => {
                         </h3>
                       </Link>
                       <p className="text-gray-500 mb-2">
-                        {item.product.category || 'Uncategorized'}
+                        {item.product.isAddon ? 'Add-on Item' : (item.product.category || 'Uncategorized')}
                         {item.size && (
                           <span className="ml-3 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
                             Size: {item.size}

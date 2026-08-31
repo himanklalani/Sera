@@ -1032,7 +1032,7 @@ const CategoriesSection = () => {
     },
     { 
       name: 'COMBOS', 
-      img: '', // TODO: Add Cloudinary URL for Combos
+      img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto/q_auto/v1788177820/Gemini_Generated_Image_81iw5v81iw5v81iw_-_Edited_vynei9.avif',
       srcSet: ''
     },
     { 

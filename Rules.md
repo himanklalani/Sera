@@ -197,6 +197,206 @@ Built with Node.js, Express, MongoDB, and Mongoose.
 * **`Contact.js`**: `name`, `email`, `subject`, `message`, `status` (`'unread'` | `'read'`).
 * **`Newsletter.js`**: `email` (unique).
 * **`Review.js`**: `product`, `user`, `name`, `rating`, `comment`.
+* **`Cart.js`**: `user` (ref to User), `items` (array of `{ product, quantity, price, name, image }`). One cart document per user, upserted on every add/update action.
+
+---
+
+## 7. Complete API Endpoint Inventory
+
+### 1. Authentication (`/api/auth`)
+* `POST /api/auth/register`: Initiate user registration and dispatch email OTP.
+* `POST /api/auth/verify-otp`: Validate OTP and activate user account.
+* `POST /api/auth/login`: Authenticate credentials and return JWT token.
+* `GET /api/auth/profile`: Fetch user details, saved addresses, and wishlist.
+* `PUT /api/auth/profile`: Update user profile data and addresses array.
+* `POST /api/auth/forgot-password`: Send password reset OTP via email.
+* `POST /api/auth/reset-password`: Reset password using verified OTP.
+* `GET /api/auth/wishlist`: Get user's saved wishlist items.
+* `POST /api/auth/wishlist/:productId`: Toggle product in user wishlist.
+
+### 2. Products (`/api/products`)
+* `GET /api/products`: Search, filter by category/aesthetic/price, and sort products.
+* `GET /api/products/bestsellers`: Fetch top products sorted by sales volume.
+* `GET /api/products/:id`: Get detailed metadata and verified reviews for a single product.
+* `POST /api/products/:id/reviews`: Add a customer review and update product average rating.
+* `POST /api/products` *(Admin)*: Create a new product.
+* `PUT /api/products/:id` *(Admin)*: Update product details.
+* `DELETE /api/products/:id` *(Admin)*: Delete a product.
+
+### 3. Cart (`/api/cart`)
+* `GET /api/cart`: Get current user's server-persisted cart.
+* `POST /api/cart`: Add item or update quantity in cart.
+* `PUT /api/cart`: Update item quantity.
+* `DELETE /api/cart/:productId`: Remove item from cart.
+* `DELETE /api/cart`: Clear entire cart.
+
+### 4. Checkout & Flyer Coupons (`/api/coupons`)
+* `GET /api/coupons/public`: Fetch active flyer coupons (`showInFlyer: true`) for frontend flyer modals. Automatically sanitizes internal tracking fields like `usageCount` and `allowedUsers`.
+* `POST /api/coupons/validate`: Validate promo code against cart subtotal and user history.
+* `GET /api/coupons` *(Admin)*: List all coupons.
+* `POST /api/coupons` *(Admin)*: Create new coupon.
+* `PUT /api/coupons/:id` *(Admin)*: Update coupon.
+* `DELETE /api/coupons/:id` *(Admin)*: Delete coupon.
+
+### 5. Orders & Payments (`/api/orders` & `/api/payment`)
+* `POST /api/payment/create-order`: Initialize payment session with Razorpay API.
+* `POST /api/payment/verify-payment`: Verify payment signature, decrement product stock, clear cart, update coupon usage count, and save order with status `'processing'`.
+* `POST /api/orders`: Submit new order.
+* `GET /api/orders`: Get logged-in user's order history.
+* `GET /api/orders/:id`: Get single order details.
+* `GET /api/orders/:id/invoice`: Stream PDF invoice generated on the fly via `pdfkit`.
+* `PUT /api/orders/:id/cancel`: Process order cancellation request.
+* `PUT /api/orders/:id/exchange`: Process order exchange request.
+* `GET /api/orders/admin/all` *(Admin)*: Get all customer orders.
+* `PUT /api/orders/:id/status` *(Admin)*: Update order fulfillment status.
+
+### 6. Editorial Blogs (`/api/blogs`)
+* `GET /api/blogs`: Fetch published blog posts.
+* `GET /api/blogs/:slug`: Fetch single blog post by slug.
+* `POST /api/blogs` *(Admin)*: Create blog post.
+* `PUT /api/blogs/:id` *(Admin)*: Update blog post.
+* `DELETE /api/blogs/:id` *(Admin)*: Delete blog post.
+
+### 7. Categories, Contacts & Newsletters
+* `GET /api/categories`: Fetch all product categories.
+* `POST /api/categories` *(Admin)*: Create a new category.
+* `POST /api/contact`: Submit a customer inquiry via the contact form.
+* `GET /api/contact` *(Admin)*: List all customer inquiries.
+* `POST /api/newsletter`: Subscribe an email to the newsletter.
+* `GET /api/feed/instagram`: Fetch cached Instagram graph feed for footer UI.
+
+### 8. Media Upload (`/api/upload`)
+* `POST /api/upload`: Upload single image to Cloudinary `jewelry-products` folder.
+* `POST /api/upload/multiple`: Upload batch of images (up to 10) to Cloudinary.
+
+---
+
+## 8. Technical Infrastructure & Web Vitals Optimization
+
+### A. Non-WWW to WWW 301 Redirects (`vercel.json`)
+* All requests arriving at `serastore.in` are permanently redirected via 301 response headers to `https://www.serastore.in/$1`.
+
+### B. WhatsApp & Social Bot OpenGraph Interceptor (`vercel.json`)
+* `vercel.json` intercepts incoming user agents matching social bots (`WhatsApp`, `facebookexternalhit`, `Twitterbot`, `LinkedInBot`, `Pinterest`, `bot`, `crawler`, `spider`) on `/product/:id` routes and rewrites the request directly to the backend endpoint: `https://backend.serastore.in/api/products/share/:id`.
+* The backend endpoint fetches the target product from MongoDB and returns lightweight raw static HTML containing dynamic OpenGraph tags (`og:title`, `og:description`, `og:image`, `og:url`) with high-res Cloudinary images, enabling rich previews in chat apps.
+
+### C. Automated XML Sitemap Generation (`sitemapRoutes.js`)
+* **Live XML Endpoint**: `https://www.serastore.in/sitemap.xml` (served via backend route `GET /api/sitemap`).
+* Automatically queries MongoDB `Product` and `Blog` collections to append newly added products (`/product/:id`) and published articles (`/journal/:slug`) with their exact `updatedAt` timestamps in ISO 8601 format.
+
+### D. Dynamic Image Optimization & Cloudinary Pipeline
+* All uploaded images pass through Cloudinary's dynamic image processing pipeline.
+* **Auto-Format & Quality**: Cloudinary URLs automatically inject `f_auto,q_auto` to deliver modern WebP/AVIF images based on browser capabilities.
+* **Width Restrictions**: Images rendered in carousels and product grids specify strict width caps (`w_600`, `w_800`, `w_2000`) to eliminate mobile bandwidth bloat.
+* **Automated Alt Text**: Product images dynamically compute alt tags: `alt={`${product.name} - Anti-Tarnish Premium Jewelry & Clothes`}`.
+
+### E. Crawling Rules (`robots.txt`)
+Located at `https://www.serastore.in/robots.txt`:
+```txt
+User-agent: *
+Allow: /
+
+# Disallow utility and auth pages to prevent crawling overhead
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /profile
+Disallow: /order-success
+
+Sitemap: https://www.serastore.in/sitemap.xml
+```
+
+---
+
+## 9. Email & SMTP Infrastructure (Brevo)
+
+All transactional emails are dispatched via **Brevo (formerly Sendinblue)** SMTP.
+
+### Email Triggers
+| Trigger | Recipient | Subject |
+| :--- | :--- | :--- |
+| New user registration | New user | OTP verification email for account activation |
+| Forgot password | User | Password reset OTP email |
+| Successful payment | User | Order confirmation with invoice summary |
+| Exchange request | Admin (internal) | Customer exchange request notification |
+| Contact form submission | Admin (internal) | New inquiry from website contact form |
+
+### Email Design Rules
+* **Header Accent**: Gold (`#c5a666`) used in email banners and header backgrounds to match the luxury brand aesthetic.
+* **Logo**: Served via the public Cloudinary URL or absolute path to `/logo.avif`.
+
+---
+
+## 10. Valid Product Field Values
+
+These are the known valid enumerated values for the `Product` model's categorical fields. Any new admin creating or seeding products must use these exact values.
+
+### `category` Field (exact strings, case-sensitive)
+* `"EARRINGS"`
+* `"NECKLACES"`
+* `"BRACELETS"`
+* `"COMBOS"`
+* `"APPAREL"`
+* `"RINGS"` *(Paused — do not use in new product listings)*
+
+### `tags` Field (array — multiple allowed)
+* `"bestseller"` — Shown in the Bestsellers carousel section on the homepage.
+* `"new"` — Flagged as new arrivals in the catalog.
+* `"sale"` — Products currently on discount or promotional pricing.
+
+### `aesthetics` Field (array — multiple allowed, drives `/shop/collection/:aesthetic` routing)
+* `"minimalist"` — Clean, simple designs.
+* `"boho vibes"` — Earthy, layered, free-spirited styles.
+* `"everyday glam"` — Subtle shimmer and elevated daily wear.
+* `"gifting"` — Curated sets and gift-ready pieces.
+* `"combos"` — Multi-piece bundle sets.
+* `"statement"` — Bold, eye-catching accent pieces.
+
+---
+
+## 11. Deployment Topology
+
+| Layer | Technology | Host / URL |
+| :--- | :--- | :--- |
+| **Frontend SPA** | React + Vite | Vercel → `https://www.serastore.in` |
+| **Backend API** | Node.js + Express | Separate Vercel/Railway deployment → `https://backend.serastore.in` |
+| **Database** | MongoDB Atlas | Cloud-hosted MongoDB cluster |
+| **Media CDN** | Cloudinary | `https://res.cloudinary.com/dhby5v7rw/` |
+| **Email SMTP** | Brevo | Outbound transactional email |
+| **Payments** | Razorpay | Payment gateway (`razorpay.com`) |
+
+---
+
+## 12. Required Environment Variables
+
+### Frontend (`frontend/.env`)
+```
+VITE_API_URL=https://backend.serastore.in
+VITE_RAZORPAY_KEY_ID=<your_razorpay_key>
+```
+
+### Backend (`backend/.env`)
+```
+PORT=5000
+MONGODB_URI=<mongodb+srv connection string>
+JWT_SECRET=<secret string>
+CLOUDINARY_CLOUD_NAME=dhby5v7rw
+CLOUDINARY_API_KEY=<cloudinary api key>
+CLOUDINARY_API_SECRET=<cloudinary api secret>
+RAZORPAY_KEY_ID=<razorpay key>
+RAZORPAY_KEY_SECRET=<razorpay secret>
+BREVO_SMTP_HOST=smtp-relay.brevo.com
+BREVO_SMTP_PORT=587
+BREVO_SMTP_USER=<brevo login email>
+BREVO_SMTP_PASS=<brevo smtp key>
+SENDER_EMAIL=noreply@serastore.in
+ADMIN_EMAIL=admin@serastore.in
+```
+
 
 ---
 

@@ -100,23 +100,44 @@ const FlyingOfferBanner = ({ onComplete }) => {
   const [hasEntered, setHasEntered] = useState(false);
   const [currentOfferIndex, setCurrentOfferIndex] = useState(0);
 
-  const offers = useMemo(() => [
-
-    {
-      code: 'FIRST10',
-      title: '✨ First Order Special ✨',
-      discount: '10%',
-      description: 'Save 10% on your first order',
-      icon: (
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="text-white drop-shadow-md">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      )
-    }
-  ], []);
+  const [offers, setOffers] = useState([]);
+  const [isFetched, setIsFetched] = useState(false);
 
   useEffect(() => {
+    const fetchCoupons = async () => {
+      try {
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/coupons/public`);
+        const formattedOffers = data.map((c) => ({
+          code: c.code,
+          title: c.isFirstOrderOnly ? '✨ First Order Special ✨' : '✨ Special Offer ✨',
+          discount: c.discountType === 'percentage' ? `${c.discountValue}%` : `INR ${c.discountValue}`,
+          description: c.description || (c.isFirstOrderOnly ? `Save ${c.discountType === 'percentage' ? c.discountValue + '%' : 'INR ' + c.discountValue} on your first order` : 'Limited time offer just for you!'),
+          icon: (
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="text-white drop-shadow-md">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          )
+        }));
+        setOffers(formattedOffers);
+      } catch (err) {
+        console.error('Failed to fetch flyer coupons', err);
+      } finally {
+        setIsFetched(true);
+      }
+    };
+    fetchCoupons();
+  }, []);
+
+  useEffect(() => {
+    if (!isFetched) return;
+    
+    // If no offers from DB, don't show the flyer at all
+    if (offers.length === 0) {
+      if (onComplete) onComplete();
+      return;
+    }
+
     // Check if flyer has already been shown in this session
     const flyerShown = sessionStorage.getItem('flyerShown');
     if (flyerShown) {
@@ -145,10 +166,10 @@ const FlyingOfferBanner = ({ onComplete }) => {
       const timer = setTimeout(triggerFlyer, 1500);
       return () => clearTimeout(timer);
     }
-  }, [onComplete]);
+  }, [onComplete, isFetched, offers.length]);
 
   useEffect(() => {
-    if (!hasEntered || !isVisible) return;
+    if (!hasEntered || !isVisible || offers.length === 0) return;
 
     // Auto-rotate offers every 2.5 seconds
     const rotateTimer = setInterval(() => {
@@ -184,7 +205,7 @@ const FlyingOfferBanner = ({ onComplete }) => {
 
   return (
     <AnimatePresence>
-      {isVisible && (
+      {isVisible && offers.length > 0 && (
         <>
           {/* Background blur overlay */}
           <motion.div

@@ -300,9 +300,41 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
-    if (!window.confirm('Are you sure you want to log out?')) return;
-    localStorage.removeItem('userInfo');
-    navigate('/login');
+    toast.custom(
+      (t) => (
+        <div
+          className={`${
+            t.visible ? 'animate-enter' : 'animate-leave'
+          } max-w-sm w-full bg-white shadow-2xl rounded-2xl pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden`}
+        >
+          <div className="p-6">
+            <h3 className="text-xl font-serif text-gray-900 mb-2">Log Out</h3>
+            <p className="text-sm text-gray-500">
+              Are you sure you want to log out of your account? You will need to sign back in to access your orders and wishlist.
+            </p>
+          </div>
+          <div className="flex border-t border-gray-100 bg-gray-50">
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="w-1/2 p-4 text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                localStorage.removeItem('userInfo');
+                navigate('/login');
+              }}
+              className="w-1/2 p-4 text-sm font-bold text-rose-600 hover:bg-rose-50 border-l border-gray-200 transition-colors"
+            >
+              Log Out
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: Infinity, position: 'top-center' }
+    );
   };
 
   return (

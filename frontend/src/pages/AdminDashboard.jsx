@@ -57,6 +57,8 @@ const AdminDashboard = () => {
     isFirstOrderOnly: false,
     isFreeShipping: false,
     restrictedToUserEmail: '',
+    description: '',
+    showInFlyer: false,
   });
   const [editingCouponId, setEditingCouponId] = useState(null);
   const [comboSearch, setComboSearch] = useState('');
@@ -630,6 +632,8 @@ const AdminDashboard = () => {
       isActive: true,
       isFirstOrderOnly: false,
       restrictedToUserEmail: '',
+      description: '',
+      showInFlyer: false,
     });
     setEditingCouponId(null);
   };
@@ -663,6 +667,8 @@ const AdminDashboard = () => {
       isFirstOrderOnly: couponForm.isFirstOrderOnly,
       isFreeShipping: couponForm.isFreeShipping,
       restrictedToUserEmail: couponForm.restrictedToUserEmail.trim() || null,
+      description: couponForm.description,
+      showInFlyer: couponForm.showInFlyer,
     };
 
     if (!payload.code) {
@@ -729,6 +735,8 @@ const AdminDashboard = () => {
         coupon.allowedUsers && coupon.allowedUsers.length > 0
           ? coupon.allowedUsers[0].email || ''
           : '',
+      description: coupon.description || '',
+      showInFlyer: coupon.showInFlyer || false,
     });
   };
 
@@ -2202,7 +2210,27 @@ const AdminDashboard = () => {
                   placeholder="Optional"
                 />
               </div>
-              <div className="flex flex-wrap items-center gap-6 mt-6">
+
+              {/* Flyer / Description */}
+              <div className="col-span-1 md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Flyer Description (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={couponForm.description}
+                  onChange={(e) =>
+                    setCouponForm({
+                      ...couponForm,
+                      description: e.target.value,
+                    })
+                  }
+                  className="w-full border p-2 rounded focus:ring-rose-500 focus:border-rose-500"
+                  placeholder="e.g., Get 10% discount on your first order"
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-6 mt-6 col-span-1 md:col-span-2">
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -2247,6 +2275,22 @@ const AdminDashboard = () => {
                   />
                   <span className="text-sm font-semibold text-blue-700">
                     Free Shipping
+                  </span>
+                </label>
+                <label className="flex items-center gap-2 border border-purple-200 bg-purple-50 px-3 py-1 rounded">
+                  <input
+                    type="checkbox"
+                    checked={couponForm.showInFlyer}
+                    onChange={(e) =>
+                      setCouponForm({
+                        ...couponForm,
+                        showInFlyer: e.target.checked,
+                      })
+                    }
+                    className="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                  />
+                  <span className="text-sm font-semibold text-purple-700">
+                    Show in Website Flyer/Popup
                   </span>
                 </label>
               </div>

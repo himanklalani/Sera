@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import { FaInstagram } from 'react-icons/fa';
+import axios from 'axios';
 import SEO from '../components/SEO';
 import FramerButton from '../components/FramerButton';
 import TextArrowCTA from '../components/TextArrowCTA';
@@ -441,28 +442,43 @@ const FlyingOfferBanner = ({ onComplete }) => {
 // ============================================
 export const FloatingCouponDrawer = ({ shouldShow }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [coupons, setCoupons] = useState([]);
 
-  const coupons = useMemo(() => [
-   {
-  code: 'FIRST10',
-  discount: '10% OFF',
-  description: 'Get 10% discount on your first order',
-  validTill: (
-    <span className="flex items-center gap-1 text-xs text-gray-500">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="inline-block">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-      Valid only for first order
-    </span>
-  ),
-  color: 'from-purple-50/60 via-indigo-50/60 to-purple-50/60',
-  borderColor: 'border-purple-300/60',
-  textColor: 'text-purple-600',
-  badgeColor: 'bg-purple-500'
-}
-
-  ], []);
+  useEffect(() => {
+    const fetchCoupons = async () => {
+      try {
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/coupons/public`);
+        
+        const formattedCoupons = data.map((c) => ({
+          code: c.code,
+          discount: c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `INR ${c.discountValue} OFF`,
+          description: c.description || (c.isFirstOrderOnly ? 'Valid only for first order' : 'Special offer just for you!'),
+          validTill: c.expiryDate ? (
+            <span className="flex items-center gap-1 text-xs text-gray-500">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="inline-block">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Valid till {new Date(c.expiryDate).toLocaleDateString()}
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 text-xs text-green-600">
+              Never expires
+            </span>
+          ),
+          color: 'from-purple-50/60 via-indigo-50/60 to-purple-50/60',
+          borderColor: 'border-purple-300/60',
+          textColor: 'text-purple-600',
+          badgeColor: 'bg-purple-500'
+        }));
+        
+        setCoupons(formattedCoupons);
+      } catch (err) {
+        console.error('Failed to fetch flyer coupons', err);
+      }
+    };
+    fetchCoupons();
+  }, []);
 
   const handleCopyCode = (code) => {
     navigator.clipboard.writeText(code);
@@ -479,7 +495,7 @@ export const FloatingCouponDrawer = ({ shouldShow }) => {
   return (
     <>
       <AnimatePresence>
-        {shouldShow && (
+        {shouldShow && coupons.length > 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.5, x: -50 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}

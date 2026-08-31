@@ -21,6 +21,19 @@ router.get(
   })
 );
 
+// @desc    Get public flyer coupons
+// @route   GET /api/coupons/public
+// @access  Public
+router.get(
+  '/public',
+  asyncHandler(async (req, res) => {
+    const coupons = await Coupon.find({ isActive: true, showInFlyer: true })
+      .select('-allowedUsers -usageCount -usageLimit -perUserLimit') // don't expose sensitive limits
+      .sort({ createdAt: -1 });
+    res.json(coupons);
+  })
+);
+
 // @desc    Create coupon (Admin)
 // @route   POST /api/coupons
 // @access  Private/Admin
@@ -42,6 +55,7 @@ router.post(
       isFreeShipping,
       restrictedToUserEmail,
       description,
+      showInFlyer,
     } = req.body;
 
     // ✅ VALIDATE REQUIRED FIELDS
@@ -91,6 +105,7 @@ router.post(
       isFreeShipping: Boolean(isFreeShipping),
       allowedUsers,
       description: description || '',
+      showInFlyer: Boolean(showInFlyer),
       usageCount: 0, // ✅ Initialize usage count to 0
     });
 
@@ -120,6 +135,7 @@ router.put(
       isFreeShipping,
       restrictedToUserEmail,
       description,
+      showInFlyer,
       resetUsageCount, // ✅ Allow admins to reset usage count
     } = req.body;
 
@@ -173,6 +189,9 @@ router.put(
     }
     if (typeof description === 'string') {
       coupon.description = description;
+    }
+    if (typeof showInFlyer === 'boolean') {
+      coupon.showInFlyer = showInFlyer;
     }
 
     // ✅ RESET USAGE COUNT if admin requests

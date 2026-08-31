@@ -63,6 +63,10 @@ const couponSchema = new mongoose.Schema(
       type: String,
       maxlength: 500,
     },
+    showInFlyer: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

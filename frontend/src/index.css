@@ -31,6 +31,7 @@ body {
   font-family: var(--font-sans);
   background-color: #ffffff;
   color: #1a1a1a;
+  overflow-anchor: none; /* Prevents scroll jumping when Suspense resolves */
 }
 
 h1, h2, h3, h4, h5, h6 {

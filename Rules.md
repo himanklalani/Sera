@@ -9,15 +9,9 @@ This document serves as the master technical blueprint and search engine optimiz
 Sera positions itself as a premium, cutesy, everyday luxury brand specializing in **anti-tarnish waterproof jewelry** and **chic women's apparel & tops**. The copy across product titles, category listings, meta descriptions, image alt tags, and editorial blog posts must strictly adhere to the following keyword and terminology rules:
 
 ### Terminology Rules & Brand Language
-* **STRICTLY FORBIDDEN TERMS**: **Do NOT use "18k", "plating", or "plated"** anywhere in website copy, product descriptions, meta tags, schema markup, or seed scripts.
-* **APPROVED JEWELRY TARGET KEYWORDS**: 
-  - "PVD Coating" / "18k Gold PVD Coating"
-  - "Anti-Tarnish" / "Anti-Tarnish Jewelry"
-  - "Waterproof" / "Waterproof Jewelry"
-  - "Hypoallergenic Stainless Steel"
-  - "Everyday Luxury Jewelry"
-  - "Skin-Friendly Jewelry"
-  - "Sweatproof Jewelry"
+* **STRICTLY FORBIDDEN / AVOIDED TERMS**: **Do NOT use "18k", "plating", "plated", "PVD Coating", "PVD", "Waterproof", "Hypoallergenic", "Stainless Steel", "Everyday Luxury", or "Skin-Friendly"** anywhere in website copy, product descriptions, meta tags, schema markup, or seed scripts.
+* **ONLY APPROVED JEWELRY TARGET KEYWORD**: 
+  - **"Anti-Tarnish" / "Anti-Tarnish Jewelry"** (This is the single approved jewelry quality descriptor).
 * **APPROVED APPAREL & CLOTHES TARGET KEYWORDS**:
   - "Women's Tops" / "Chic Tops"
   - "Cotton Blend Tops" / "Premium Cotton Blend"
@@ -32,11 +26,11 @@ Sera positions itself as a premium, cutesy, everyday luxury brand specializing i
 
 ### Product Category Taxonomy
 1. **EARRINGS**: Anti-tarnish studs, hoops, drop earrings, and huggies.
-2. **NECKLACES**: Minimalist pendants, layered chains, and statement chokers.
-3. **BRACELETS**: Cuff bracelets, chain bracelets, and charm bangles.
-4. **RINGS**: Adjustable rings, stackable band rings, and solitaire rings.
-5. **COMBOS**: Curated jewelry sets combining matching necklaces, earrings, and bracelets at bundle prices.
-6. **APPAREL**: Premium women's tops, clothes, and everyday wear crafted from breathable cotton blend fabrics.
+2. **NECKLACES**: Minimalist anti-tarnish pendants, layered chains, and chokers.
+3. **BRACELETS**: Anti-tarnish cuff bracelets, chain bracelets, and bangles.
+4. **COMBOS**: Curated jewelry sets combining matching necklaces, earrings, and bracelets at bundle prices.
+5. **APPAREL**: Premium women's tops, clothes, and everyday wear crafted from breathable cotton blend fabrics.
+6. **RINGS (PAUSED / BACKEND-ONLY)**: The `Ring` category schema and legacy product records exist in the backend MongoDB database for data safety, but **Rings are completely removed from the frontend UI, header menus, category grids, and shop filters**. Ring sales are currently stopped.
 
 ### Brand Design Tokens
 * **Primary Typography**: `"Playfair Display", serif` (Enforced on all page headers `h1-h6`, category titles, and luxury banners).
@@ -114,16 +108,16 @@ Sitemap: https://www.serastore.in/sitemap.xml
 
 | Route URL | Page Component | Change Frequency | Priority | Target User Intent & Keyword Strategy |
 | :--- | :--- | :--- | :--- | :--- |
-| `/` | `Home.jsx` | Daily | `1.0` | Core brand landing page; targets "Anti-Tarnish Jewelry", "Affordable Luxury Jewelry India", "Chic Women's Tops". |
-| `/shop` | `Shop.jsx` | Daily | `0.9` | E-commerce catalog; targets "Buy Anti Tarnish Earrings", "Waterproof Necklaces Online", "Buy Tops & Apparel". |
+| `/` | `Home.jsx` | Daily | `1.0` | Core brand landing page; targets "Anti-Tarnish Jewelry", "Chic Women's Tops". |
+| `/shop` | `Shop.jsx` | Daily | `0.9` | E-commerce catalog; targets "Buy Anti Tarnish Earrings", "Buy Anti Tarnish Necklaces", "Buy Tops & Apparel". |
 | `/shop/collection/:aesthetic` | `Shop.jsx` | Weekly | `0.85` | Targeted collection landings (e.g. `/shop/collection/minimalist`, `/shop/collection/boho-vibes`, `/shop/collection/combos`). |
 | `/product/:id` | `ProductDetails.jsx` | Weekly | `0.8` | Product-specific transaction pages targeting exact product search queries (jewelry & clothes). |
-| `/journal` | `BlogList.jsx` | Daily | `0.8` | Content hub targeting long-tail jewelry care, styling, cotton blend clothes guide, and gift guide search queries. |
+| `/journal` | `BlogList.jsx` | Daily | `0.8` | Content hub targeting long-tail anti-tarnish jewelry care, styling, cotton blend clothes guide, and gift guide search queries. |
 | `/journal/:slug` | `BlogPost.jsx` | Monthly | `0.7` | In-depth editorial articles targeting specific long-tail keywords. |
 | `/gifts` | `GiftingHub.jsx` | Weekly | `0.8` | Targets "Jewelry Gift Sets", "Gifts for Her", "Birthday Gift Jewelry Boxes", "Combo Gift Sets". |
-| `/jewelry-care` | `JewelryCare.jsx` | Monthly | `0.7` | Educational landing targeting "How to clean anti-tarnish jewelry", "PVD coating maintenance". |
-| `/materials` | `MaterialsGuide.jsx` | Monthly | `0.7` | Educational page explaining PVD coating, stainless steel waterproofing, and cotton blend fabric quality. |
-| `/size-guide` | `SizeGuide.jsx` | Monthly | `0.6` | Utility guide targeting "Ring Size Chart India", "Necklace Length Guide", "Top Size Chart". |
+| `/jewelry-care` | `JewelryCare.jsx` | Monthly | `0.7` | Educational landing targeting "How to clean anti-tarnish jewelry", maintenance guides. |
+| `/materials` | `MaterialsGuide.jsx` | Monthly | `0.7` | Educational page explaining anti-tarnish quality standards and cotton blend fabric quality. |
+| `/size-guide` | `SizeGuide.jsx` | Monthly | `0.6` | Utility guide targeting "Necklace Length Guide", "Top Size Chart". |
 | `/sustainability` | `Sustainability.jsx` | Monthly | `0.6` | Eco-friendly packaging and ethical sourcing commitments. |
 | `/about` | `InfoPages.jsx` | Monthly | `0.6` | Brand origin, mission statement, and craft details. |
 | `/faq` | `InfoPages.jsx` | Weekly | `0.7` | FAQ page targeting customer service and shipping inquiries. |

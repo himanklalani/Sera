@@ -794,7 +794,7 @@ const ProductDetails = () => {
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
                   {product.category?.toLowerCase().includes('apparel') && (
                     <div className="bg-gray-50 rounded-xl px-5 py-4 mb-6 text-gray-800 font-medium flex items-center border border-gray-100">
-                      <span className="text-gray-900 font-semibold mr-2">Fabric:</span> 100% Premium Material, soft and comfortable on skin
+                      <span className="text-gray-900 font-semibold mr-2">Fabric:</span> 100% high quality cotton blend material, soft and comfortable on skin
                     </div>
                   )}
                   {product.description}

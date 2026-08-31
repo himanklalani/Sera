@@ -256,7 +256,15 @@ Built with Node.js, Express, MongoDB, and Mongoose.
 * `PUT /api/blogs/:id` *(Admin)*: Update blog post.
 * `DELETE /api/blogs/:id` *(Admin)*: Delete blog post.
 
-### 7. Media Upload (`/api/upload`)
+### 7. Categories, Contacts & Newsletters
+* `GET /api/categories`: Fetch all product categories.
+* `POST /api/categories` *(Admin)*: Create a new category.
+* `POST /api/contact`: Submit a customer inquiry via the contact form.
+* `GET /api/contact` *(Admin)*: List all customer inquiries.
+* `POST /api/newsletter`: Subscribe an email to the newsletter.
+* `GET /api/feed/instagram`: Fetch cached Instagram graph feed for footer UI.
+
+### 8. Media Upload (`/api/upload`)
 * `POST /api/upload`: Upload single image to Cloudinary `jewelry-products` folder.
 * `POST /api/upload/multiple`: Upload batch of images (up to 10) to Cloudinary.
 

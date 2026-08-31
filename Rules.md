@@ -1,248 +1,213 @@
-# SERA Jewelry - Reference Rules & Technical Architecture
+# SERA Jewelry - Technical Architecture & SEO Master Blueprint
 
-This document provides a comprehensive, exhaustive overview of the design tokens, component interactions, database schemas, routing paths, animation engines, business logic rules, and API endpoints across the Sera frontend and backend applications.
-
----
-
-## 1. Brand Styling, Design System & Color Tokens
-
-Sera utilizes a custom luxury design system built on Tailwind CSS v4, combining elegant serif typography, harmonious rose palette accents, and subtle glassmorphism effects.
-
-### Typography
-* **Serif Font**: `"Playfair Display", serif` (Enforced on all titles, section headings `h1-h6`, product names, and high-level marketing sections).
-* **Sans Font**: `"Inter", sans-serif` (Enforced on body text, form fields, badges, price labels, and operational UI components).
-
-### Color Palette (Tailwind CSS v4 `@theme` & Global CSS)
-* **Baby Pink**: `#ffe4e6` (Soft page backgrounds, overlay containers, subtle highlight fills)
-* **Rose 50**: `#fff1f2` (Light pink background tint for secondary banners, cards, and hover states)
-* **Rose 500 / Theme Accent**: `#f43f5e` (Primary interactive color: buttons, badge highlights, active links, focused input borders)
-* **Gold Accent**: `#c5a666` (Applied to luxury callouts, decorative accents, header details, and transactional email headers)
-* **Body Background**: `#ffffff` (Clean white background for primary readability)
-* **Body Text**: `#1a1a1a` (High-contrast charcoal for sharp readability)
-
-### Micro-Interactions & Styling Guidelines
-* **Glassmorphism**: Backdrop blur utility `backdrop-blur-md` / `backdrop-blur-lg` paired with semi-transparent white fills (`bg-white/70`, `bg-white/40`) and soft white borders (`border-white/40`).
-* **Toast & Alert Rule**: **Native browser dialogs (`window.confirm`, `window.alert`) are strictly prohibited.** All confirmations (logout, order cancellation, deletion actions) must use `toast.custom()` from `react-hot-toast` with styled React components.
+This document serves as the master technical blueprint and search engine optimization (SEO) reference for **Sera Jewels** (`https://www.serastore.in`). It provides deep context on brand rules, technical SEO infrastructure, indexing strategy, URL taxonomy, OpenGraph bot intercepts, Core Web Vitals optimizations, component structures, database schemas, and API endpoints.
 
 ---
 
-## 2. Frontend Architecture, State Management & Routing Map
+## 1. Brand Guidelines & Keyword Terminology Policy
 
-The React single-page application (SPA) uses Vite and React Router DOM v7.
+Sera positions itself as a premium, cutesy, everyday luxury anti-tarnish jewelry brand. The copy across product titles, meta descriptions, image alt tags, and editorial blog posts must adhere strictly to the following terminology rules:
 
-### Application Root & Context Providers (`App.jsx`)
-* **`<CartProvider>` (`CartContext.jsx`)**: Manages shopping cart state, local storage persistence, item count calculations, subtotal calculations, and API synchronization with MongoDB.
-* **`<ScrollToTop />` (`ScrollToTop.jsx`)**: Automatically resets window scroll offset to top `(0, 0)` on every route change.
-* **`<AxiosInterceptor />` (`AxiosInterceptor.jsx`)**: Intercepts outgoing HTTP requests to attach JWT tokens and handles global 401 unauthenticated redirects.
-* **`<Toaster position="top-center" />`**: Renders toast notifications at top-center viewport.
+### Terminology Rules
+* **STRICTLY FORBIDDEN TERMS**: **Do NOT use "18k", "plating", or "plated"** anywhere in website copy, product descriptions, meta tags, schema markup, or seed scripts.
+* **APPROVED TARGET KEYWORDS**: 
+  - "PVD Coating" / "18k Gold PVD Coating"
+  - "Anti-Tarnish" / "Anti-Tarnish Jewelry"
+  - "Waterproof" / "Waterproof Jewelry"
+  - "Hypoallergenic Stainless Steel"
+  - "Everyday Luxury"
+  - "Skin-Friendly Jewelry"
+  - "Sweatproof"
 
-### Full Router Map (`App.jsx`)
-
-#### Core E-Commerce Pages
-* `/` ➔ `Home.jsx`: Hero WebGL slider, dynamic flyer popups, category bento cards, gifting 3D carousel, aesthetics collections, floating coupon drawer.
-* `/shop` ➔ `Shop.jsx`: Dynamic product catalog with keyword search, category filter, aesthetic collection filter, sorting, and price range filters synced to URL query strings.
-* `/shop/collection/:aesthetic` ➔ `Shop.jsx`: Direct collection deep-linking (e.g., `/shop/collection/minimalist`).
-* `/product/:id` ➔ `ProductDetails.jsx`: Product view with image gallery, size options, add-to-cart, review creation/listing, share popover, and "Complete the Look" accent pairs.
-* `/cart` ➔ `Cart.jsx`: Full cart management page, item quantities, free shipping progress bar (threshold ₹999), promo code input, subtotal summary.
-* `/checkout` ➔ `Checkout.jsx`: Shipping address selector/form, coupon code validation, order breakdown, Razorpay online payment integration.
-* `/order-success` ➔ `OrderSuccess.jsx`: Order confirmation view displaying order summary, delivery timeline, invoice download button, and confetti particle effects.
-* `/profile` ➔ `profile.jsx`: User account management with tabs for Orders (with invoice download, cancellation, exchange request), Addresses (CRUD), Wishlist, Account Details, and custom styled Logout toast.
-
-#### Authentication Pages
-* `/login` ➔ `login.jsx`: User login form with JWT token storage.
-* `/register` ➔ `register.jsx`: Registration form triggering email OTP verification via TempUser pipeline.
-* `/forgot-password` ➔ `ForgotPassword.jsx`: Triggers password reset OTP via Brevo SMTP.
-* `/reset-password` ➔ `ResetPassword.jsx`: Verifies reset OTP and updates user password.
-
-#### Information & Institutional Pages
-* `/about` & `/faq` ➔ `InfoPages.jsx`: Brand storytelling, FAQs, customer support details.
-* `/privacy-policy` ➔ `PrivacyPolicy.jsx`: Compliance policies.
-* `/terms` ➔ `TermsPage.jsx`: Terms of service.
-* `/returns` ➔ `Returns.jsx`: Returns, exchange policy, and cancellation policy documentation.
-* `/contact` ➔ `Contact.jsx`: Contact form submitting messages directly to backend database.
-* `/jewelry-care` ➔ `JewelryCare.jsx`: Instructions for maintaining anti-tarnish and PVD coated jewelry.
-* `/materials` ➔ `MaterialsGuide.jsx`: Explanations of materials used (PVD Coating, Waterproof Stainless Steel).
-
-#### SEO & Content Pages
-* `/gifts` ➔ `GiftingHub.jsx`: Curated gifting collection guide.
-* `/size-guide` ➔ `SizeGuide.jsx`: Sizing guide for rings, necklaces, and bracelets.
-* `/sustainability` ➔ `Sustainability.jsx`: Ethical sourcing and eco-friendly packaging commitments.
-* `/sitemap` ➔ `Sitemap.jsx`: HTML sitemap for crawlers and site navigation.
-* `/journal` ➔ `BlogList.jsx`: Editorial blog index.
-* `/journal/:slug` ➔ `BlogPost.jsx`: Single article view with dynamic markdown rendering.
-
-#### Admin Pages
-* `/admin` ➔ `AdminDashboard.jsx`: Comprehensive admin control panel containing tabs for Products, Orders, Categories, Coupons (with flyer visibility toggle & custom descriptions), Contacts, and Blogs.
+### Brand Design Tokens
+* **Primary Typography**: `"Playfair Display", serif` (Enforced on all page headers `h1-h6`, category titles, and luxury banners).
+* **Secondary Typography**: `"Inter", sans-serif` (Enforced on body text, filter tags, form fields, and operational copy).
+* **Color Palette**:
+  - Baby Pink (`#ffe4e6`): Background fills and overlay cards.
+  - Rose 50 (`#fff1f2`): Card highlights and secondary background tints.
+  - Rose 500 (`#f43f5e`): Primary interactive elements, buttons, active states, and callouts.
+  - Gold Accent (`#c5a666`): Luxury callout badges, header details, and email templates.
+  - Body Text (`#1a1a1a`): High-contrast charcoal black.
 
 ---
 
-## 3. Core Frontend Animations & Motion Engines
+## 2. Technical SEO Architecture & Strategy
 
-All UI transitions utilize `framer-motion` for fluid 60fps animations.
+Sera is built as a single-page application (SPA) using React, Vite, and Vercel. Because standard SPAs rely on client-side rendering (CSR), specific server-side interceptors, dynamic sitemaps, and canonical management systems are implemented.
 
-### 1. Parallax Text Ticker (`TopBanner.jsx`)
-* **Continuous Marquee**: Uses `useMotionValue(0)`, `useTransform(baseX, (v) => wrap(-20, -45, v)%)`, and `useAnimationFrame()` to continuously scroll text horizontally.
-* **Content**: Promotes "Free Shipping on orders above INR 999" and "Handcrafted with Love".
+### A. Non-WWW to WWW 301 Redirects (`vercel.json`)
+* All requests arriving at `serastore.in` are permanently redirected via 301 response headers to `https://www.serastore.in/$1`.
 
-### 2. Global Header (`Navbar.jsx` & `MotionMenuIcon.jsx`)
-* **Entrance**: Slides down from top `y: -100` to `y: 0` over 0.8s with `easeOut`.
-* **Hover States**: Icons scale to `1.1` and shift color to `#f43f5e` over `0.2s`.
-* **Animated Cart Badge**: Wrapped in `<AnimatePresence>` with `scale` pop transition.
-* **Interactive Menu Toggle**: `MotionMenuIcon.jsx` animates hamburger lines into an 'X' shape using SVG path transitions.
+### B. WhatsApp & Social Bot OpenGraph Interceptor (`vercel.json`)
+* **Problem**: SPAs serve a single static `index.html` file to web scrapers, causing WhatsApp, Facebook, LinkedIn, Twitter, and Pinterest to display generic homepage meta tags when specific product links are shared.
+* **Solution**: `vercel.json` intercepts incoming user agents matching social bots (`WhatsApp`, `facebookexternalhit`, `Twitterbot`, `LinkedInBot`, `Pinterest`, `bot`, `crawler`, `spider`) on `/product/:id` routes and rewrites the request directly to the backend endpoint: `https://backend.serastore.in/api/products/share/:id`.
+* **Backend Processing**: The endpoint fetches the target `Product` from MongoDB and returns lightweight, raw static HTML containing dynamic OpenGraph tags (`og:title`, `og:description`, `og:image`, `og:url`) with high-res Cloudinary images, enabling instant rich previews in chat apps. Human users clicking the shared link are seamlessly redirected back to the React SPA interface.
 
-### 3. Navigation Drawer (`NavOverlay.jsx`)
-* **Backdrop**: Fades to `opacity: 1` over 0.3s.
-* **Drawer Slide**: Horizontally translates from `x: "100%"` to `0` with cubic bezier `[0.165, 0.84, 0.44, 1]`.
-* **Staggered Menu Items**: Items slide in from `x: 20` with staggered delay (`0.1s + index * 0.1s`).
-* **Submenu Expansion**: Dynamic height expansion from `0` to `"auto"`.
+### C. Automated XML Sitemap Generation (`sitemapRoutes.js`)
+* **Live XML Endpoint**: `https://www.serastore.in/sitemap.xml` (served via backend route `GET /api/sitemap`).
+* **Dynamic Indexing**: Automatically queries MongoDB `Product` and `Blog` collections to append newly added products (`/product/:id`) and published articles (`/journal/:slug`) with their exact `updatedAt` timestamps in ISO 8601 format.
+* **HTML Fallback Sitemap**: Accessible to users and bots at `/sitemap`.
 
-### 4. Search Popover (`SearchOverlay.jsx`)
-* **Entrance**: Drops down `y: -20` to `y: 0` with fade in.
-* **Live Search Filtering**: Debounced query execution highlighting matching products dynamically.
+### D. Canonical Tag Management & Query String Normalization (`SEO.jsx`)
+* All pages utilize the dynamic `<SEO />` wrapper component built on `react-helmet-async`.
+* **Canonical Rule**: `currentUrl.split('?')[0]` is enforced on all canonical tags.
+* **Purpose**: Prevents Google from indexing duplicate content or parameter-heavy URLs when users filter or sort the shop catalog (`/shop?category=EARRING&sort=price_low` resolves its canonical tag strictly back to `https://www.serastore.in/shop`).
 
-### 5. WebGL Shader Hero Slider (`lumina-interactive-list.tsx`)
-* **Shader Engine**: Three.js + GSAP driving custom fragment shaders for glass refraction, ripple effects, and frost distortions during slide changes.
-* **Mobile GPU Protection**: Fragment GLSL shader logic uses **branchless math** (eliminating `if` conditional branches in favor of `mix()` and `step()`) to prevent rendering crashes on mobile ARM Mali GPUs.
-
-### 6. Preloader Component (`Preloader.jsx`)
-* **Asset Pre-computation**: Blocks hero renders until all slide textures and core category images (Earrings, Bracelets, Necklaces) are preloaded into browser cache.
-
-### 7. Welcome Offer Modal / Flying Banner (`Home.jsx`)
-* **Dynamic Backend Sync**: Fetches active flyer coupons from `/api/coupons/public`. Auto-hides completely if no flyer coupons exist.
-* **Free Shipping Badge**: Explicitly displays `"FREE SHIPPING"` badge for 0-discount free shipping coupons instead of `"INR 0 OFF"`.
-* **Spring Entrance**: `initial={{ x: 400, y: 400, opacity: 0, rotate: 20, scale: 0.7 }}` to `animate={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 1 }}` over 1s.
-* **Rotation**: Auto-rotates active offers every 2.5s.
-
-### 8. Floating Coupon Drawer (`Home.jsx`)
-* **Dynamic Trigger**: Button hides automatically if no flyer coupons exist.
-* **Viewport Clipping Protection**: Constrained to `max-h-[45vh] md:max-h-[40vh]` to prevent the drawer from extending past the bottom edge of mobile or desktop viewports.
-* **Copy Feedback**: Clicking any coupon copies code to clipboard and triggers a toast feedback popup.
-
-### 9. 3D Stacked Gifting Carousel (`Home.jsx`)
-* **Gesture Tracking**: Touch-swipe enabled (`onTouchStart`/`onTouchEnd`, 50px threshold).
-* **Depth Transformations**: Rotates and offsets cards dynamically based on stack position:
-  ```javascript
-  rotateZ: offset * 3, y: offset * 15, x: offset * 10, scale: isActive ? 1 : 0.9 - Math.abs(offset) * 0.05
+### E. Structured Data / JSON-LD Schemas (`SEO.jsx` & `productdetails.jsx`)
+* **Global Organization Schema**: Injected on all pages via `<SEO />`:
+  ```json
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Sera Jewels",
+    "url": "https://www.serastore.in",
+    "logo": "https://www.serastore.in/logo.avif",
+    "sameAs": ["https://www.instagram.com/serastore.in"]
+  }
   ```
+* **Product Schema**: Injected on individual product detail pages (`/product/:id`), detailing product name, description, Cloudinary image URLs, currency (`INR`), price, stock availability (`InStock` / `OutOfStock`), average rating score, and review count.
+* **BreadcrumbList Schema**: Injected across category and product pages for Google Search snippet breadcrumb formatting.
 
-### 10. Framer Button (`FramerButton.jsx`)
-* Reusable button wrapper providing magnetic hover scale (`scale: 1.03`), tap compression (`scale: 0.97`), and animated arrow translate effects.
+### F. Crawling Rules (`robots.txt`)
+Located at `https://www.serastore.in/robots.txt`:
+```txt
+User-agent: *
+Allow: /
 
----
+# Disallow utility and auth pages to prevent crawling overhead
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /profile
+Disallow: /order-success
 
-## 4. Business Logic & E-Commerce Policies
-
-### Free Shipping Policy
-* **Core Rule**: Shipping is **FREE (INR 0)** on all orders where cart subtotal exceeds **INR 999**.
-* **Standard Shipping Fee**: **INR 100** applied if subtotal is INR 999 or below.
-* **Execution Locations**: Hardcoded consistently across `Cart.jsx`, `Checkout.jsx`, and `TopBanner.jsx`.
-
-### Order Cancellation Policy
-* **Pending Orders**: Can be cancelled by user in `/profile` with **0 cancellation fee** (100% refund).
-* **Processing Orders**: Can be cancelled by user in `/profile` with a fixed **INR 100 cancellation fee** deducted from refund.
-* **Shipped / Delivered Orders**: Cannot be cancelled directly.
-
-### Exchange Policy
-* **Window**: Customers can request an exchange within **3 days** of delivery.
-* **Defective / Damaged / Wrong Item**: Free exchange (0 fee).
-* **Changed Mind / Size Exchange**: **INR 100 fee** applied to exchange request.
-
-### Coupon Validation Rules (`/api/coupons/validate`)
-1. **Minimum Order Value**: Cart subtotal must meet `minOrderValue`.
-2. **First Order Only**: If `isFirstOrderOnly: true`, checks user's previous order history in MongoDB.
-3. **Usage Limits**: Verifies global `usageLimit` and per-user limit.
-4. **Read-Only**: `/validate` checks criteria without mutating usage counters (counters update only upon successful payment verification).
+Sitemap: https://www.serastore.in/sitemap.xml
+```
 
 ---
 
-## 5. Backend Architecture & Database Schemas
+## 3. URL Taxonomy, Information Architecture & Target Intent Map
 
-Built with Node.js, Express, MongoDB, and Mongoose.
+| Route URL | Page Component | Change Frequency | Priority | Target User Intent & Keyword Strategy |
+| :--- | :--- | :--- | :--- | :--- |
+| `/` | `Home.jsx` | Daily | `1.0` | Core brand landing page; targets "Anti-Tarnish Jewelry", "Affordable Luxury Jewelry India". |
+| `/shop` | `Shop.jsx` | Daily | `0.9` | E-commerce catalog; targets "Buy Anti Tarnish Earrings", "Waterproof Necklaces Online". |
+| `/shop/collection/:aesthetic` | `Shop.jsx` | Weekly | `0.85` | Targeted collection landings (e.g. `/shop/collection/minimalist`, `/shop/collection/boho-vibes`). |
+| `/product/:id` | `ProductDetails.jsx` | Weekly | `0.8` | Product-specific transaction pages targeting exact product search queries. |
+| `/journal` | `BlogList.jsx` | Daily | `0.8` | Content hub targeting long-tail jewelry care, styling, and gift guide search queries. |
+| `/journal/:slug` | `BlogPost.jsx` | Monthly | `0.7` | In-depth editorial articles targeting specific long-tail keywords. |
+| `/gifts` | `GiftingHub.jsx` | Weekly | `0.8` | Targets "Jewelry Gift Sets", "Gifts for Her", "Birthday Gift Jewelry". |
+| `/jewelry-care` | `JewelryCare.jsx` | Monthly | `0.7` | Educational landing targeting "How to clean anti-tarnish jewelry", "PVD coating maintenance". |
+| `/materials` | `MaterialsGuide.jsx` | Monthly | `0.7` | Educational page explaining PVD coating and stainless steel waterproofing. |
+| `/size-guide` | `SizeGuide.jsx` | Monthly | `0.6` | Utility guide targeting "Ring Size Chart India", "Necklace Length Guide". |
+| `/sustainability` | `Sustainability.jsx` | Monthly | `0.6` | Eco-friendly packaging and ethical sourcing commitments. |
+| `/about` | `InfoPages.jsx` | Monthly | `0.6` | Brand origin, mission statement, and craft details. |
+| `/faq` | `InfoPages.jsx` | Weekly | `0.7` | FAQ page targeting customer service and shipping inquiries. |
+| `/contact` | `Contact.jsx` | Monthly | `0.6` | Contact details and inquiry submission form. |
+| `/sitemap` | `Sitemap.jsx` | Daily | `0.5` | HTML sitemap for human navigation and secondary crawler traversal. |
+| `/privacy-policy` | `PrivacyPolicy.jsx` | Yearly | `0.3` | Legal privacy policy. |
+| `/terms` | `TermsPage.jsx` | Yearly | `0.3` | Legal terms of service. |
+| `/returns` | `Returns.jsx` | Yearly | `0.3` | Shipping, return, exchange, and cancellation policy documentation. |
 
-### Models (`backend/models/`)
-* **`User.js`**: `name`, `email` (lowercase, unique), `password` (bcrypt hash), `phone`, `role` (`'user'` | `'admin'`), `addresses` array, `wishlist` references.
-* **`TempUser.js`**: Holds pending registrations with OTP, expires automatically in 10 minutes.
-* **`Product.js`**: `name`, `price`, `description`, `images` array (Cloudinary URLs), `category`, `aesthetics` array, `tags`, `stock`, `sales`, `rating`, `numReviews`, `accentPairs` array.
-* **`Order.js`**: `user`, `items` array, `shippingAddress`, `paymentMethod`, `paymentResult`, `totalPrice`, `status` (`'pending'`, `'processing'`, `'shipped'`, `'delivered'`, `'cancelled'`, `'exchange_requested'`, `'exchange_approved'`, `'exchanged'`), `cancellationFee`, `refundAmount`, `exchangeReason`.
-* **`Coupon.js`**: `code` (uppercase), `discountType` (`'percentage'` | `'fixed'`), `discountValue`, `isFreeShipping`, `minOrderValue`, `expiryDate`, `isActive`, `showInFlyer` (boolean), `description`, `usageLimit`, `usageCount`, `isFirstOrderOnly`.
+---
+
+## 4. On-Page Performance & Core Web Vitals Optimization
+
+High search rankings depend on fast load times, zero cumulative layout shift (CLS), and low interaction to next paint (INP).
+
+### A. Dynamic Image Optimization & Cloudinary Pipeline
+* All uploaded images pass through Cloudinary's dynamic image processing pipeline.
+* **Auto-Format & Quality**: Cloudinary URLs automatically inject `f_auto,q_auto` to deliver modern WebP/AVIF images based on the user's browser capabilities.
+* **Width Restrictions**: Images rendered in carousels and product grids specify strict width caps (`w_600`, `w_800`, `w_2000`) to eliminate unnecessary mobile bandwidth usage.
+* **Automated Alt Text**: Product images dynamically compute keyword-rich alt tags:
+  `alt={`${product.name} - Anti-Tarnish Premium Jewelry`}`.
+
+### B. Preloader & Texture Prefetching (`Preloader.jsx`)
+* Prevents Cumulative Layout Shift (CLS) on the homepage by prefetching all 4 WebGL hero slider textures and core category images into browser memory before revealing the UI.
+
+### C. Low-GPU Shader Optimization (`lumina-interactive-list.tsx`)
+* WebGL fragment shaders driving the hero slider utilize **branchless GLSL math** (replacing `if` conditions with `mix()` and `step()` functions) to prevent GPU stalls and frame drops on low-end mobile devices (e.g. ARM Mali GPUs).
+
+### D. Deferral of 3rd-Party Scripts
+* Non-critical scripts (such as Instagram feeds and external analytics) are deferred using `IntersectionObserver` triggers or fallback timers, preventing them from blocking the browser's main thread during initial page load.
+
+---
+
+## 5. Full Component & Page Architecture
+
+### Component Map (`frontend/src/components/`)
+1. **`Navbar.jsx`**: Sticky header with animated brand logo, route links, cart counter badge, and mobile drawer trigger.
+2. **`NavOverlay.jsx`**: Mobile side drawer featuring staggered item entrance animations and expandable category submenus.
+3. **`SearchOverlay.jsx`**: Debounced search popover with live keyword matching.
+4. **`SEO.jsx`**: `react-helmet-async` wrapper managing meta titles, descriptions, canonical tags, OpenGraph data, and JSON-LD schemas.
+5. **`TopBanner.jsx`**: Continuous marquee ticker promoting free shipping and brand highlights.
+6. **`Preloader.jsx`**: Asset prefetching screen ensuring 0 CLS load.
+7. **`FramerButton.jsx`**: Reusable interactive button with magnetic hover scaling and tap feedback.
+8. **`CookieConsent.jsx`**: Privacy consent banner with session storage memory.
+9. **`AxiosInterceptor.jsx`**: Handles global JWT authorization headers and handles 401 unauthenticated API states.
+10. **`CartContext.jsx`**: React Context managing global shopping cart state, totals, and local storage sync.
+11. **`ErrorBoundary.jsx`**: Captures runtime React errors to prevent full application crashes.
+12. **`Footer.jsx`**: Site footer containing newsletter subscription form, quick links, category links, payment badges, and social media handles.
+13. **`ScrollToTop.jsx`**: Automatically scrolls window to `(0, 0)` upon navigation.
+14. **`TextArrowCTA.jsx`**: Micro-interaction call-to-action button with arrow animation.
+15. **`AdminBlogTab.jsx`**: Control interface for managing editorial journal posts in the admin panel.
+16. **`ui/lumina-interactive-list.tsx`**: Three.js WebGL shader hero slider.
+
+---
+
+## 6. Business Logic, Operations & Payment Pipeline
+
+### Free Shipping Threshold
+* **Rule**: Orders with subtotal **exceeding INR 999** automatically qualify for **Free Shipping**.
+* **Standard Rate**: Orders INR 999 or below incur a **INR 100 shipping fee**.
+
+### Order Cancellation Lifecycle
+* **Pending Orders**: User can cancel via `/profile` with **100% refund** (0 fee).
+* **Processing Orders**: User can cancel via `/profile` with **INR 100 fee** auto-deducted from refund amount.
+
+### Exchange Window
+* Customers can submit an exchange request within **3 days** of delivery. Free exchange applies to damaged or incorrect items; change-of-mind exchanges incur an INR 100 fee.
+
+### Payment Processing (`/api/payment`)
+* Razorpay Web integration. Payment verification checks server-side signature hashes, updates product stock levels, clears user cart, updates coupon usage counts, and sets order status to `'processing'`.
+
+---
+
+## 7. Database Schemas (`backend/models/`)
+
+* **`User.js`**: `name`, `email`, `password`, `phone`, `role`, `addresses` array, `wishlist` array.
+* **`Product.js`**: `name`, `price`, `description`, `images`, `category`, `aesthetics` array, `tags`, `stock`, `sales`, `rating`, `numReviews`, `accentPairs`.
+* **`Coupon.js`**: `code`, `discountType`, `discountValue`, `isFreeShipping`, `minOrderValue`, `expiryDate`, `isActive`, `showInFlyer`, `description`, `usageLimit`, `usageCount`, `isFirstOrderOnly`.
+* **`Order.js`**: `user`, `items`, `shippingAddress`, `paymentMethod`, `paymentResult`, `totalPrice`, `status`, `cancellationFee`, `refundAmount`.
 * **`Blog.js`**: `title`, `slug`, `content`, `excerpt`, `author`, `coverImage`, `published`.
-* **`Category.js`**: `name`, `image`, `description`.
-* **`Contact.js`**: `name`, `email`, `subject`, `message`, `status` (`'unread'` | `'read'`).
-* **`Newsletter.js`**: `email` (unique).
-* **`Review.js`**: `product`, `user`, `name`, `rating`, `comment`.
 
 ---
 
-## 6. Complete API Endpoints Map
+## 8. Complete API Endpoint Inventory
 
-### Authentication (`/api/auth`)
-* `POST /api/auth/register`: Stage user and send registration OTP.
-* `POST /api/auth/verify-otp`: Validate OTP and activate user account.
-* `POST /api/auth/login`: Authenticate and return JWT token.
-* `GET /api/auth/profile`: Get current user details, saved addresses, and wishlist.
-* `PUT /api/auth/profile`: Update user profile data and addresses.
-* `POST /api/auth/forgot-password`: Send password reset OTP via email.
-* `POST /api/auth/reset-password`: Reset password using verified OTP.
-* `GET /api/auth/wishlist`: Get user's wishlist items.
-* `POST /api/auth/wishlist/:productId`: Toggle item in user wishlist.
+### Auth Endpoints (`/api/auth`)
+* `POST /api/auth/register`: Initiate OTP verification.
+* `POST /api/auth/verify-otp`: Complete registration.
+* `POST /api/auth/login`: Authenticate & issue JWT.
+* `GET /api/auth/profile`: Fetch profile data.
+* `PUT /api/auth/profile`: Update user information.
 
-### Products (`/api/products`)
-* `GET /api/products`: Search, filter by category/aesthetic/price, and sort products.
-* `GET /api/products/bestsellers`: Fetch top products sorted by sales volume.
-* `GET /api/products/:id`: Get detailed metadata for a single product.
-* `POST /api/products/:id/reviews`: Post a product review.
-* `POST /api/products` *(Admin)*: Create new product.
-* `PUT /api/products/:id` *(Admin)*: Update product details.
-* `DELETE /api/products/:id` *(Admin)*: Delete product.
+### Products Endpoints (`/api/products`)
+* `GET /api/products`: Catalog search & dynamic filtering.
+* `GET /api/products/bestsellers`: Bestsellers feed.
+* `GET /api/products/:id`: Product metadata & reviews.
+* `GET /api/products/share/:id`: OpenGraph HTML route for social bots.
 
-### Cart (`/api/cart`)
-* `GET /api/cart`: Get current user's server-persisted cart.
-* `POST /api/cart`: Add item or update quantity in cart.
-* `PUT /api/cart`: Update item quantity.
-* `DELETE /api/cart/:productId`: Remove item from cart.
-* `DELETE /api/cart`: Clear entire cart.
+### Cart & Coupon Endpoints (`/api/cart` & `/api/coupons`)
+* `GET /api/cart`: Server-synced cart.
+* `GET /api/coupons/public`: Active flyer coupons for frontend modals.
+* `POST /api/coupons/validate`: Coupon validation check.
 
-### Coupons (`/api/coupons`)
-* `GET /api/coupons/public`: Fetch active flyer coupons (`showInFlyer: true`) for frontend modals.
-* `POST /api/coupons/validate`: Validate promo code against cart subtotal and user history.
-* `GET /api/coupons` *(Admin)*: List all coupons.
-* `POST /api/coupons` *(Admin)*: Create new coupon.
-* `PUT /api/coupons/:id` *(Admin)*: Update coupon.
-* `DELETE /api/coupons/:id` *(Admin)*: Delete coupon.
-
-### Orders (`/api/orders`)
-* `POST /api/orders`: Create new order.
-* `GET /api/orders`: Get logged-in user's order history.
-* `GET /api/orders/:id`: Get order details.
-* `GET /api/orders/:id/invoice`: Stream PDF invoice generated with `pdfkit`.
-* `PUT /api/orders/:id/cancel`: Process order cancellation request.
-* `PUT /api/orders/:id/exchange`: Process order exchange request.
-* `GET /api/orders/admin/all` *(Admin)*: Get all customer orders.
-* `PUT /api/orders/:id/status` *(Admin)*: Update order fulfillment status.
-
-### Payment (`/api/payment`)
-* `POST /api/payment/create-order`: Initialize Razorpay payment session.
-* `POST /api/payment/verify-payment`: Verify Razorpay signature, decrement stock, clear cart, update coupon count, set order status to `'processing'`.
-
-### Blogs (`/api/blogs`)
-* `GET /api/blogs`: Fetch published blog posts.
-* `GET /api/blogs/:slug`: Fetch single blog post by slug.
-* `POST /api/blogs` *(Admin)*: Create blog post.
-* `PUT /api/blogs/:id` *(Admin)*: Update blog post.
-* `DELETE /api/blogs/:id` *(Admin)*: Delete blog post.
-
-### Media Upload (`/api/upload`)
-* `POST /api/upload`: Upload single image to Cloudinary `jewelry-products` folder.
-* `POST /api/upload/multiple`: Upload multiple images (up to 10) to Cloudinary.
-
----
-
-## 7. Technical SEO & Brand Compliance Rules
-
-### Terminology Enforcement
-* **Forbidden Terms**: Do **NOT** use "18k", "plating", or "plated" in copy or seed data.
-* **Required Terms**: Use "PVD Coating", "Premium Finish", "Waterproof", and "Anti-Tarnish".
-
-### WhatsApp OpenGraph Bot Interceptor
-* `vercel.json` intercepts WhatsApp/Facebook social crawler user agents and redirects `/product/:id` requests to `/api/products/share/:id`.
-* The backend returns static HTML with OpenGraph dynamic meta tags (`og:image`, `og:title`) so product previews display high-res Cloudinary images in WhatsApp chats.
+### Order & Invoice Endpoints (`/api/orders`)
+* `POST /api/orders`: Submit new order.
+* `GET /api/orders/:id/invoice`: PDF invoice generation via `pdfkit`.
+* `GET /api/sitemap`: Dynamic XML sitemap generator.

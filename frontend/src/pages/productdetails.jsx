@@ -443,7 +443,7 @@ const ProductDetails = () => {
           </li>
           <li><span className="text-gray-300">/</span></li>
           <li>
-            <Link to={`/shop/${product.category.toLowerCase()}`} className="hover:text-rose-500 transition-colors">{product.category}</Link>
+            <Link to={`/shop/${product.category.toLowerCase()}`} className="hover:text-rose-500 transition-colors capitalize">{product.category}</Link>
           </li>
           <li><span className="text-gray-300">/</span></li>
           <li className="text-gray-900 truncate max-w-[200px]" aria-current="page">

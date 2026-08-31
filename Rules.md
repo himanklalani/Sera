@@ -29,7 +29,7 @@ The React frontend utilizes standard Vite configs and React Router DOM v7 client
 ### Routing Layout (`App.jsx`)
 * **Root Provider**: `<CartProvider>` supplies cart state and API synchronizations.
 * **Page-Reset Hook**: `<ScrollToTop />` handles scrolling window offset to `(0,0)` on location adjustments.
-* **Notification System**: `<Toaster position="top-center" />` captures popups.
+* **Notification & Alerts System**: `<Toaster position="top-center" />` captures popups. *Rule: Native browser alerts (`window.confirm`) are strictly prohibited in the user-facing UI (e.g. for Logout or Actions). Use `toast.custom` UI components to render branded, animated confirmation modals instead.*
 
 ### Router Map (`App.jsx`)
 * **Core Pages**:
@@ -124,6 +124,7 @@ All animations utilize `framer-motion` to keep the UI smooth and responsive.
 * **Cinematic Easing**: Smooth cubic-bezier animation with fallback network timeout safety.
 
 ### Flying Offers Flyer Banner (`Home.jsx`)
+* **Dynamic Content**: Fetches active flyer-enabled coupons from `/api/coupons/public`. Auto-hides if no flyer coupons exist in the database. Recognizes `isFreeShipping` coupons to render distinct "FREE SHIPPING" badges instead of `0` value defaults.
 * **Flyer Entrance**: Slides, scales, and rotates in:
   ```javascript
   initial={{ x: 400, y: 400, opacity: 0, rotate: 20, scale: 0.7 }}
@@ -154,6 +155,8 @@ All animations utilize `framer-motion` to keep the UI smooth and responsive.
   ```
 
 ### Floating Coupon Drawer (`Home.jsx`)
+* **Dynamic Content**: Connected directly to `/api/coupons/public`. The drawer dynamically hides its trigger button if no coupons are toggled for flyer visibility.
+* **Responsive UI Design**: Height is restricted using `max-h-[45vh] md:max-h-[40vh]` to prevent the scrollable drawer from extending past the viewport boundary on devices with varying vertical space.
 * **Drawer Entry**: Slides from the left boundary:
   ```javascript
   initial={{ opacity: 0, scale: 0.5, x: -50 }}
@@ -248,7 +251,7 @@ The backend is built with Node, Express, MongoDB/Mongoose, and includes:
 * **TempUser (`TempUser.js`)**: Transient registration documents featuring email details and an `otp` code validation field with a 10-minute expiry window.
 * **Product (`Product.js`)**: Fields for `name`, `price`, `images` (Cloudinary URLs), `category`, `tags` (e.g. `'bestseller'`, `'minimalist'`), `stock`, `sales` count, `rating`, `numReviews`, `reviews` array, and `accentPairs` (related accessories to Complete the Look).
 * **Order (`Order.js`)**: Tracks `user`, `items`, `shippingAddress`, `totalPrice`, `status` (`'pending'`, `'processing'`, `'shipped'`, `'delivered'`, `'cancelled'`, `'exchange_requested'`, `'exchange_approved'`, `'exchanged'`), payment details, and returns metadata.
-* **Coupon (`Coupon.js`)**: Code rules, discount mappings (`'percentage'` or `'fixed'`), `minOrderValue`, global `usageLimit`, `perUserLimit`, and user exclusions.
+* **Coupon (`Coupon.js`)**: Code rules, discount mappings (`'percentage'` or `'fixed'`), `minOrderValue`, global `usageLimit`, `perUserLimit`, user exclusions, `showInFlyer` (boolean for website visibility), and `description`.
 
 ### API Endpoints List
 
@@ -271,7 +274,8 @@ The backend is built with Node, Express, MongoDB/Mongoose, and includes:
 * `PUT /api/cart` (Updates cart item quantity)
 * `DELETE /api/cart/:productId` (Removes item from cart)
 
-#### 4. Checkout Coupons (`/api/coupons`)
+#### 4. Checkout & Flyer Coupons (`/api/coupons`)
+* `GET /api/coupons/public` (Public unauthenticated route that exclusively returns active coupons marked `showInFlyer: true`. Automatically sanitizes internal tracking fields like `usageCount` and `allowedUsers` before transmitting payload to the frontend.)
 * `POST /api/coupons/validate` (Validates active coupon criteria: minimum cart values, first order checks, expiry, and user restrictions. Runs as a read-only query; does *not* increment the coupon usage count)
 
 #### 5. Payments & Orders (`/api/payment` & `/api/orders`)

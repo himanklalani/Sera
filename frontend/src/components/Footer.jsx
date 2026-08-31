@@ -30,7 +30,7 @@ const Footer = () => {
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-12 gap-12">
         {/* Left Section: Brand & Description */}
         <div className="md:col-span-5 space-y-6">
-          <img src="/logo.avif" alt="SERA Logo" className="h-24 md:h-28 w-auto object-contain -ml-2" />
+          <img src="/logo.avif" alt="SERA Logo" className="h-32 md:h-40 w-auto object-contain -ml-3" />
           <div className="space-y-4 text-sm leading-relaxed max-w-md">
             <p className="font-medium">Where elegance meets intention.</p>
             <p>

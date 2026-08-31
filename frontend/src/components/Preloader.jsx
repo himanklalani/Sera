@@ -96,7 +96,7 @@ export default function Preloader() {
               initial={{ y: "100%", opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="h-28 md:h-36 w-auto object-contain"
+              className="h-40 md:h-56 lg:h-64 w-auto object-contain"
             />
           </div>
           

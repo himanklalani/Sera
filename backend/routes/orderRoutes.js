@@ -253,6 +253,7 @@ router.post('/', protect, asyncHandler(async (req, res) => {
       price: item.price,
       size: item.size,
       name: item.productDetails?.name,
+      note: item.note || undefined,
       // Historical snapshot: which physical products were in this combo at purchase time.
       // Used by cancel/exchange to restore stock to the correct items.
       comboItems: (item.productDetails?.isCombo && item.productDetails?.comboItems?.length > 0)

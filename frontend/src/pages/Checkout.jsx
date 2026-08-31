@@ -311,7 +311,8 @@ const Checkout = () => {
           product: item.product._id,
           quantity: item.quantity,
           price: item.product.price,
-          size: item.size
+          size: item.size,
+          note: item.note || undefined
         })),
         shippingAddress: {
           street: selectedAddress.street,
@@ -428,7 +429,8 @@ const Checkout = () => {
           currency: 'INR',
           orderItems: cartItems.map(item => ({
             product: item.product._id,
-            quantity: item.quantity
+            quantity: item.quantity,
+            note: item.note || undefined
           }))
         },
         config
@@ -462,6 +464,7 @@ const Checkout = () => {
                 quantity: item.quantity,
                 price: item.product.price,
                 size: item.size,
+                note: item.note || undefined,
               })),
               shippingAddress: {
                 street: selectedAddress.street,

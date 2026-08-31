@@ -33,7 +33,12 @@ const orderSchema = new mongoose.Schema({
     comboItems: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Product'
-    }]
+    }],
+    note: {
+      type: String,
+      trim: true,
+      maxlength: 450
+    }
   }],
   totalPrice: { 
     type: Number, 

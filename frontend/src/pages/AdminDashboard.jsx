@@ -1835,14 +1835,22 @@ const AdminDashboard = () => {
                   <td className="px-6 py-4">{order.user?.name || 'Unknown'}</td>
                   
                   <td className="px-6 py-4">
-                    <div className="text-sm space-y-1">
+                    <div className="text-sm space-y-2">
                       {order.items && order.items.length > 0 ? (
                         order.items.map((item, idx) => (
                           <div key={idx} className="text-gray-700">
-                            <span className="font-medium">
-                              {item.name || item.product?.name || 'Product'}
-                            </span>
-                            <span className="text-gray-500"> × {item.quantity}{item.size && ` (Size: ${item.size})`}</span>
+                            <div>
+                              <span className="font-medium">
+                                {item.name || item.product?.name || 'Product'}
+                              </span>
+                              <span className="text-gray-500"> × {item.quantity}{item.size && ` (Size: ${item.size})`}</span>
+                            </div>
+                            {item.note && (
+                              <div className="mt-1 bg-rose-50 border border-rose-200 rounded px-2 py-1 text-xs text-gray-600 italic max-w-[220px]">
+                                <span className="font-semibold text-rose-600 not-italic">📝 Card Note: </span>
+                                &quot;{item.note}&quot;
+                              </div>
+                            )}
                           </div>
                         ))
                       ) : (

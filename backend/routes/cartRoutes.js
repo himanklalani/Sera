@@ -91,7 +91,7 @@ router.get('/', protect, asyncHandler(async (req, res) => {
 // @route   POST /api/cart
 // @access  Private
 router.post('/', protect, asyncHandler(async (req, res) => {
-  const { productId, quantity, size } = req.body;
+  const { productId, quantity, size, note } = req.body;
   
   // ADDED: Validate product exists and check stock
   const product = await Product.findById(productId).populate('comboItems', 'stock');
@@ -104,8 +104,8 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     product.stock = Math.min(...product.comboItems.map(i => i.stock || 0));
   }
   
-  // ADDED: Check if requested quantity exceeds stock
-  if (product.stock < quantity) {
+  // ADDED: Check if requested quantity exceeds stock (skip for free add-ons with unlimited stock)
+  if (product.stock < quantity && product.price > 0) {
     res.status(400);
     throw new Error(`Only ${product.stock} items available in stock`);
   }
@@ -116,24 +116,33 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     cart = await Cart.create({ user: req.user._id, items: [] });
   }
 
-  const itemIndex = cart.items.findIndex(item => 
-    item.product && 
-    item.product.toString() === productId && 
-    (item.size || '') === (size || '')
-  );
+  // For items with a note (e.g. greeting cards), always add as a new line item
+  // so multiple cards with different messages remain separate
+  const itemIndex = note
+    ? -1
+    : cart.items.findIndex(item => 
+        item.product &&
+        item.product.toString() === productId &&
+        (item.size || '') === (size || '')
+      );
 
   if (itemIndex > -1) {
     // MODIFIED: Check if new total quantity exceeds stock
     const newQuantity = cart.items[itemIndex].quantity + Number(quantity);
     
-    if (newQuantity > product.stock) {
+    if (newQuantity > product.stock && product.price > 0) {
       res.status(400);
       throw new Error(`Cannot add ${quantity} more. Only ${product.stock - cart.items[itemIndex].quantity} items left in stock`);
     }
     
     cart.items[itemIndex].quantity = newQuantity;
   } else {
-    cart.items.push({ product: productId, quantity: Number(quantity), size: size || undefined });
+    cart.items.push({ 
+      product: productId, 
+      quantity: Number(quantity), 
+      size: size || undefined,
+      note: note ? note.substring(0, 450) : undefined
+    });
   }
 
   await cart.save();

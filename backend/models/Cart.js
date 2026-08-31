@@ -22,7 +22,12 @@ const cartSchema = new mongoose.Schema({
       type: String,
       trim: true
     },
-    price: Number // Snapshot price
+    price: Number, // Snapshot price
+    note: {
+      type: String,
+      trim: true,
+      maxlength: 450
+    }
   }]
 }, { timestamps: true });
 

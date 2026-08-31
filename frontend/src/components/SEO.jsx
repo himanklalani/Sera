@@ -24,7 +24,7 @@ export default function SEO({
     "url": "https://www.serastore.in",
     "logo": "https://www.serastore.in/logo.avif",
     "sameAs": [
-      "https://www.instagram.com/sera.jewels"
+      "https://www.instagram.com/serastore.in"
     ]
   };
 

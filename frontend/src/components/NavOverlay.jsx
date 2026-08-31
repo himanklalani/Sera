@@ -151,7 +151,7 @@ export default function NavOverlay({ isOpen, onClose }) {
             <div className="mt-12 pt-8 border-t border-gray-200 text-center">
                <p className="text-gray-500 text-sm mb-4">Follow us</p>
                <div className="flex justify-center space-x-6 text-gray-400">
-                  <a href="https://www.instagram.com/jewelsbysera" className="hover:text-rose-500 transition-colors">Instagram</a>
+                  <a href="https://www.instagram.com/serastore.in" className="hover:text-rose-500 transition-colors">Instagram</a>
                   <a href="#" className="hover:text-rose-500 transition-colors">Pinterest</a>
                </div>
             </div>

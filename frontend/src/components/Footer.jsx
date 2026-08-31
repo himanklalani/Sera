@@ -40,7 +40,7 @@ const Footer = () => {
           </div>
           {/* Social Icons Row */}
           <div className="flex items-center gap-4 pt-4">
-            <a href="https://www.instagram.com/jewelsbysera" target="_blank" rel="noopener noreferrer" 
+            <a href="https://www.instagram.com/serastore.in" target="_blank" rel="noopener noreferrer" 
                className="group" aria-label="Instagram">
               <FaInstagram className="w-6 h-6 text-gray-900 group-hover:text-rose-600 transition-colors duration-300 hover:scale-110" />
             </a>
@@ -120,7 +120,7 @@ const Footer = () => {
               </p>
               <div>
                 <h4 className="font-semibold text-rose-600 mb-2 tracking-wide uppercase text-xs">Instagram</h4>
-                <a href="https://www.instagram.com/jewelsbysera" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-rose-600 transition-colors">
+                <a href="https://www.instagram.com/serastore.in" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-rose-600 transition-colors">
                   <FaInstagram className="w-4 h-4" />
                   <span>Follow us</span>
                 </a>

@@ -325,7 +325,7 @@ const ProductDetails = () => {
         const emailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fullShareContent)}`;
         window.location.href = emailUrl;
       } else if (platform === 'instagram') {
-        window.open('https://www.instagram.com/', '_blank');
+        window.open('https://www.instagram.com/serastore.in', '_blank');
       } else if (platform === 'native') {
         const shared = await nativeShare({
           title: productName,

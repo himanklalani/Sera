@@ -1486,11 +1486,11 @@ const BrandPromiseSection = () => {
               style={{ zIndex: 10 + i, top: `calc(6rem + ${i * 1.5}rem)` }}
             >
               {/* Double-Bezel outer shell */}
-              <div className="rounded-[2rem] ring-1 ring-black/5 bg-black/[0.02] p-2 h-full shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.05)] md:shadow-none transition-transform duration-500 hover:scale-[1.02] md:hover:scale-100">
+              <div className="group rounded-[2rem] ring-1 ring-black/5 bg-black/[0.02] p-2 h-full shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.05)] md:shadow-none transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.02] md:hover:scale-[1.03] md:hover:-translate-y-2 md:hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.08)] cursor-default">
                 {/* Inner core */}
                 <div className={`relative rounded-[calc(2rem-0.375rem)] bg-gradient-to-br ${p.accent} p-8 md:p-10 h-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] flex flex-col justify-between min-h-[200px] overflow-hidden`}>
                   {/* Radial accent */}
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-150 group-hover:bg-white/60" />
                   <div>
                     {/* Eyebrow */}
                     <span className="inline-flex items-center gap-1.5 mb-5">

@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt, FaInstagram, FaTint, FaGem, FaTruck, FaLink, FaWhatsapp, FaEnvelope, FaShareSquare } from 'react-icons/fa';
+import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt, FaInstagram, FaTint, FaGem, FaTruck, FaLink, FaWhatsapp, FaEnvelope, FaShareSquare, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useCart } from '../components/CartContext';
 import { copyToClipboard, nativeShare } from '../utils/shareUtils';
 
@@ -24,6 +24,7 @@ const ProductDetails = () => {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [recentProducts, setRecentProducts] = useState([]);
+  const [relatedProducts, setRelatedProducts] = useState([]);
   const [selectedSize, setSelectedSize] = useState('');
   const [activeTab, setActiveTab] = useState('details');
 
@@ -80,6 +81,19 @@ const ProductDetails = () => {
               }]
             }
           });
+        }
+
+        // Fetch Related Products (SEO Internal Link Distribution)
+        if (data.category) {
+          try {
+            const relatedRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/products?category=${data.category}`);
+            if (relatedRes.data && relatedRes.data.products) {
+              const filtered = relatedRes.data.products.filter(p => p._id !== data._id).slice(0, 4);
+              setRelatedProducts(filtered);
+            }
+          } catch(e) {
+            console.error('Failed to fetch related products:', e);
+          }
         }
 
         // Update Recently Viewed
@@ -452,10 +466,10 @@ const ProductDetails = () => {
         </ol>
       </nav>
 
-      <div className="flex flex-col lg:flex-row gap-12">
+      <div className="flex flex-col lg:flex-row gap-12 relative items-start">
         {/* Image Gallery */}
-        <div className="w-full lg:w-1/2">
-          <div className="mb-6 aspect-square bg-gray-100 rounded-xl overflow-hidden shadow-lg">
+        <div className="w-full lg:w-1/2 lg:sticky lg:top-28">
+          <div className="mb-6 aspect-square bg-gray-100 rounded-xl overflow-hidden shadow-lg relative group">
             <motion.img
               key={selectedImage}
               initial={{ opacity: 0 }}
@@ -468,6 +482,26 @@ const ProductDetails = () => {
                 e.currentTarget.src = FALLBACK_IMAGE;
               }}
             />
+            
+            {/* Image Navigation Arrows */}
+            {product.images && product.images.length > 1 && (
+              <>
+                <button
+                  onClick={() => setSelectedImage((prev) => prev === 0 ? product.images.length - 1 : prev - 1)}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white backdrop-blur-md text-gray-800 rounded-full flex items-center justify-center shadow-md opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+                  aria-label="Previous image"
+                >
+                  <FaChevronLeft className="w-4 h-4 -ml-1" />
+                </button>
+                <button
+                  onClick={() => setSelectedImage((prev) => prev === product.images.length - 1 ? 0 : prev + 1)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white backdrop-blur-md text-gray-800 rounded-full flex items-center justify-center shadow-md opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+                  aria-label="Next image"
+                >
+                  <FaChevronRight className="w-4 h-4 -mr-1" />
+                </button>
+              </>
+            )}
           </div>
           {product.images && product.images.length > 1 && (
             <div className="flex gap-3 overflow-x-auto pb-2">
@@ -1076,6 +1110,46 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* RELATED PRODUCTS SEO CAROUSEL */}
+      {relatedProducts.length > 0 && (
+        <div className="mt-16 pt-12 border-t">
+          <div className="text-center mb-10">
+            <h3 className="font-serif text-3xl font-medium text-gray-900">
+              You May Also Like
+            </h3>
+            <div className="w-12 h-0.5 bg-rose-200 mx-auto mt-4"></div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {relatedProducts.map((product) => (
+              <div 
+                key={product._id} 
+                className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  navigate(`/product/${product._id}`);
+                }}
+              >
+                <div className="aspect-square bg-gray-100 overflow-hidden">
+                  <img 
+                    src={product.images?.[0] || FALLBACK_IMAGE} 
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => e.currentTarget.src = FALLBACK_IMAGE}
+                  />
+                </div>
+                <div className="p-4 text-center border border-t-0 rounded-b-xl">
+                  <p className="text-xs text-gray-500 mb-1 capitalize truncate">{product.category}</p>
+                  <h4 className="font-medium text-gray-900 truncate mb-1">{product.name}</h4>
+                  <p className="text-sm text-rose-500 font-bold">
+                    INR {product.price?.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Recently Viewed Section */}
       {recentProducts.length > 0 && (

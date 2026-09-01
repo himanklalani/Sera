@@ -76,10 +76,10 @@ export function Component() {
         const TRANSITION_DURATION = () => SLIDER_CONFIG.settings.transitionDuration;
 
         const slides = [
-            { title: "Rose Mirage", description: "Lost in a desert of blooming dreams and endless horizons.", media: "https://res.cloudinary.com/dhby5v7rw/image/upload/v1782307100/jewelry-products/zvcq5yqjtbwlk2etcrmx.jpg" },
+            { title: "Rose Mirage", description: "Lost in a desert of blooming dreams and endless horizons.", media: "https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1782307100/jewelry-products/zvcq5yqjtbwlk2etcrmx.jpg" },
             { title: "Ethereal Glow", description: "A soft, radiant light that illuminates the soul.", media: "https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto/q_auto/v1786971801/new22_mgyrk6.jpg" },
             { title: "Velvet Mystique", description: "Wrapped in the deep, luxurious embrace of the night.", media: "https://res.cloudinary.com/dhby5v7rw/image/upload/q_auto/f_auto/v1786970934/new3_usglan.jpg" },
-            { title: "Golden Hour", description: "That fleeting moment when the world is dipped in gold.", media: "https://res.cloudinary.com/dhby5v7rw/image/upload/v1767446388/jewelry-products/d9jprpcgv9zfhuhfzljy.jpg" }
+            { title: "Golden Hour", description: "That fleeting moment when the world is dipped in gold.", media: "https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1767446388/jewelry-products/d9jprpcgv9zfhuhfzljy.jpg" }
         ];
 
         // --- SHADERS ---

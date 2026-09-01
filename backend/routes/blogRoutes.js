@@ -34,6 +34,59 @@ router.get('/:slug', asyncHandler(async (req, res) => {
   }
 }));
 
+// @desc    WhatsApp/Social Share Interceptor for dynamic OG Tags for Blogs
+// @route   GET /api/blogs/share/:slug
+// @access  Public
+router.get('/share/:slug', asyncHandler(async (req, res) => {
+  const blog = await Blog.findOne({ slug: req.params.slug }).lean();
+  
+  if (!blog) {
+    return res.status(404).send('Blog not found');
+  }
+
+  const frontendUrl = `https://www.serastore.in/journal/${blog.slug}`;
+  const imageUrl = blog.coverImage || 'https://www.serastore.in/logo.avif';
+  const title = blog.seoTitle || `${blog.title} | Sera Jewels`;
+  const description = blog.seoDescription || blog.title;
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${title}</title>
+      
+      <!-- Open Graph / WhatsApp / Facebook -->
+      <meta property="og:type" content="article">
+      <meta property="og:url" content="${frontendUrl}">
+      <meta property="og:title" content="${title}">
+      <meta property="og:description" content="${description}">
+      <meta property="og:image" content="${imageUrl}">
+      
+      <!-- Twitter -->
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="${title}">
+      <meta name="twitter:description" content="${description}">
+      <meta name="twitter:image" content="${imageUrl}">
+      
+      <!-- Redirect human users to the actual React app -->
+      <meta http-equiv="refresh" content="0;url=${frontendUrl}">
+      
+      <script>
+        // Fallback JS redirect just in case meta refresh fails
+        window.location.href = "${frontendUrl}";
+      </script>
+    </head>
+    <body>
+      <p>Redirecting to ${blog.title}... <a href="${frontendUrl}">Click here</a> if not redirected automatically.</p>
+    </body>
+    </html>
+  `;
+
+  res.send(html);
+}));
+
 // @desc    Create a blog
 // @route   POST /api/blogs
 // @access  Private/Admin

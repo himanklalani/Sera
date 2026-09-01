@@ -11,6 +11,7 @@ import CookieConsent from './components/CookieConsent';
 import { CartProvider } from './components/CartContext';
 import Preloader from './components/Preloader';
 import AxiosInterceptor from './components/AxiosInterceptor';
+import Analytics from './components/Analytics';
 
 // Lazy load page components for performance / code splitting
 const Home = React.lazy(() => import('./pages/Home'));
@@ -55,6 +56,7 @@ function App() {
       <Router>
         <CartProvider>
           <AxiosInterceptor>
+          <Analytics />
           <ScrollToTop />
         <CookieConsent />
         <Toaster position="top-center" />

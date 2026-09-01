@@ -37,7 +37,7 @@ const Sustainability = () => {
                 Our core philosophy is built on creating pieces that last. By engineering our jewelry to be anti-tarnish and waterproof, we actively reduce the "throwaway" culture associated with traditional fashion jewelry.
               </p>
               <p className="text-gray-600 leading-relaxed">
-                We work exclusively with vetted manufacturing partners who adhere to strict labor standards and safe working conditions. Our base metals are responsibly sourced and our gold-plating process minimizes chemical waste.
+                We work exclusively with vetted manufacturing partners who adhere to strict labor standards and safe working conditions. Our materials are responsibly sourced and our anti-tarnish finishing process minimizes chemical waste.
               </p>
             </div>
           </div>

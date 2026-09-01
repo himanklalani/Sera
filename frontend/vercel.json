@@ -14,6 +14,21 @@
   ],
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "https://backend.serastore.in/sitemap.xml"
+    },
+    {
+      "source": "/journal/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(?:WhatsApp|facebookexternalhit|Twitterbot|LinkedInBot|Pinterest|bot|Bot|Crawler|Spider).*"
+        }
+      ],
+      "destination": "https://backend.serastore.in/api/blogs/share/:slug"
+    },
+    {
       "source": "/product/:id",
       "has": [
         {

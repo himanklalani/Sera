@@ -1011,7 +1011,7 @@ const ProductDetails = () => {
 
 
           {/* Non-eligible users message */}
-          {getUserInfo() && !canReview && (
+          {!canReview && (
             <div className="border-t pt-8">
               <motion.div
                 initial={{ opacity: 0 }}
@@ -1030,12 +1030,21 @@ const ProductDetails = () => {
               </motion.div>
             </div>
           )}
-
-
           {/* ========== END REVIEWS SECTION ========== */}
 
+          {/* ========== GLOBAL CONTEXTUAL SEO LINKS ========== */}
+          {!product.category?.toLowerCase().includes('apparel') && (
+            <div className="mt-12 bg-gray-50/50 rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col gap-3">
+              <p className="text-gray-700">
+                <strong>Care Instructions:</strong> Our advanced waterproof technology ensures everyday durability. <Link to="/jewelry-care" className="text-rose-600 hover:underline font-medium">Read our full Jewelry Care guide</Link>.
+              </p>
+              <p className="text-gray-700">
+                <strong>Sustainability:</strong> Responsibly sourced materials and ethically crafted. <Link to="/sustainability" className="text-rose-600 hover:underline font-medium">Learn about our commitment</Link>.
+              </p>
+            </div>
+          )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 text-sm text-gray-500">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-10 text-sm text-gray-500">
             <div className="flex flex-col">
               <span className="font-medium text-gray-700">Product ID:</span>
               <code className="font-mono bg-gray-100 px-2 py-1 rounded text-xs mt-1">

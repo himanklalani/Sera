@@ -114,7 +114,7 @@ export const FAQ = () => {
     },
     {
       question: "What does anti-tarnish mean?",
-      answer: "Anti-tarnish jewelry is crafted with specific materials and coatings, like premium stainless steel and high-quality PVD coating, that resist oxidation. This means your jewelry won't turn black, fade quickly, or turn your skin green, even with everyday wear."
+      answer: "Anti-tarnish jewelry is crafted with specific materials and advanced waterproof technology that resists oxidation. This means your jewelry won't turn black or fade quickly, even with everyday wear."
     },
     {
       question: "Can I wear Sera jewelry in the shower?",
@@ -124,7 +124,7 @@ export const FAQ = () => {
       question: "What materials are used?",
       answer: (
         <span>
-          We use premium stainless steel as our base, coated with a thick layer of advanced PVD coating. It's allergy-resistant, nickel-free, and generally safe for sensitive skin. Read more in our <Link to="/materials" className="text-rose-600 font-bold hover:underline">Materials Guide</Link>.
+          We use premium materials crafted with an advanced waterproof finish. It's designed for durability and is safe for everyday wear. Read more in our <Link to="/materials" className="text-rose-600 font-bold hover:underline">Materials Guide</Link>.
         </span>
       )
     },
@@ -218,7 +218,7 @@ export const FAQ = () => {
         "name": "What does anti-tarnish mean?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Anti-tarnish jewelry is crafted with specific materials and coatings, like premium stainless steel and high-quality PVD coating, that resist oxidation. This means your jewelry won't turn black, fade quickly, or turn your skin green, even with everyday wear."
+          "text": "Anti-tarnish jewelry is crafted with specific materials and advanced waterproof technology that resists oxidation. This means your jewelry won't turn black or fade quickly, even with everyday wear."
         }
       },
       {
@@ -234,7 +234,7 @@ export const FAQ = () => {
         "name": "What materials are used?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "We use premium stainless steel as our base, coated with a thick layer of advanced PVD coating. It's allergy-resistant, nickel-free, and generally safe for sensitive skin."
+          "text": "We use premium materials crafted with an advanced waterproof finish. It's designed for durability and is safe for everyday wear."
         }
       },
       {

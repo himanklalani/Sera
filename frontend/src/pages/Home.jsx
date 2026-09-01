@@ -923,7 +923,7 @@ const HeroSection = () => {
     <div className="relative w-full h-[100svh] overflow-hidden bg-gray-900 safe-area">
       <Helmet>
         <title>Sera | Affordable Anti-Tarnish Jewelry</title>
-        <meta name="description" content="Discover Sera's premium collection of waterproof, anti-tarnish jewelry. Shop affordable necklaces, rings, earrings, and bracelets that won't turn your skin green." />
+        <meta name="description" content="Discover Sera's premium collection of waterproof, anti-tarnish jewelry. Shop affordable necklaces, earrings, bracelets, and chic apparel combos." />
       </Helmet>
       
       {/* Dynamic WebGL Slider */}
@@ -950,6 +950,8 @@ const ApparelDropSection = () => (
         src="https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto/q_auto/v1788087694/good12_kzhffe.jpg"
         alt="Sera Apparel Collection"
         className="w-full h-full object-cover object-[center_30%]"
+        loading="lazy"
+        fetchpriority="low"
       />
       {/* Gradient Overlay for Text Readability */}
       <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-black/50 to-black/30" />
@@ -1417,6 +1419,8 @@ const BrandPromiseSection = () => {
       label: 'Anti-Tarnish',
       headline: 'Made to last. Born to be loved.',
       body: 'Every Sera piece is crafted with a premium protective finish that resists tarnish, sweat, and water. Wear it every single day without a second thought.',
+      linkText: 'Read Care Guide',
+      linkUrl: '/jewelry-care',
       accent: 'from-rose-50 to-pink-50',
       dot: 'bg-rose-400',
       span: 'md:col-span-2',
@@ -1425,6 +1429,8 @@ const BrandPromiseSection = () => {
       label: 'Everyday Elegance',
       headline: 'Beauty without the weight.',
       body: 'Thoughtfully designed to feel as good as it looks. Lightweight, incredibly comfortable, and perfect for seamlessly stacking or wearing solo from morning to night.',
+      linkText: 'Our Commitment',
+      linkUrl: '/sustainability',
       accent: 'from-stone-50 to-gray-50',
       dot: 'bg-stone-400',
       span: 'md:col-span-1',
@@ -1433,6 +1439,8 @@ const BrandPromiseSection = () => {
       label: 'Gift-Ready',
       headline: 'The perfect present, always.',
       body: 'Every order ships in thoughtfully designed packaging. Birthdays, anniversaries, or just because, we handle the presentation.',
+      linkText: 'Explore Gifting Hub',
+      linkUrl: '/gifts',
       accent: 'from-stone-50 to-gray-50',
       dot: 'bg-stone-400',
       span: 'md:col-span-1',
@@ -1491,6 +1499,11 @@ const BrandPromiseSection = () => {
                     </span>
                     <h3 className="font-serif text-2xl md:text-3xl text-gray-900 leading-tight mb-3">{p.headline}</h3>
                     <p className="text-sm text-stone-500 leading-relaxed max-w-xs">{p.body}</p>
+                    {p.linkUrl && (
+                      <Link to={p.linkUrl} className="inline-block mt-4 text-xs font-semibold uppercase tracking-wider text-rose-500 hover:text-rose-600 hover:underline transition-colors">
+                        {p.linkText} &rarr;
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>

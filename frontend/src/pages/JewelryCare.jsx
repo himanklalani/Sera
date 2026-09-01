@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 
 const JewelryCare = () => {
@@ -11,7 +12,7 @@ const JewelryCare = () => {
         "name": "Is Sera anti-tarnish jewelry truly waterproof?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes! Our base materials and advanced PVD coating ensure that your jewelry can withstand water. You can confidently wear our pieces while washing your hands, showering, or getting caught in the rain."
+          "text": "Yes! Our premium materials and advanced waterproof finish ensure that your jewelry can withstand water. You can confidently wear our pieces while washing your hands, showering, or getting caught in the rain."
         }
       },
       {
@@ -46,12 +47,12 @@ const JewelryCare = () => {
       
       <div className="prose prose-rose max-w-none text-gray-700">
         <p className="text-lg leading-relaxed mb-6">
-          At Sera, we craft our jewelry to be as resilient as it is beautiful. Our anti-tarnish, waterproof pieces are designed for everyday wear, but a little love goes a long way in ensuring they maintain their brilliant shine for years to come.
+          At Sera, we craft our jewelry to be as resilient as it is beautiful. Our anti-tarnish, waterproof pieces are designed for everyday wear, but a little love goes a long way in ensuring they maintain their brilliant shine for years to come. Curious about what goes into our pieces? <Link to="/materials" className="text-rose-600 font-medium hover:underline">Read our full Materials Guide</Link>.
         </p>
 
         <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">1. Is it truly waterproof?</h2>
         <p className="mb-6">
-          Yes! Our base materials and advanced PVD coating ensure that your jewelry can withstand water. You can confidently wear our pieces while washing your hands, showering, or getting caught in the rain without worrying about immediate tarnishing or green skin.
+          Yes! Our premium materials and advanced waterproof finish ensure that your jewelry can withstand water. You can confidently wear our pieces while washing your hands, showering, or getting caught in the rain without worrying about immediate tarnishing.
         </p>
 
         <h2 className="text-2xl font-medium text-gray-900 mt-10 mb-4">2. Handling Chemicals & Perfumes</h2>

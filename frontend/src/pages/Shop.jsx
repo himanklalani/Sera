@@ -333,7 +333,7 @@ const Shop = () => {
     }
 
 
-    return products.map(product => (
+    return products.map((product, index) => (
       <Link
         to={`/product/${product._id}`}
         key={product._id || Math.random()}
@@ -348,7 +348,8 @@ const Shop = () => {
               src={product.images?.[0] || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'300\' viewBox=\'0 0 300 300\'%3E%3Crect fill=\'%23f3f4f6\' width=\'300\' height=\'300\'/%3E%3Ctext fill=\'%239ca3af\' font-family=\'sans-serif\' font-size=\'24\' dy=\'10.5\' font-weight=\'bold\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3ENo Image%3C/text%3E%3C/svg%3E'}
               alt={`${product.name || 'Product'} - Anti-Tarnish Premium Jewelry`}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              loading="lazy"
+              loading={index < 4 ? "eager" : "lazy"}
+              fetchpriority={index < 2 ? "high" : "auto"}
               decoding="async"
               onError={(e) => {
                 e.target.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'300\' viewBox=\'0 0 300 300\'%3E%3Crect fill=\'%23f3f4f6\' width=\'300\' height=\'300\'/%3E%3Ctext fill=\'%239ca3af\' font-family=\'sans-serif\' font-size=\'24\' dy=\'10.5\' font-weight=\'bold\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3ENo Image%3C/text%3E%3C/svg%3E';
@@ -482,9 +483,9 @@ const Shop = () => {
 
   const seoDescriptions = {
     'All': "Explore our complete collection of affordable, minimalistic, and cutesy anti-tarnish jewelry. Sera's everyday luxury pieces are waterproof, skin-safe, and designed to shine forever.",
-    'Necklace': "Discover our elegant collection of anti-tarnish necklaces and dainty pendants. Perfect for layering or everyday wear, each waterproof gold necklace is designed to elevate your outfit without turning your skin green.",
-    'Earrings': "Shop lightweight, hypoallergenic earrings made for sensitive ears. From classic gold hoops to statement studs, find your new everyday staples here.",
-    'Bracelet': "Stack and style with our durable, water-resistant bracelets. Designed with premium PVD plating so you can wear them through workouts, showers, and beyond.",
+    'Necklace': "Discover our elegant collection of anti-tarnish necklaces and dainty pendants. Perfect for layering or everyday wear, each waterproof gold necklace is designed to elevate your outfit without fading.",
+    'Earrings': "Shop lightweight, waterproof earrings made for everyday wear. From classic gold hoops to statement studs, find your new everyday staples here.",
+    'Bracelet': "Stack and style with our durable, water-resistant bracelets. Designed with premium waterproof technology so you can wear them through workouts, showers, and beyond.",
     'Combos': "Curated jewelry sets and bundled pairings that make the perfect gift or addition to your own collection. Enjoy more style for less.",
     'Apparel': "Coming Soon: A carefully selected capsule of minimal, everyday apparel to pair perfectly with your favorite Sera jewels."
   };

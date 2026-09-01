@@ -10,8 +10,8 @@ export default function SEO({
 }) {
   const currentUrl = canonicalUrl || (typeof window !== 'undefined' ? window.location.href : 'https://www.serastore.in');
   
-  const defaultTitle = 'Sera - Affordable & Minimalistic Anti-Tarnish Jewellery';
-  const defaultDescription = 'Shop the best affordable, minimalistic, and cutesy anti-tarnish jewellery. From girly rings to elegant necklaces, waterproof and skin-friendly.';
+  const defaultTitle = "Sera - Premium Anti-Tarnish Jewelry & Women's Apparel";
+  const defaultDescription = "Shop the best anti-tarnish waterproof jewelry and chic women's cotton blend tops. From minimalist necklaces to everyday wear combos.";
 
   const finalTitle = title ? `${title} | Sera` : defaultTitle;
   const finalDescription = description || defaultDescription;

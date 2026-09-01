@@ -319,10 +319,11 @@ const ProductDetails = () => {
     try {
       // For all non-native platforms, attempt to copy rich content to clipboard first
       if (platform !== 'native') {
-        const result = await copyToClipboard(fullShareContent, imageUrl, productUrl);
+        // If it's a direct 'Copy Link', only copy the text because apps like WhatsApp will drop text if an image is in the clipboard
+        const result = await copyToClipboard(fullShareContent, platform === 'copy' ? null : imageUrl, productUrl);
         if (result.success) {
           if (platform === 'copy') {
-            toast.success(result.type === 'rich' ? 'Product details and image copied!' : 'Product link and text copied!');
+            toast.success('Product link copied! Paste it anywhere.');
             setShowShareMenu(false);
             return;
           }

@@ -488,14 +488,14 @@ const ProductDetails = () => {
               <>
                 <button
                   onClick={() => setSelectedImage((prev) => prev === 0 ? product.images.length - 1 : prev - 1)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white backdrop-blur-md text-gray-800 rounded-full flex items-center justify-center shadow-md opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white backdrop-blur-md text-gray-800 rounded-full flex items-center justify-center shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:scale-110"
                   aria-label="Previous image"
                 >
                   <FaChevronLeft className="w-4 h-4 -ml-1" />
                 </button>
                 <button
                   onClick={() => setSelectedImage((prev) => prev === product.images.length - 1 ? 0 : prev + 1)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white backdrop-blur-md text-gray-800 rounded-full flex items-center justify-center shadow-md opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white backdrop-blur-md text-gray-800 rounded-full flex items-center justify-center shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:scale-110"
                   aria-label="Next image"
                 >
                   <FaChevronRight className="w-4 h-4 -mr-1" />

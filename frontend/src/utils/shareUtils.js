@@ -12,7 +12,7 @@ export const getPngBlob = async (url, linkUrl = null) => {
       const canvas = document.createElement('canvas');
       const targetSize = 800;
       canvas.width = targetSize;
-      canvas.height = targetSize + 150; // extra space for text/logo at bottom
+      canvas.height = targetSize + 100; // extra space for logo at bottom
 
       const ctx = canvas.getContext('2d');
       
@@ -40,13 +40,6 @@ export const getPngBlob = async (url, linkUrl = null) => {
         const logoHeight = 50;
         const logoWidth = logo.width * (logoHeight / logo.height);
         ctx.drawImage(logo, (targetSize - logoWidth) / 2, targetSize + 25, logoWidth, logoHeight);
-        
-        if (linkUrl) {
-          ctx.font = '500 22px sans-serif';
-          ctx.fillStyle = '#6b7280'; // text-gray-500
-          ctx.textAlign = 'center';
-          ctx.fillText(linkUrl.replace('https://', ''), targetSize / 2, targetSize + 115);
-        }
 
         canvas.toBlob((blob) => {
           if (blob) resolve(blob);

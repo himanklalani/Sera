@@ -319,7 +319,7 @@ const ProductDetails = () => {
     try {
       // For all non-native platforms, attempt to copy rich content to clipboard first
       if (platform !== 'native') {
-        const result = await copyToClipboard(fullShareContent, imageUrl);
+        const result = await copyToClipboard(fullShareContent, imageUrl, productUrl);
         if (result.success) {
           if (platform === 'copy') {
             toast.success(result.type === 'rich' ? 'Product details and image copied!' : 'Product link and text copied!');
@@ -593,13 +593,6 @@ const ProductDetails = () => {
                     >
                       <span className="text-xl"><FaEnvelope /></span>
                       Email
-                    </button>
-                    <button
-                      onClick={() => handleShare('instagram')}
-                      className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-pink-50 transition-colors text-gray-700 hover:text-pink-600 font-medium"
-                    >
-                      <span className="text-xl"><FaInstagram /></span>
-                      Instagram
                     </button>
                     {navigator.share && (
                       <button

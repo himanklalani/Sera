@@ -26,3 +26,9 @@ This file tracks the SEO and Performance Optimization changes that have been pus
   - Added a new `GET /api/blogs/share/:slug` endpoint in `blogRoutes.js` to generate dynamic Open Graph (OG) meta tags for Journal articles.
   - Added a rewrite rule in `vercel.json` to intercept WhatsApp, Twitter, and LinkedIn crawlers hitting `/journal/:slug` and route them to the new backend endpoint, generating rich social previews for shared blogs.
 - **UI Bug Fixes:** Fixed the invisible "Shop Sera Jewels" call-to-action button in `BlogPost.jsx` by migrating from undefined variables to the global `rose-500` brand color.
+
+### 4. UI/UX & Social Sharing Improvements
+- **Default Open Graph Fallback:** Injected default `<meta property="og:image">` tags into `index.html` so that social platforms (like WhatsApp) that don't execute JavaScript will automatically fall back to generating link previews with the Sera Logo instead of a blank image.
+- **Share Menu Cleanup:** Removed the Instagram share button from the product details Share dropdown to streamline options.
+- **Rich Clipboard Image Watermarking:** Upgraded the `getPngBlob` utility in `shareUtils.js` to dynamically draw the Sera Logo (`slogo.png`) directly onto the canvas before copying. This ensures that any copied product image retains official branding.
+- **OS Clipboard Override Fix:** Modified the "Copy Link" button in `productdetails.jsx` to exclusively copy the text URL (stripping the image payload). This prevents messaging apps (like WhatsApp) from automatically dropping the text link when pasting a mixed image/text clipboard item.

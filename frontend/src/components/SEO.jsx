@@ -6,7 +6,8 @@ export default function SEO({
   description, 
   canonicalUrl, 
   ogImage = 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto/v1780229969/hero_zvkcsm.avif', 
-  schema 
+  schema,
+  robots
 }) {
   const currentUrl = canonicalUrl || (typeof window !== 'undefined' ? window.location.href : 'https://www.serastore.in');
   
@@ -32,6 +33,7 @@ export default function SEO({
     <Helmet>
       <title>{finalTitle}</title>
       <meta name="description" content={finalDescription} />
+      {robots && <meta name="robots" content={robots} />}
       
       {/* Canonical Tag - Fixes duplicate content issues */}
       <link rel="canonical" href={currentUrl.split('?')[0]} />

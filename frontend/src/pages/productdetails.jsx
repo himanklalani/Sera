@@ -372,9 +372,22 @@ const ProductDetails = () => {
 
   if (error)
     return (
-      <div className="min-h-screen flex items-center justify-center text-red-500 text-xl">
-        {error}
-      </div>
+      <>
+        <SEO 
+          title="Product Not Found | Sera"
+          description="The product you are looking for does not exist or has been removed."
+          robots="noindex"
+        />
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
+          <h2 className="text-3xl font-serif text-gray-900 mb-4">Product Not Found</h2>
+          <p className="text-gray-600 mb-8 max-w-md">
+            {error || "We couldn't find the product you're looking for. It may have been removed or is currently unavailable."}
+          </p>
+          <Link to="/shop" className="bg-rose-500 text-white px-8 py-3 rounded-xl hover:bg-rose-600 transition-colors font-medium">
+            Return to Shop
+          </Link>
+        </div>
+      </>
     );
 
 

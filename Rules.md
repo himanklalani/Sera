@@ -197,7 +197,7 @@ Built with Node.js, Express, MongoDB, and Mongoose.
 * **`Contact.js`**: `name`, `email`, `subject`, `message`, `status` (`'unread'` | `'read'`).
 * **`Newsletter.js`**: `email` (unique).
 * **`Review.js`**: `product`, `user`, `name`, `rating`, `comment`.
-* **`Cart.js`**: `user` (ref to User), `items` (array of `{ product, quantity, price, name, image }`). One cart document per user, upserted on every add/update action.
+* **`Cart.js`**: `user` (ref to User), `items` (array of `{ product (ref), quantity, size, note }`). One cart document per user. Guest carts are persisted in `localStorage` under key `sera_guest_cart` and bulk-synced to the DB via `POST /api/cart/sync` on login.
 
 ---
 
@@ -218,17 +218,19 @@ Built with Node.js, Express, MongoDB, and Mongoose.
 * `GET /api/products`: Search, filter by category/aesthetic/price, and sort products.
 * `GET /api/products/bestsellers`: Fetch top products sorted by sales volume.
 * `GET /api/products/:id`: Get detailed metadata and verified reviews for a single product.
+* `GET /api/products/:id/review-eligibility`: Check if the authenticated user is eligible to review a product (must have a delivered order containing it).
 * `POST /api/products/:id/reviews`: Add a customer review and update product average rating.
+* `POST /api/products/bulk`: **Bulk fetch** — accepts `{ productIds: [] }` and returns live product data for multiple products. Used by guest cart to hydrate with real-time prices and stock.
 * `POST /api/products` *(Admin)*: Create a new product.
 * `PUT /api/products/:id` *(Admin)*: Update product details.
 * `DELETE /api/products/:id` *(Admin)*: Delete a product.
 
 ### 3. Cart (`/api/cart`)
-* `GET /api/cart`: Get current user's server-persisted cart.
-* `POST /api/cart`: Add item or update quantity in cart.
-* `PUT /api/cart`: Update item quantity.
-* `DELETE /api/cart/:productId`: Remove item from cart.
-* `DELETE /api/cart`: Clear entire cart.
+* `GET /api/cart`: Get current user's server-persisted cart (auto-cleans deleted products).
+* `POST /api/cart`: Add item or update quantity in cart (stock-capped, returns warning flag).
+* `PUT /api/cart/:productId`: Update item quantity (validates against live stock).
+* `DELETE /api/cart/:productId`: Remove specific item from cart.
+* `POST /api/cart/sync`: **Bulk guest cart sync** — merges an array of `{ productId, quantity, size, note }` items from the guest localStorage cart into the authenticated user's DB cart in one request. Stock is capped gracefully.
 
 ### 4. Checkout & Flyer Coupons (`/api/coupons`)
 * `GET /api/coupons/public`: Fetch active flyer coupons (`showInFlyer: true`) for frontend flyer modals. Automatically sanitizes internal tracking fields like `usageCount` and `allowedUsers`.
@@ -239,9 +241,9 @@ Built with Node.js, Express, MongoDB, and Mongoose.
 * `DELETE /api/coupons/:id` *(Admin)*: Delete coupon.
 
 ### 5. Orders & Payments (`/api/orders` & `/api/payment`)
-* `POST /api/payment/create-order`: Initialize payment session with Razorpay API.
-* `POST /api/payment/verify-payment`: Verify payment signature, decrement product stock, clear cart, update coupon usage count, and save order with status `'processing'`.
-* `POST /api/orders`: Submit new order.
+* `POST /api/payment/create-order`: Initialize Razorpay payment session. **Server recalculates order total from DB prices** via `validateAndCalculateOrder()` — the client-supplied amount is completely ignored.
+* `POST /api/payment/verify-payment`: Verify Razorpay signature, **server recalculates total**, atomically decrements product stock (combo child components for combos), increments coupon usage atomically, clears DB cart, and saves order.
+* `POST /api/orders`: Submit new COD order.
 * `GET /api/orders`: Get logged-in user's order history.
 * `GET /api/orders/:id`: Get single order details.
 * `GET /api/orders/:id/invoice`: Stream PDF invoice generated on the fly via `pdfkit`.
@@ -397,114 +399,27 @@ SENDER_EMAIL=noreply@serastore.in
 ADMIN_EMAIL=admin@serastore.in
 ```
 
-
 ---
 
-## 7. Complete API Endpoint Inventory
+## 13. Cart Architecture & Guest/Auth State Rules
 
-### 1. Authentication (`/api/auth`)
-* `POST /api/auth/register`: Initiate user registration and dispatch email OTP.
-* `POST /api/auth/verify-otp`: Validate OTP and activate user account.
-* `POST /api/auth/login`: Authenticate credentials and return JWT token.
-* `GET /api/auth/profile`: Fetch user details, saved addresses, and wishlist.
-* `PUT /api/auth/profile`: Update user profile data and addresses array.
-* `POST /api/auth/forgot-password`: Send password reset OTP via email.
-* `POST /api/auth/reset-password`: Reset password using verified OTP.
-* `GET /api/auth/wishlist`: Get user's saved wishlist items.
-* `POST /api/auth/wishlist/:productId`: Toggle product in user wishlist.
+### Guest Cart (`localStorage`)
+* Stored under key `sera_guest_cart` as a JSON array of `{ _id, product (full object), quantity, size, note }`.
+* On every `fetchCart()` call for unauthenticated users, `CartContext` calls `POST /api/products/bulk` to hydrate items with live stock and prices. Deleted items are removed with a toast; quantity-capped items are flagged.
+* `JSON.parse` on both `userInfo` and `sera_guest_cart` is wrapped in `try/catch` — corrupted values are cleared and the app continues.
 
-### 2. Products (`/api/products`)
-* `GET /api/products`: Search, filter by category/aesthetic/price, and sort products.
-* `GET /api/products/bestsellers`: Fetch top products sorted by sales volume.
-* `GET /api/products/:id`: Get detailed metadata and verified reviews for a single product.
-* `POST /api/products/:id/reviews`: Add a customer review and update product average rating.
-* `POST /api/products` *(Admin)*: Create a new product.
-* `PUT /api/products/:id` *(Admin)*: Update product details.
-* `DELETE /api/products/:id` *(Admin)*: Delete a product.
+### Guest → Auth Sync (`syncGuestCart`)
+* Called immediately after login / register / Google OAuth — **before** navigation to the redirect target.
+* Sends all guest items in a single `POST /api/cart/sync` request (bulk, not N+1).
+* After sync, `localStorage` key `sera_guest_cart` is deleted and `fetchCart()` is called to pull the merged cart from DB.
+* **Do not call `fetchCart()` separately after `syncGuestCart()`** — it is invoked internally at the end of sync.
 
-### 3. Cart (`/api/cart`)
-* `GET /api/cart`: Get current user's server-persisted cart.
-* `POST /api/cart`: Add item or update quantity in cart.
-* `PUT /api/cart`: Update item quantity.
-* `DELETE /api/cart/:productId`: Remove item from cart.
-* `DELETE /api/cart`: Clear entire cart.
+### Cart Reset Rules
+* `clearCart()` must be called in: **COD order success**, **Razorpay payment success**, **`OrderSuccess.jsx` mount** (safety net), and **explicit user logout** (`profile.jsx`).
+* `AxiosInterceptor` dispatches a `StorageEvent('storage', { key: 'userInfo' })` on 401/403 auto-logout so `CartContext`'s storage listener fires and switches to guest mode in the **same browser tab** (not only cross-tab).
 
-### 4. Checkout & Flyer Coupons (`/api/coupons`)
-* `GET /api/coupons/public`: Fetch active flyer coupons (`showInFlyer: true`) for frontend flyer modals. Automatically sanitizes internal tracking fields like `usageCount` and `allowedUsers`.
-* `POST /api/coupons/validate`: Validate promo code against cart subtotal and user history.
-* `GET /api/coupons` *(Admin)*: List all coupons.
-* `POST /api/coupons` *(Admin)*: Create new coupon.
-* `PUT /api/coupons/:id` *(Admin)*: Update coupon.
-* `DELETE /api/coupons/:id` *(Admin)*: Delete coupon.
-
-### 5. Orders & Payments (`/api/orders` & `/api/payment`)
-* `POST /api/payment/create-order`: Initialize payment session with Razorpay API.
-* `POST /api/payment/verify-payment`: Verify payment signature, decrement product stock, clear cart, update coupon usage count, and save order with status `'processing'`.
-* `POST /api/orders`: Submit new order.
-* `GET /api/orders`: Get logged-in user's order history.
-* `GET /api/orders/:id`: Get single order details.
-* `GET /api/orders/:id/invoice`: Stream PDF invoice generated on the fly via `pdfkit`.
-* `PUT /api/orders/:id/cancel`: Process order cancellation request.
-* `PUT /api/orders/:id/exchange`: Process order exchange request.
-* `GET /api/orders/admin/all` *(Admin)*: Get all customer orders.
-* `PUT /api/orders/:id/status` *(Admin)*: Update order fulfillment status.
-
-### 6. Editorial Blogs (`/api/blogs`)
-* `GET /api/blogs`: Fetch published blog posts.
-* `GET /api/blogs/:slug`: Fetch single blog post by slug.
-* `POST /api/blogs` *(Admin)*: Create blog post.
-* `PUT /api/blogs/:id` *(Admin)*: Update blog post.
-* `DELETE /api/blogs/:id` *(Admin)*: Delete blog post.
-
-### 7. Categories, Contacts & Newsletters
-* `GET /api/categories`: Fetch all product categories.
-* `POST /api/categories` *(Admin)*: Create a new category.
-* `POST /api/contact`: Submit a customer inquiry via the contact form.
-* `GET /api/contact` *(Admin)*: List all customer inquiries.
-* `POST /api/newsletter`: Subscribe an email to the newsletter.
-* `GET /api/feed/instagram`: Fetch cached Instagram graph feed for footer UI.
-
-### 8. Media Upload (`/api/upload`)
-* `POST /api/upload`: Upload single image to Cloudinary `jewelry-products` folder.
-* `POST /api/upload/multiple`: Upload batch of images (up to 10) to Cloudinary.
-
----
-
-## 8. Technical Infrastructure & Web Vitals Optimization
-
-### A. Non-WWW to WWW 301 Redirects (`vercel.json`)
-* All requests arriving at `serastore.in` are permanently redirected via 301 response headers to `https://www.serastore.in/$1`.
-
-### B. WhatsApp & Social Bot OpenGraph Interceptor (`vercel.json`)
-* `vercel.json` intercepts incoming user agents matching social bots (`WhatsApp`, `facebookexternalhit`, `Twitterbot`, `LinkedInBot`, `Pinterest`, `bot`, `crawler`, `spider`) on `/product/:id` routes and rewrites the request directly to the backend endpoint: `https://backend.serastore.in/api/products/share/:id`.
-* The backend endpoint fetches the target product from MongoDB and returns lightweight raw static HTML containing dynamic OpenGraph tags (`og:title`, `og:description`, `og:image`, `og:url`) with high-res Cloudinary images, enabling rich previews in chat apps.
-
-### C. Automated XML Sitemap Generation (`sitemapRoutes.js`)
-* **Live XML Endpoint**: `https://www.serastore.in/sitemap.xml` (served via backend route `GET /api/sitemap`).
-* Automatically queries MongoDB `Product` and `Blog` collections to append newly added products (`/product/:id`) and published articles (`/journal/:slug`) with their exact `updatedAt` timestamps in ISO 8601 format.
-
-### D. Dynamic Image Optimization & Cloudinary Pipeline
-* All uploaded images pass through Cloudinary's dynamic image processing pipeline.
-* **Auto-Format & Quality**: Cloudinary URLs automatically inject `f_auto,q_auto` to deliver modern WebP/AVIF images based on browser capabilities.
-* **Width Restrictions**: Images rendered in carousels and product grids specify strict width caps (`w_600`, `w_800`, `w_2000`) to eliminate mobile bandwidth bloat.
-* **Automated Alt Text**: Product images dynamically compute alt tags: `alt={`${product.name} - Anti-Tarnish Premium Jewelry & Clothes`}`.
-
-### E. Crawling Rules (`robots.txt`)
-Located at `https://www.serastore.in/robots.txt`:
-```txt
-User-agent: *
-Allow: /
-
-# Disallow utility and auth pages to prevent crawling overhead
-Disallow: /admin
-Disallow: /cart
-Disallow: /checkout
-Disallow: /login
-Disallow: /register
-Disallow: /forgot-password
-Disallow: /reset-password
-Disallow: /profile
-Disallow: /order-success
-
-Sitemap: https://www.serastore.in/sitemap.xml
-```
+### Security Rules (Non-Negotiable)
+* **Never trust client-supplied `totalAmount` or `amount` for payment.** `paymentRoutes.js` recalculates the total server-side using `validateAndCalculateOrder()` for both `/create-order` and `/verify-payment`.
+* **Coupon codes must be validated server-side at both `create-order` and `verify-payment` stages.** Frontend `/api/coupons/validate` is for UX feedback only — it does **not** lock in the discount.
+* **Combo stock is deducted from physical child `comboItems`, not the virtual parent product.**
+* **`updateQuantity()` in `CartContext` guards `quantity < 1`** to prevent negative or zero-quantity cart items.

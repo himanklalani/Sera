@@ -49,3 +49,38 @@ This file tracks the SEO and Performance Optimization changes that have been pus
 - **CORS Local Development Optimization:** Updated Express CORS middleware in `server.js` with dynamic port regex matching for `localhost` and `127.0.0.1`, allowing seamless multi-port dev server instances without network blocking.
 - **Master Playbook Expansion:** Updated `playbook.md` to v5 incorporating senior enterprise search architecture, patent analysis, and cross-archetype execution strategies.
 
+### 7. Purchase Journey Audit — Security, Correctness & Guest Cart (20-Point Fix)
+
+#### Backend Security (Critical)
+- **Server-Side Price Integrity (`paymentRoutes.js`):** Extracted a shared `validateAndCalculateOrder()` helper used by both `/create-order` and `/verify-payment`. The server now recalculates `cartValue`, `shippingCost`, and `finalTotalPrice` directly from MongoDB product prices — client-supplied amounts are completely ignored, preventing price tampering.
+- **Coupon Server Validation (`paymentRoutes.js`):** Coupons are now fully re-validated on the backend at checkout: `isActive`, `expiryDate`, `usageLimit`, `minOrderValue`, `perUserLimit`, and `isFirstOrderOnly` are all enforced. Usage count is incremented atomically with a conditional `findOneAndUpdate` to prevent race conditions.
+- **Combo Stock Deduction (`paymentRoutes.js`):** Physical `comboItems` children are now the unit of stock validation and deduction. The virtual combo product stock is no longer trusted, preventing overselling of bundled products.
+
+#### Backend Infrastructure
+- **Bulk Product Endpoint (`productRoutes.js`):** Added `POST /api/products/bulk` — accepts an array of product IDs and returns live product data. Used by the guest cart to hydrate with real-time prices and stock without N+1 requests.
+- **Bulk Guest Sync Endpoint (`cartRoutes.js`):** Added `POST /api/cart/sync` — merges an entire guest cart into the authenticated user's DB cart in one request, replacing the previous item-by-item loop. Stock is capped gracefully rather than failing hard.
+
+#### Guest Cart Wiring
+- **Shop.jsx:** Removed forced login gate on Add-to-Cart. Guests now add items directly via `CartContext`, updating the navbar badge immediately without any redirect.
+- **Cart.jsx:** Removed login gate from greeting card add. Guests can add greeting card notes freely. "Proceed to Checkout" button redirects unauthenticated users to `/login?redirect=/checkout` instead of a dead-end `/login`.
+- **Auth Link Chains:** All login/register navigation now carries `?redirect=` parameters — Login → "Create account" and Register → "Log in" both preserve the destination, eliminating dead-end redirect loops.
+
+#### Cart State & Logic Fixes
+- **`CartContext.jsx` — JSON.parse Crash Protection:** Both `getUserInfo()` and `getGuestCart()` are now wrapped in `try/catch`. Corrupted localStorage values are silently cleared and the app continues operating instead of crashing.
+- **`CartContext.jsx` — N+1 Sync Eliminated:** `syncGuestCart()` now sends all guest items in one `POST /api/cart/sync` request instead of looping individual POSTs.
+- **`CartContext.jsx` — Guest Cart Staleness:** `fetchCart()` for guests now calls `POST /api/products/bulk` to hydrate items with live stock and prices. Out-of-stock items are auto-removed with a toast; adjusted quantities are flagged.
+- **`CartContext.jsx` — Quantity Bounds:** `updateQuantity()` now guards against `quantity < 1` to prevent negative or zero-quantity cart items.
+- **Duplicate fetchCart Removed (`login.jsx`, `register.jsx`):** Removed redundant `await fetchCart()` after `await syncGuestCart()`. `syncGuestCart` already calls `fetchCart` internally, so the double call caused a race condition and unnecessary double-fetch.
+
+#### Checkout & Order Completion
+- **Redirect Loop Fixed (`Checkout.jsx`):** All internal `navigate('/login')` calls updated to `navigate('/login?redirect=/checkout')`.
+- **COD clearCart (`Checkout.jsx`):** `clearCart()` is now explicitly called immediately after a successful COD order API response, before navigating to `/order-success`.
+- **Razorpay clearCart (`Checkout.jsx`):** `clearCart()` is also called in the Razorpay `handler` callback on successful payment verification.
+- **OrderSuccess Safety Net (`OrderSuccess.jsx`):** `clearCart()` is called on mount as a defensive fallback — ensures cart always resets even if the Checkout navigation state was lost (e.g., page refresh after payment).
+- **Null Pointer Protection (`Checkout.jsx`):** All `cartItems.map()` calls guarded with `item?.product` optional chaining. `subtotal` calculation filters out null-product items, preventing crashes if a product is deleted mid-session.
+
+#### Edge Cases & Logout Desync
+- **Wishlist Redirect (`productdetails.jsx`):** Unauthenticated wishlist button now redirects to `/login?redirect=/product/:id` instead of bare `/login`.
+- **Size State Leaks (`productdetails.jsx`):** `setSelectedSize('')`, `setQuantity(1)`, and `setSelectedImage(0)` are reset at the top of `fetchProduct` whenever the product `id` changes, preventing stale apparel size from carrying over to a jewelry product.
+- **Logout Desync (`profile.jsx`):** `clearCart()` from `useCart()` is called immediately on logout confirmation before removing `userInfo` from localStorage.
+- **Auto-Logout Desync (`AxiosInterceptor.jsx`):** On 401/403 auto-logout, a `StorageEvent` is dispatched so `CartContext`'s storage listener fires and switches to guest mode in the same browser tab.

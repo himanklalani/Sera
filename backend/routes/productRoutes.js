@@ -309,6 +309,37 @@ router.get('/share/:id', asyncHandler(async (req, res) => {
 }));
 
 
+// @desc    Fetch multiple products in bulk by IDs
+// @route   POST /api/products/bulk
+// @access  Public
+router.post('/bulk', asyncHandler(async (req, res) => {
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids)) {
+    res.status(400);
+    throw new Error('Please provide an array of product IDs');
+  }
+
+  const validIds = ids.filter(id => mongoose.Types.ObjectId.isValid(id));
+  
+  if (validIds.length === 0) {
+    return res.json([]);
+  }
+
+  const products = await Product.find({ _id: { $in: validIds } })
+    .populate('comboItems', 'stock name _id')
+    .select('name price category images stock isCombo comboItems rating numReviews isAddon')
+    .lean();
+
+  const processedProducts = products.map(p => {
+    if (p.isCombo && p.comboItems && p.comboItems.length > 0) {
+      p.stock = Math.min(...p.comboItems.map(item => item?.stock || 0));
+    }
+    return p;
+  });
+
+  res.json(processedProducts);
+}));
+
 // @desc    Fetch single product with populated reviews
 // @route   GET /api/products/:id
 // @access  Public

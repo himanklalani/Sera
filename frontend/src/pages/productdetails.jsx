@@ -62,6 +62,9 @@ const ProductDetails = () => {
 
   useEffect(() => {
     const fetchProduct = async () => {
+      setSelectedSize('');
+      setQuantity(1);
+      setSelectedImage(0);
       try {
         const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/products/${id}`);
         setProduct(data);
@@ -223,13 +226,6 @@ const ProductDetails = () => {
     const ui = getUserInfo();
     const itemToAdd = productToAdd || product;
 
-
-    if (!ui) {
-      navigate(`/login?redirect=/product/${itemToAdd._id}`);
-      return;
-    }
-
-
     const isApparel = itemToAdd.category?.toLowerCase().includes('apparel');
     if (isApparel && !selectedSize && !productToAdd) {
       toast.error('Please select a size first');
@@ -242,7 +238,7 @@ const ProductDetails = () => {
 
     try {
       const qty = productToAdd ? 1 : quantity;
-      await addToCartContext(itemToAdd._id, qty, selectedSize);
+      await addToCartContext(itemToAdd._id, qty, selectedSize, null, itemToAdd);
       
       // GA4 add_to_cart event
       if (window.dataLayer) {
@@ -276,7 +272,7 @@ const ProductDetails = () => {
   const handleWishlist = async () => {
     const ui = getUserInfo();
     if (!ui) {
-      navigate('/login');
+      navigate(`/login?redirect=/product/${id}`);
       return;
     }
 

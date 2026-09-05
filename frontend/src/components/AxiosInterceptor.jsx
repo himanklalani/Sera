@@ -37,6 +37,8 @@ const AxiosInterceptor = ({ children }) => {
         if ((status === 401 || status === 403) && !isAuthRoute) {
           // Wipe the stale session
           localStorage.removeItem('userInfo');
+          // Dispatch storage event so CartContext switches to guest mode
+          window.dispatchEvent(new StorageEvent('storage', { key: 'userInfo' }));
 
           // Capture where the user currently is (unless they're already on login)
           const currentPath = location.pathname;

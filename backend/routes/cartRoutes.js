@@ -93,7 +93,6 @@ router.get('/', protect, asyncHandler(async (req, res) => {
 router.post('/', protect, asyncHandler(async (req, res) => {
   const { productId, quantity, size, note } = req.body;
   
-  // ADDED: Validate product exists and check stock
   const product = await Product.findById(productId).populate('comboItems', 'stock');
   if (!product) {
     res.status(404);
@@ -104,20 +103,12 @@ router.post('/', protect, asyncHandler(async (req, res) => {
     product.stock = Math.min(...product.comboItems.map(i => i.stock || 0));
   }
   
-  // ADDED: Check if requested quantity exceeds stock (skip for free add-ons with unlimited stock)
-  if (product.stock < quantity && product.price > 0) {
-    res.status(400);
-    throw new Error(`Only ${product.stock} items available in stock`);
-  }
-  
   let cart = await Cart.findOne({ user: req.user._id });
   
   if (!cart) {
     cart = await Cart.create({ user: req.user._id, items: [] });
   }
 
-  // For items with a note (e.g. greeting cards), always add as a new line item
-  // so multiple cards with different messages remain separate
   const itemIndex = note
     ? -1
     : cart.items.findIndex(item => 
@@ -126,20 +117,33 @@ router.post('/', protect, asyncHandler(async (req, res) => {
         (item.size || '') === (size || '')
       );
 
+  let addedQuantity = Number(quantity);
+  let warning = null;
+
   if (itemIndex > -1) {
-    // MODIFIED: Check if new total quantity exceeds stock
-    const newQuantity = cart.items[itemIndex].quantity + Number(quantity);
-    
+    let newQuantity = cart.items[itemIndex].quantity + addedQuantity;
     if (newQuantity > product.stock && product.price > 0) {
-      res.status(400);
-      throw new Error(`Cannot add ${quantity} more. Only ${product.stock - cart.items[itemIndex].quantity} items left in stock`);
+      if (cart.items[itemIndex].quantity >= product.stock) {
+        res.status(400);
+        throw new Error(`You already have the maximum available stock (${product.stock}) in your cart.`);
+      }
+      newQuantity = product.stock;
+      warning = `Quantity capped to maximum available stock (${product.stock}).`;
     }
-    
     cart.items[itemIndex].quantity = newQuantity;
   } else {
+    if (addedQuantity > product.stock && product.price > 0) {
+      if (product.stock <= 0) {
+        res.status(400);
+        throw new Error(`Item is out of stock`);
+      }
+      addedQuantity = product.stock;
+      warning = `Only ${product.stock} items available. Quantity adjusted.`;
+    }
+    
     cart.items.push({ 
       product: productId, 
-      quantity: Number(quantity), 
+      quantity: addedQuantity, 
       size: size || undefined,
       note: note ? note.substring(0, 450) : undefined
     });
@@ -147,7 +151,7 @@ router.post('/', protect, asyncHandler(async (req, res) => {
 
   await cart.save();
   const cleanedCart = await getCleanCart(cart._id);
-  res.json(cleanedCart);
+  res.json({ ...cleanedCart, warning });
 }));
 
 // @desc    Remove item from cart
@@ -219,6 +223,65 @@ router.put('/:productId', protect, asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('Cart not found');
   }
+}));
+
+
+// @desc    Sync guest cart
+// @route   POST /api/cart/sync
+// @access  Private
+router.post('/sync', protect, asyncHandler(async (req, res) => {
+  const { items } = req.body;
+  
+  let cart = await Cart.findOne({ user: req.user._id });
+  if (!cart) {
+    cart = await Cart.create({ user: req.user._id, items: [] });
+  }
+
+  if (items && Array.isArray(items)) {
+    for (const item of items) {
+      if (!item.productId) continue;
+      
+      const product = await Product.findById(item.productId).populate('comboItems', 'stock');
+      if (!product) continue;
+      
+      if (product.isCombo && product.comboItems && product.comboItems.length > 0) {
+        product.stock = Math.min(...product.comboItems.map(i => i.stock || 0));
+      }
+      
+      const itemIndex = item.note
+        ? -1
+        : cart.items.findIndex(cartItem => 
+            cartItem.product &&
+            cartItem.product.toString() === item.productId &&
+            (cartItem.size || '') === (item.size || '')
+          );
+
+      let addedQuantity = Number(item.quantity);
+
+      if (itemIndex > -1) {
+        let newQuantity = cart.items[itemIndex].quantity + addedQuantity;
+        if (newQuantity > product.stock && product.price > 0) {
+          newQuantity = product.stock;
+        }
+        cart.items[itemIndex].quantity = newQuantity;
+      } else {
+        if (addedQuantity > product.stock && product.price > 0) {
+          addedQuantity = product.stock;
+        }
+        
+        cart.items.push({ 
+          product: item.productId, 
+          quantity: addedQuantity, 
+          size: item.size || undefined,
+          note: item.note ? item.note.substring(0, 450) : undefined
+        });
+      }
+    }
+    await cart.save();
+  }
+
+  const cleanedCart = await getCleanCart(cart._id);
+  res.json(cleanedCart);
 }));
 
 module.exports = router;

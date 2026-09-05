@@ -7,7 +7,7 @@ import { useCart } from '../components/CartContext';
 import { GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
-  const { fetchCart } = useCart();
+  const { syncGuestCart } = useCart();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -24,7 +24,7 @@ const Login = () => {
     try {
       const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, { email, password });
       localStorage.setItem('userInfo', JSON.stringify(data));
-      await fetchCart();
+      await syncGuestCart();
       if (redirectTo) {
         navigate(redirectTo);
       } else if (data.role === 'admin') {
@@ -46,7 +46,7 @@ const Login = () => {
         credential: credentialResponse.credential
       });
       localStorage.setItem('userInfo', JSON.stringify(data));
-      await fetchCart();
+      await syncGuestCart();
       if (redirectTo) {
         navigate(redirectTo);
       } else if (data.role === 'admin') {
@@ -150,7 +150,7 @@ const Login = () => {
 
             <div className="mt-8 text-center text-sm text-gray-600">
               <p className="mb-2"><Link to="/forgot-password" className="text-gray-500 hover:text-rose-500 transition-colors">Forgot your password?</Link></p>
-              <p>Don't have an account? <Link to="/register" className="text-[#c5a666] font-semibold hover:underline">Create one</Link></p>
+              <p>Don't have an account? <Link to={redirectTo ? `/register?redirect=${redirectTo}` : '/register'} className="text-[#c5a666] font-semibold hover:underline">Create one</Link></p>
             </div>
           </motion.div>
         </div>

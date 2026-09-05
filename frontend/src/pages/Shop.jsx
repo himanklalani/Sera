@@ -5,6 +5,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaFilter, FaSearch, FaShoppingCart, FaTimes, FaCheck, FaChevronLeft, FaChevronRight, FaStar } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import { useCart } from '../components/CartContext';
 
 
 // Custom Hook: Synchronize URL params with state (prevents race conditions)
@@ -78,6 +79,7 @@ const Shop = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
   const navigate = useNavigate();
+  const { addToCart: contextAddToCart } = useCart();
   const categories = ['All', 'Necklace', 'Earrings', 'Bracelet', 'Combos', 'Apparel'];
   
   // Use refs to prevent race conditions
@@ -253,21 +255,12 @@ const Shop = () => {
   };
 
 
-  const addToCart = async (e, productId) => {
+  const handleAddToCart = async (e, productId) => {
     e.preventDefault();
     e.stopPropagation();
 
-
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    if (!userInfo) {
-      navigate('/login?redirect=/shop');
-      return;
-    }
-
-
     try {
-      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/cart`, { productId, quantity: 1 }, config);
+      await contextAddToCart(productId, 1);
       toast.success('Added to cart!');
     } catch (error) {
       console.error('Add to cart error:', error);
@@ -375,7 +368,7 @@ const Shop = () => {
 
 
             <button
-              onClick={(e) => addToCart(e, product._id)}
+              onClick={(e) => handleAddToCart(e, product._id)}
               className="absolute bottom-3 right-3 md:bottom-4 md:right-4 bg-white text-gray-900 p-2 md:p-3 rounded-full shadow-lg opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-rose-500 hover:text-white hover:shadow-xl"
               title="Add to Cart"
               disabled={product.stock === 0}

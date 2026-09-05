@@ -1,11 +1,12 @@
 import { Helmet } from 'react-helmet-async';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaTrash, FaMinus, FaPlus, FaLock, FaTruck, FaShieldAlt, FaGift, FaTimes, FaEnvelopeOpenText } from 'react-icons/fa';
+import { FaTrash, FaMinus, FaPlus, FaLock, FaTruck, FaShieldAlt, FaGift, FaTimes, FaEnvelopeOpenText, FaCheckCircle } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../components/CartContext';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import FreeShippingBar from '../components/FreeShippingBar';
 
 const FALLBACK_IMAGE = 'https://picsum.photos/150/150?grayscale';
 const NOTE_MAX_LENGTH = 450;
@@ -60,12 +61,16 @@ const Cart = () => {
   };
 
   const handleAddGreetingCard = () => {
-    if (!getUserInfo()) {
-      toast.error('Please log in to add items to your cart.');
-      return;
-    }
     setCardNote('');
     setShowNoteModal(true);
+  };
+
+  const handleProceedToCheckout = () => {
+    if (!getUserInfo()) {
+      navigate('/login?redirect=/checkout');
+    } else {
+      navigate('/checkout');
+    }
   };
 
   const handleConfirmGreetingCard = async () => {
@@ -328,7 +333,7 @@ const Cart = () => {
             ))}
 
             {/* UPSELL / ADD-ONS SECTION */}
-            <div className="mt-12 bg-rose-50/50 p-6 rounded-lg border border-rose-100">
+            <div className="mt-12 bg-rose-50/50 p-6 rounded-2xl border border-rose-100">
               <div className="flex items-center gap-2 mb-4 text-rose-800">
                 <FaGift className="text-xl" />
                 <h3 className="font-serif text-2xl">Complete Your Gift</h3>
@@ -337,8 +342,8 @@ const Cart = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                 {/* Greeting Card from DB */}
-                <div className="flex items-center bg-white p-3 rounded shadow-sm border border-rose-200 hover:border-rose-400 transition-colors">
-                  <div className="w-16 h-16 bg-rose-50 rounded overflow-hidden mr-4 flex-shrink-0">
+                <div className="flex items-center bg-white p-3 rounded-xl shadow-xs border border-rose-200 hover:border-rose-400 transition-colors">
+                  <div className="w-16 h-16 bg-rose-50 rounded-lg overflow-hidden mr-4 flex-shrink-0">
                     <img
                       src={greetingCard?.images?.[0] || 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto/q_auto/v1788173333/bdaycard_yl0wq5.avif'}
                       alt="Greeting Card"
@@ -352,38 +357,74 @@ const Cart = () => {
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5">Add a personal note</p>
                   </div>
-                  <button
-                    onClick={handleAddGreetingCard}
-                    className="ml-2 w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-colors"
-                    title="Add Greeting Card"
-                  >
-                    <FaPlus size={12} />
-                  </button>
-                </div>
-
-                {/* Dynamic addons from DB */}
-                {addons.map((addon) => (
-                  <div key={addon._id} className="flex items-center bg-white p-3 rounded shadow-sm border border-gray-100 transition-hover hover:border-rose-300">
-                    <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden mr-4 flex-shrink-0">
-                      <img
-                        src={addon.images?.[0] || FALLBACK_IMAGE}
-                        alt={addon.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-grow">
-                      <h4 className="font-medium text-sm text-gray-800 line-clamp-1">{addon.name}</h4>
-                      <p className="text-rose-600 font-semibold text-sm">INR {addon.price}</p>
-                    </div>
+                  {cartItems.some(ci => (ci.product?._id || ci.product) === greetingCardId) ? (
                     <button
-                      onClick={() => handleAddonToCart(addon)}
+                      onClick={() => {
+                        const cardItem = cartItems.find(ci => (ci.product?._id || ci.product) === greetingCardId);
+                        if (cardItem) handleRemoveItem(cardItem);
+                      }}
+                      className="ml-2 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-rose-50 text-emerald-700 hover:text-rose-600 border border-emerald-200 hover:border-rose-200 text-xs font-semibold flex items-center gap-1.5 transition-all group/rem"
+                      title="Click to remove greeting card"
+                    >
+                      <FaCheckCircle className="text-emerald-500 text-xs group-hover/rem:hidden" />
+                      <FaTimes className="text-rose-500 text-xs hidden group-hover/rem:inline" />
+                      <span className="group-hover/rem:hidden">Added</span>
+                      <span className="hidden group-hover/rem:inline">Remove</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleAddGreetingCard}
                       className="ml-2 w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-colors"
-                      title="Add to Cart"
+                      title="Add Greeting Card"
                     >
                       <FaPlus size={12} />
                     </button>
-                  </div>
-                ))}
+                  )}
+                </div>
+
+                {/* Dynamic addons from DB */}
+                {addons.map((addon) => {
+                  const existingItem = cartItems.find(
+                    (ci) => (ci.product?._id || ci.product) === addon._id
+                  );
+                  const isAdded = Boolean(existingItem);
+
+                  return (
+                    <div key={addon._id} className="flex items-center bg-white p-3 rounded-xl shadow-xs border border-gray-100 transition-hover hover:border-rose-300">
+                      <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden mr-4 flex-shrink-0">
+                        <img
+                          src={addon.images?.[0] || FALLBACK_IMAGE}
+                          alt={addon.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-grow">
+                        <h4 className="font-medium text-sm text-gray-800 line-clamp-1">{addon.name}</h4>
+                        <p className="text-rose-600 font-semibold text-sm">INR {addon.price}</p>
+                      </div>
+                      {isAdded ? (
+                        <button
+                          onClick={() => handleRemoveItem(existingItem)}
+                          className="ml-2 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-rose-50 text-emerald-700 hover:text-rose-600 border border-emerald-200 hover:border-rose-200 text-xs font-semibold flex items-center gap-1.5 transition-all group/rem"
+                          title="Click to remove from cart"
+                        >
+                          <FaCheckCircle className="text-emerald-500 text-xs group-hover/rem:hidden" />
+                          <FaTimes className="text-rose-500 text-xs hidden group-hover/rem:inline" />
+                          <span className="group-hover/rem:hidden">Added</span>
+                          <span className="hidden group-hover/rem:inline">Remove</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleAddonToCart(addon)}
+                          className="ml-2 w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-colors"
+                          title="Add to Cart"
+                        >
+                          <FaPlus size={12} />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -391,7 +432,11 @@ const Cart = () => {
           {/* Order Summary */}
           <div className="lg:w-1/3">
             <div className="bg-rose-50 p-8 rounded-lg sticky top-24">
-              <h3 className="font-serif text-2xl mb-6">Order Summary</h3>
+              <h3 className="font-serif text-2xl mb-4">Order Summary</h3>
+
+              {/* Free Shipping Progress Bar */}
+              <FreeShippingBar subtotal={subtotal} threshold={999} />
+
               <div className="space-y-4 mb-8">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
@@ -401,18 +446,13 @@ const Cart = () => {
                   <span>Shipping</span>
                   <span>{shipping === 0 ? 'Free' : `INR ${shipping}`}</span>
                 </div>
-                {shipping > 0 && subtotal > 0 && (
-                  <p className="text-xs text-rose-500">
-                    Add INR {Math.max(0, 1000 - subtotal)} more for free shipping
-                  </p>
-                )}
                 <div className="border-t border-gray-300 pt-4 flex justify-between font-bold text-lg">
                   <span>Total</span>
                   <span>INR {total}</span>
                 </div>
               </div>
               <button
-                onClick={() => navigate('/checkout')}
+                onClick={handleProceedToCheckout}
                 className="w-full bg-black text-white py-4 rounded uppercase tracking-widest hover:bg-gray-800 transition-colors shadow-lg"
               >
                 Proceed to Checkout

@@ -6,9 +6,11 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { GoogleLogin } from '@react-oauth/google';
+import { useCart } from '../components/CartContext';
 
 
 const Register = () => {
+  const { syncGuestCart } = useCart();
   const [step, setStep] = useState(1); // 1: Registration, 2: OTP Verification
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -51,6 +53,7 @@ const Register = () => {
         credential: credentialResponse.credential
       });
       localStorage.setItem('userInfo', JSON.stringify(data));
+      await syncGuestCart();
       navigate(redirectTo || '/');
     } catch (err) {
       setError(err.response?.data?.message || 'Google Sign Up failed');
@@ -72,6 +75,7 @@ const Register = () => {
       });
       
       localStorage.setItem('userInfo', JSON.stringify(data));
+      await syncGuestCart();
       navigate(redirectTo || '/');
     } catch (err) {
       setError(err.response?.data?.message || 'OTP verification failed');
@@ -246,7 +250,7 @@ const Register = () => {
 
 
               <div className="mt-8 text-center text-sm text-gray-600">
-                <p>Already have an account? <Link to="/login" className="text-[#c5a666] font-semibold hover:underline">Log in</Link></p>
+                <p>Already have an account? <Link to={redirectTo ? `/login?redirect=${redirectTo}` : '/login'} className="text-[#c5a666] font-semibold hover:underline">Log in</Link></p>
               </div>
             </motion.div>
           </div>

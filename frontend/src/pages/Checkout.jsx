@@ -1,12 +1,13 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FloatingCouponDrawer } from './Home';
-import { FaLock, FaTruck, FaShieldAlt, FaGift, FaPlus, FaEdit, FaTrash, FaTimes, FaMapMarkerAlt, FaCheckCircle, FaRegCircle } from 'react-icons/fa';
+import { FaLock, FaTruck, FaShieldAlt, FaGift, FaPlus, FaEdit, FaTrash, FaTimes, FaMapMarkerAlt, FaCheckCircle, FaRegCircle, FaEnvelopeOpenText } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../components/CartContext';
+import FreeShippingBar from '../components/FreeShippingBar';
 
 
 const Checkout = () => {
@@ -21,11 +22,16 @@ const Checkout = () => {
   const [couponError, setCouponError] = useState('');
   const [razorpayLoading, setRazorpayLoading] = useState(false);
   const [addons, setAddons] = useState([]);
+  const [greetingCard, setGreetingCard] = useState(null);
+  const [greetingCardId, setGreetingCardId] = useState(null);
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [cardNote, setCardNote] = useState('');
+  const [addingCard, setAddingCard] = useState(false);
   const [showStockModal, setShowStockModal] = useState(false);
   const [outOfStockItems, setOutOfStockItems] = useState([]);
   const [proceedAfterRender, setProceedAfterRender] = useState(false);
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, removeFromCart, clearCart } = useCart();
 
   // Address Management & Modal State
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -95,7 +101,7 @@ const Checkout = () => {
     try {
       const storedUserInfo = localStorage.getItem('userInfo');
       if (!storedUserInfo) {
-        navigate('/login');
+        navigate('/login?redirect=/checkout');
         return;
       }
       const userInfo = JSON.parse(storedUserInfo);
@@ -141,6 +147,29 @@ const Checkout = () => {
       toast.error(error.response?.data?.message || 'Failed to save address');
     } finally {
       setAddressSaving(false);
+    }
+  };
+
+  const handlePincodeChange = async (e) => {
+    const pin = e.target.value.replace(/\D/g, '').substring(0, 6);
+    setAddressForm({ ...addressForm, postalCode: pin });
+    
+    if (pin.length === 6) {
+      try {
+        const res = await axios.get(`https://api.postalpincode.in/pincode/${pin}`);
+        if (res.data && res.data[0].Status === 'Success') {
+          const details = res.data[0].PostOffice[0];
+          setAddressForm(prev => ({
+            ...prev,
+            postalCode: pin,
+            city: details.District || details.Block || prev.city,
+            state: details.State || prev.state
+          }));
+          toast.success("City & State auto-filled!");
+        }
+      } catch (err) {
+        console.error("Error fetching pincode:", err);
+      }
     }
   };
 
@@ -205,7 +234,7 @@ const Checkout = () => {
       try {
         const storedUserInfo = localStorage.getItem('userInfo');
         if (!storedUserInfo) {
-          navigate('/login');
+          navigate('/login?redirect=/checkout');
           return;
         }
 
@@ -216,7 +245,7 @@ const Checkout = () => {
         } catch (error) {
           console.error('Failed to parse userInfo from localStorage:', error);
           localStorage.removeItem('userInfo');
-          navigate('/login');
+          navigate('/login?redirect=/checkout');
           return;
         }
 
@@ -236,10 +265,10 @@ const Checkout = () => {
               currency: 'INR',
               value: fetchedCart.reduce((acc, item) => acc + (Math.round((item.product.price || 0) * 0.5) * item.quantity), 0),
               items: fetchedCart.map(item => ({
-                item_id: item.product._id,
-                item_name: item.product.name,
-                item_category: item.product.category,
-                price: Math.round((item.product.price || 0) * 0.5),
+                item_id: item.product?._id,
+                item_name: item.product?.name,
+                item_category: item.product?.category,
+                price: Math.round((item.product?.price || 0) * 0.5),
                 quantity: item.quantity
               }))
             }
@@ -257,7 +286,14 @@ const Checkout = () => {
         
         // Fetch Add-ons
         const addonsRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/products?isAddon=true`);
-        setAddons(addonsRes.data.products || []);
+        const allAddons = addonsRes.data.products || [];
+        const card = allAddons.find(a => a.name === 'Greeting Card');
+        const otherAddons = allAddons.filter(a => a.name !== 'Greeting Card');
+        if (card) {
+          setGreetingCardId(card._id);
+          setGreetingCard(card);
+        }
+        setAddons(otherAddons);
 
         setLoading(false);
       } catch (error) {
@@ -268,10 +304,26 @@ const Checkout = () => {
     fetchData();
   }, [navigate]);
 
-  const handleAddonToCart = async (addon) => {
+  const handleAddGreetingCard = () => {
+    setCardNote('');
+    setShowNoteModal(true);
+  };
+
+  const handleConfirmGreetingCard = async () => {
+    if (!greetingCardId) {
+      toast.error('Greeting card not available. Please try again later.');
+      return;
+    }
+    if (!cardNote.trim()) {
+      toast.error('Please write a message for the card.');
+      return;
+    }
+    setAddingCard(true);
     try {
-      await addToCart(addon._id, 1);
-      toast.success(`${addon.name} added!`);
+      await addToCart(greetingCardId, 1, null, cardNote.trim());
+      toast.success('Greeting card added!');
+      setShowNoteModal(false);
+      setCardNote('');
       // Refetch cart to update summary
       const storedUserInfo = localStorage.getItem('userInfo');
       if (storedUserInfo) {
@@ -281,7 +333,45 @@ const Checkout = () => {
         setCartItems(cartRes.data.items || []);
       }
     } catch (error) {
+      toast.error('Failed to add greeting card.');
+    } finally {
+      setAddingCard(false);
+    }
+  };
+
+  const handleAddonToCart = async (addon) => {
+    try {
+      await addToCart(addon._id, 1);
+      toast.success(`${addon.name} added!`);
+      // Refetch cart to update summary and free shipping bar
+      const storedUserInfo = localStorage.getItem('userInfo');
+      if (storedUserInfo) {
+        const userInfo = JSON.parse(storedUserInfo);
+        const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+        const cartRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, config);
+        setCartItems(cartRes.data.items || []);
+      }
+    } catch (error) {
       toast.error('Failed to add item');
+    }
+  };
+
+  const handleRemoveItem = async (item) => {
+    try {
+      const idToRemove = item.note ? item._id : (item.product?._id || item._id);
+      await removeFromCart(idToRemove);
+      toast.success(`${item.product?.name || 'Item'} removed.`);
+      // Refetch cart to update summary and free shipping bar
+      const storedUserInfo = localStorage.getItem('userInfo');
+      if (storedUserInfo) {
+        const userInfo = JSON.parse(storedUserInfo);
+        const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+        const cartRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/cart`, config);
+        setCartItems(cartRes.data.items || []);
+      }
+    } catch (error) {
+      console.error('Error removing item:', error);
+      toast.error('Failed to remove item');
     }
   };
 
@@ -296,7 +386,7 @@ const Checkout = () => {
     try {
       const storedUserInfo = localStorage.getItem('userInfo');
       if (!storedUserInfo) {
-        navigate('/login');
+        navigate('/login?redirect=/checkout');
         return;
       }
 
@@ -307,7 +397,7 @@ const Checkout = () => {
       } catch (error) {
         console.error('Failed to parse userInfo from localStorage:', error);
         localStorage.removeItem('userInfo');
-        navigate('/login');
+        navigate('/login?redirect=/checkout');
         return;
       }
 
@@ -315,13 +405,12 @@ const Checkout = () => {
       // ✅ FIXED: Calculate cartValue (subtotal) and orderTotal separately
       // Ensure addons are excluded from discountable cartValue
       const discountableCartValue = cartItems
-        .filter(item => !item.product.isAddon)
-        .reduce((acc, item) => acc + item.quantity * item.product.price, 0);
+        .filter(item => item?.product && !item.product.isAddon)
+        .reduce((acc, item) => acc + item.quantity * (item.product.price || 0), 0);
         
-      const cartValue = cartItems.reduce(
-        (acc, item) => acc + item.quantity * item.product.price,
-        0
-      );
+      const cartValue = cartItems
+        .filter(item => item?.product)
+        .reduce((acc, item) => acc + item.quantity * (item.product.price || 0), 0);
       const shippingValue = cartValue > 999 ? 0 : 100;
       const orderTotal = cartValue + shippingValue;
 
@@ -367,7 +456,7 @@ const Checkout = () => {
     try {
       const storedUserInfo = localStorage.getItem('userInfo');
       if (!storedUserInfo) {
-        navigate('/login');
+        navigate('/login?redirect=/checkout');
         return;
       }
       const userInfo = JSON.parse(storedUserInfo);
@@ -436,7 +525,7 @@ const Checkout = () => {
     try {
       const storedUserInfo = localStorage.getItem('userInfo');
       if (!storedUserInfo) {
-        navigate('/login');
+        navigate('/login?redirect=/checkout');
         return;
       }
 
@@ -447,7 +536,7 @@ const Checkout = () => {
       } catch (error) {
         console.error('Failed to parse userInfo from localStorage:', error);
         localStorage.removeItem('userInfo');
-        navigate('/login');
+        navigate('/login?redirect=/checkout');
         return;
       }
 
@@ -456,7 +545,7 @@ const Checkout = () => {
       
       // ✅ BUILD ORDER DATA WITH COMPLETE ADDRESS STRUCTURE
       const orderData = {
-        orderItems: cartItems.map(item => ({
+        orderItems: cartItems.filter(item => item?.product).map(item => ({
           product: item.product._id,
           quantity: item.quantity,
           price: item.product.price,
@@ -483,6 +572,7 @@ const Checkout = () => {
 
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, orderData, config);
       
+      clearCart();
       toast.success('Order placed successfully!');
       navigate('/order-success', { 
         state: { 
@@ -490,7 +580,7 @@ const Checkout = () => {
           value: total,
           shipping: appliedCoupon?.isFreeShipping ? 0 : shipping,
           tax: 0,
-          items: cartItems.map(item => ({
+          items: cartItems.filter(item => item?.product).map(item => ({
             item_id: item.product._id,
             item_name: item.product.name,
             item_category: item.product.category,
@@ -545,7 +635,7 @@ const Checkout = () => {
 
       const storedUserInfo = localStorage.getItem('userInfo');
       if (!storedUserInfo) {
-        navigate('/login');
+        navigate('/login?redirect=/checkout');
         return;
       }
 
@@ -555,7 +645,7 @@ const Checkout = () => {
       } catch (error) {
         console.error('Failed to parse userInfo from localStorage:', error);
         localStorage.removeItem('userInfo');
-        navigate('/login');
+        navigate('/login?redirect=/checkout');
         return;
       }
 
@@ -576,7 +666,7 @@ const Checkout = () => {
         {
           amount: amountInPaise,
           currency: 'INR',
-          orderItems: cartItems.map(item => ({
+          orderItems: cartItems.filter(item => item?.product).map(item => ({
             product: item.product._id,
             quantity: item.quantity,
             note: item.note || undefined
@@ -608,7 +698,7 @@ const Checkout = () => {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              orderItems: cartItems.map((item) => ({
+              orderItems: cartItems.filter(item => item?.product).map((item) => ({
                 product: item.product._id,
                 quantity: item.quantity,
                 price: item.product.price,
@@ -636,6 +726,7 @@ const Checkout = () => {
               config
             );
 
+            clearCart();
             toast.success('Payment successful and order placed!');
             navigate('/order-success', { 
               state: { 
@@ -643,7 +734,7 @@ const Checkout = () => {
                 value: total,
                 shipping: appliedCoupon?.isFreeShipping ? 0 : shipping,
                 tax: 0,
-                items: cartItems.map(item => ({
+                items: cartItems.filter(item => item?.product).map(item => ({
                   item_id: item.product._id,
                   item_name: item.product.name,
                   item_category: item.product.category,
@@ -699,7 +790,7 @@ const Checkout = () => {
 
 
   // ✅ FIXED: Calculate values correctly
-  const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
+  const subtotal = cartItems.filter(item => item?.product).reduce((acc, item) => acc + item.quantity * (item.product.price || 0), 0);
   const shipping = subtotal > 999 ? 0 : 100;
   const displayShipping = appliedCoupon?.isFreeShipping ? 0 : shipping;
   const originalTotal = subtotal + shipping;
@@ -715,6 +806,79 @@ const Checkout = () => {
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
+
+      {/* Greeting Card Note Modal */}
+      <AnimatePresence>
+        {showNoteModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+            onClick={(e) => { if (e.target === e.currentTarget) setShowNoteModal(false); }}
+          >
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.92, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative"
+            >
+              <button
+                type="button"
+                onClick={() => setShowNoteModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors"
+              >
+                <FaTimes size={18} />
+              </button>
+
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center">
+                  <FaEnvelopeOpenText className="text-rose-500" size={18} />
+                </div>
+                <h2 className="font-serif text-2xl text-gray-900">Write Your Message</h2>
+              </div>
+              <p className="text-sm text-gray-500 mb-6">
+                Your personal note will be handwritten on the greeting card and included with the order.
+              </p>
+
+              <textarea
+                value={cardNote}
+                onChange={(e) => setCardNote(e.target.value.slice(0, 450))}
+                placeholder="e.g. Happy Birthday! Wishing you all the joy in the world..."
+                rows={6}
+                className="w-full border border-gray-200 rounded-xl p-4 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent resize-none leading-relaxed"
+              />
+
+              <div className="flex justify-between items-center mt-2 mb-6">
+                <p className="text-xs text-gray-400 italic">Max 450 characters</p>
+                <p className={`text-xs font-medium ${cardNote.length >= 450 ? 'text-red-500' : 'text-gray-400'}`}>
+                  {cardNote.length}/450
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowNoteModal(false)}
+                  className="flex-1 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmGreetingCard}
+                  disabled={addingCard || !cardNote.trim()}
+                  className="flex-1 py-3 bg-rose-500 text-white rounded-xl text-sm font-semibold hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {addingCard ? 'Adding...' : `Add to Cart — ${greetingCard ? (greetingCard.price === 0 ? 'Free' : `INR ${greetingCard.price}`) : ''}`}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="container mx-auto px-6 py-24 min-h-screen relative">
       <FloatingCouponDrawer shouldShow={true} className="fixed left-4 top-24 z-40" />
       <h1 className="text-4xl font-serif text-center mb-12">Checkout</h1>
@@ -730,20 +894,162 @@ const Checkout = () => {
               <p className="text-xs text-gray-500 mt-1">Select an existing address or add another address below.</p>
             </div>
 
-            {addresses.length === 0 ? (
-              <div className="text-center py-10 px-4 border-2 border-dashed border-rose-200 rounded-2xl bg-rose-50/30">
-                <FaMapMarkerAlt className="w-10 h-10 text-rose-400 mx-auto mb-3" />
-                <h3 className="font-serif text-lg text-gray-800 mb-1">No saved addresses</h3>
-                <p className="text-sm text-gray-500 mb-5 max-w-sm mx-auto">
-                  Please add a delivery address to complete your order.
-                </p>
-                <button
-                  type="button"
-                  onClick={handleOpenAddAddress}
-                  className="bg-rose-500 hover:bg-rose-600 text-white font-medium px-6 py-2.5 rounded-xl inline-flex items-center gap-2 shadow-md transition-colors"
-                >
-                  <FaPlus className="text-xs" /> Add Shipping Address
-                </button>
+            {showAddressModal ? (
+              <div className="bg-white border border-gray-200 rounded-xl p-5 md:p-6 shadow-sm animate-fade-in mt-4">
+                <div className="flex items-center justify-between mb-5 border-b border-gray-100 pb-4">
+                  <h3 className="text-lg font-serif text-gray-900">
+                    {editingAddressId ? 'Edit Shipping Address' : 'Add New Shipping Address'}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddressModal(false)}
+                    className="text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+                <form onSubmit={handleSaveAddress} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+                      Address Type
+                    </label>
+                    <div className="flex gap-2">
+                      {['Home', 'Work', 'Other'].map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setAddressForm({ ...addressForm, addressType: type })}
+                          className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            addressForm.addressType === type
+                              ? 'bg-rose-500 text-white shadow-sm'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          {type}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      House/Flat No., Building, Street, Area <span className="text-rose-500">*</span>
+                    </label>
+                    <textarea
+                      rows="2"
+                      placeholder="e.g. Flat 402, Sunshine Apts, 5th Cross, MG Road"
+                      value={addressForm.street}
+                      onChange={(e) => setAddressForm({ ...addressForm, street: e.target.value })}
+                      required
+                      className="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none resize-none transition-all"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        PIN Code <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="6-digit PIN"
+                        maxLength={6}
+                        value={addressForm.postalCode}
+                        onChange={handlePincodeChange}
+                        required
+                        className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Phone Number <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="10-digit mobile number"
+                        maxLength={15}
+                        value={addressForm.phone}
+                        onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value.replace(/\D/g, '') })}
+                        required
+                        className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        City <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Mumbai"
+                        value={addressForm.city}
+                        onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
+                        required
+                        className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        State <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Maharashtra"
+                        value={addressForm.state}
+                        onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
+                        required
+                        className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Landmark <span className="text-gray-400 font-normal">(Optional)</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Near City Mall"
+                        value={addressForm.landmark}
+                        onChange={(e) => setAddressForm({ ...addressForm, landmark: e.target.value })}
+                        className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Country
+                      </label>
+                      <input
+                        type="text"
+                        value={addressForm.country}
+                        onChange={(e) => setAddressForm({ ...addressForm, country: e.target.value })}
+                        required
+                        className="w-full border border-gray-300 rounded-xl p-2.5 text-sm bg-gray-50 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddressModal(false)}
+                      disabled={addressSaving}
+                      className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={addressSaving}
+                      className="bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                    >
+                      {addressSaving ? 'Saving...' : (editingAddressId ? 'Save Changes' : 'Save & Deliver Here')}
+                    </button>
+                  </div>
+                </form>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -843,12 +1149,20 @@ const Checkout = () => {
 
 
           {/* Payment Section */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-            <h2 className="text-2xl font-serif mb-6">Payment Method</h2>
-            <p className="text-gray-700 text-sm">
-              All orders are paid online securely via Razorpay. You will be redirected to the
-              Razorpay payment gateway after clicking Place Order.
-            </p>
+          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-serif text-gray-900">Payment Method</h2>
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 uppercase tracking-wider">Prepaid Only</span>
+            </div>
+            <div className="p-4 border border-blue-100 bg-blue-50/30 rounded-xl flex items-start gap-3">
+              <FaShieldAlt className="text-blue-500 mt-0.5 text-lg flex-shrink-0" />
+              <div>
+                <p className="font-medium text-gray-900 text-sm">Secure Online Payment</p>
+                <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                  Pay securely via Razorpay (UPI, Cards, NetBanking). You will be redirected to the payment gateway after clicking Place Order. Cash on Delivery is currently unavailable.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -856,15 +1170,38 @@ const Checkout = () => {
         {/* Right Side: Order Summary */}
         <div className="lg:w-1/3">
            <div className="bg-rose-50 p-8 rounded-lg sticky top-24">
-              <h3 className="font-serif text-2xl mb-6">Your Order</h3>
-              <div className="space-y-4 mb-8 max-h-60 overflow-y-auto pr-2">
+              <h3 className="font-serif text-2xl mb-4">Your Order</h3>
+
+              {/* Free Shipping Progress Bar */}
+              <FreeShippingBar 
+                subtotal={subtotal} 
+                isCouponFreeShipping={appliedCoupon?.isFreeShipping} 
+                threshold={999} 
+              />
+
+              <div className="space-y-3 mb-4 max-h-60 overflow-y-auto pr-2">
                 {cartItems.map(item => (
-                  <div key={item.product._id} className="flex justify-between items-center text-sm">
-                    <div className="flex items-center gap-3">
-                       <span className="text-gray-500">{item.quantity}x</span>
-                       <span className="truncate max-w-[150px]">{item.product.name} {item.size && <span className="text-gray-400 text-xs ml-1">(Size: {item.size})</span>}</span>
+                  <div key={item.product?._id || item._id} className="flex justify-between items-center text-sm py-1.5 border-b border-rose-100/50 last:border-0 group">
+                    <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                       <span className="text-gray-400 font-medium text-xs flex-shrink-0">{item.quantity}x</span>
+                       <span className="truncate text-xs sm:text-sm text-gray-800 font-medium">
+                         {item.product?.name} {item.size && <span className="text-gray-400 text-xs ml-1">({item.size})</span>}
+                       </span>
                     </div>
-                    <span>INR {item.quantity * item.product.price}</span>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="font-semibold text-xs sm:text-sm text-gray-900">
+                        INR {(item.quantity || 1) * (item.product?.price || 0)}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveItem(item)}
+                        className="text-gray-300 hover:text-rose-500 p-1 rounded hover:bg-rose-100/50 transition-colors"
+                        title="Remove from order"
+                        aria-label="Remove item"
+                      >
+                        <FaTrash size={11} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -876,29 +1213,92 @@ const Checkout = () => {
                     <FaGift className="text-lg" />
                     <h4 className="font-serif text-lg">Add a Finishing Touch</h4>
                   </div>
-                  <div className="space-y-3">
-                    {addons.map((addon) => (
-                      <div key={addon._id} className="flex items-center bg-white p-2 rounded shadow-sm border border-gray-100">
-                        <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden mr-3 flex-shrink-0">
-                          <img 
-                            src={addon.images?.[0] || 'https://picsum.photos/150/150?grayscale'} 
-                            alt={addon.name} 
-                            className="w-full h-full object-cover" 
+                  <div className="flex overflow-x-auto gap-3 pb-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    {/* Greeting Card UI */}
+                    {greetingCard && (
+                      <div className="relative flex-shrink-0 w-28 bg-white p-2.5 rounded-xl shadow-sm border border-gray-100 hover:border-rose-200 transition-all flex flex-col items-center snap-start">
+                        <div className="w-full aspect-square bg-rose-50 rounded-lg overflow-hidden mb-2 relative group/img">
+                          <img
+                            src={greetingCard?.images?.[0] || 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto/q_auto/v1788173333/bdaycard_yl0wq5.avif'}
+                            alt="Greeting Card"
+                            className="w-full h-full object-cover transition-transform group-hover/img:scale-105"
                           />
+                          {/* Action Button overlaid on image */}
+                          {cartItems.some(ci => (ci.product?._id || ci.product) === greetingCardId) ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const cardItem = cartItems.find(ci => (ci.product?._id || ci.product) === greetingCardId);
+                                if (cardItem) handleRemoveItem(cardItem);
+                              }}
+                              className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/95 shadow-sm text-rose-500 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center transition-all group/rem"
+                              title="Remove from order"
+                            >
+                              <FaTimes size={10} className="hidden group-hover/rem:block" />
+                              <FaCheckCircle size={11} className="block group-hover/rem:hidden text-emerald-500" />
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={handleAddGreetingCard}
+                              className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/95 shadow-sm text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all"
+                              title="Add Greeting Card"
+                            >
+                              <FaPlus size={10} />
+                            </button>
+                          )}
                         </div>
-                        <div className="flex-grow">
-                          <h5 className="font-medium text-xs text-gray-800 line-clamp-1">{addon.name}</h5>
-                          <p className="text-rose-600 font-semibold text-xs">INR {addon.price}</p>
+                        <div className="text-center w-full px-0.5">
+                          <h5 className="font-medium text-xs text-gray-800 truncate" title="Greeting Card">Greeting Card</h5>
+                          <p className="text-rose-600 font-semibold text-[11px] mt-0.5">
+                            {greetingCard.price === 0 ? 'Free' : `INR ${greetingCard.price}`}
+                          </p>
                         </div>
-                        <button 
-                          onClick={() => handleAddonToCart(addon)}
-                          className="ml-2 w-7 h-7 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-colors flex-shrink-0"
-                          title="Add to Cart"
-                        >
-                          <FaPlus size={10} />
-                        </button>
                       </div>
-                    ))}
+                    )}
+
+                    {addons.map((addon) => {
+                      const existingItem = cartItems.find(
+                        (ci) => (ci.product?._id || ci.product) === addon._id
+                      );
+                      const isAdded = Boolean(existingItem);
+
+                      return (
+                        <div key={addon._id} className="relative flex-shrink-0 w-28 bg-white p-2.5 rounded-xl shadow-sm border border-gray-100 hover:border-rose-200 transition-all flex flex-col items-center snap-start">
+                          <div className="w-full aspect-square bg-gray-50 rounded-lg overflow-hidden mb-2 relative group/img">
+                            <img 
+                              src={addon.images?.[0] || 'https://picsum.photos/150/150?grayscale'} 
+                              alt={addon.name} 
+                              className="w-full h-full object-cover transition-transform group-hover/img:scale-105" 
+                            />
+                            {isAdded ? (
+                              <button 
+                                type="button"
+                                onClick={() => handleRemoveItem(existingItem)}
+                                className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/95 shadow-sm text-rose-500 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center transition-all group/btn"
+                                title="Remove from order"
+                              >
+                                <FaTimes size={10} className="hidden group-hover/btn:block" />
+                                <FaCheckCircle size={11} className="block group-hover/btn:hidden text-emerald-500" />
+                              </button>
+                            ) : (
+                              <button 
+                                type="button"
+                                onClick={() => handleAddonToCart(addon)}
+                                className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/95 shadow-sm text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all"
+                                title="Add to Cart"
+                              >
+                                <FaPlus size={10} />
+                              </button>
+                            )}
+                          </div>
+                          <div className="text-center w-full px-0.5">
+                            <h5 className="font-medium text-xs text-gray-800 truncate" title={addon.name}>{addon.name}</h5>
+                            <p className="text-rose-600 font-semibold text-[11px] mt-0.5">INR {addon.price}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -1052,190 +1452,22 @@ const Checkout = () => {
         </div>
       )}
 
-      {/* Add / Edit Address Modal */}
-      <AnimatePresence>
-        {showAddressModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden my-8"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Modal Header */}
-              <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-rose-50/40">
-                <div>
-                  <h3 className="text-xl font-serif text-gray-900">
-                    {editingAddressId ? 'Edit Shipping Address' : 'Add New Shipping Address'}
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    {editingAddressId ? 'Update your address details below.' : 'Enter your delivery location details.'}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAddressModal(false)}
-                  className="text-gray-400 hover:text-gray-700 p-2 rounded-full hover:bg-white transition-colors"
-                  aria-label="Close"
-                >
-                  <FaTimes />
-                </button>
-              </div>
-
-              {/* Modal Form */}
-              <form onSubmit={handleSaveAddress} className="p-6 space-y-4">
-                {/* Address Type selector */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Address Type
-                  </label>
-                  <div className="flex gap-2">
-                    {['Home', 'Work', 'Other'].map((type) => (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => setAddressForm({ ...addressForm, addressType: type })}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                          addressForm.addressType === type
-                            ? 'bg-rose-500 text-white shadow-sm'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                      >
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Street Address */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    House/Flat No., Building, Street, Area <span className="text-rose-500">*</span>
-                  </label>
-                  <textarea
-                    rows="2"
-                    placeholder="e.g. Flat 402, Sunshine Apts, 5th Cross, MG Road"
-                    value={addressForm.street}
-                    onChange={(e) => setAddressForm({ ...addressForm, street: e.target.value })}
-                    required
-                    className="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none resize-none transition-all"
-                  />
-                </div>
-
-                {/* City & State */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      City <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Mumbai"
-                      value={addressForm.city}
-                      onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
-                      required
-                      className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      State <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Maharashtra"
-                      value={addressForm.state}
-                      onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
-                      required
-                      className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
-                    />
-                  </div>
-                </div>
-
-                {/* PIN Code & Phone */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      PIN Code <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="6-digit PIN"
-                      maxLength={6}
-                      value={addressForm.postalCode}
-                      onChange={(e) => setAddressForm({ ...addressForm, postalCode: e.target.value })}
-                      required
-                      className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Phone Number <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="10-digit mobile number"
-                      maxLength={15}
-                      value={addressForm.phone}
-                      onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
-                      required
-                      className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
-                    />
-                  </div>
-                </div>
-
-                {/* Landmark & Country */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Landmark <span className="text-gray-400 font-normal">(Optional)</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Near City Mall"
-                      value={addressForm.landmark}
-                      onChange={(e) => setAddressForm({ ...addressForm, landmark: e.target.value })}
-                      className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Country
-                    </label>
-                    <input
-                      type="text"
-                      value={addressForm.country}
-                      onChange={(e) => setAddressForm({ ...addressForm, country: e.target.value })}
-                      required
-                      className="w-full border border-gray-300 rounded-xl p-2.5 text-sm bg-gray-50 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all"
-                    />
-                  </div>
-                </div>
-
-                {/* Submit Buttons */}
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddressModal(false)}
-                    disabled={addressSaving}
-                    className="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={addressSaving}
-                    className="bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
-                  >
-                    {addressSaving ? 'Saving...' : (editingAddressId ? 'Save Changes' : 'Save & Deliver Here')}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+    {/* Mobile Sticky Checkout Bar */}
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 lg:hidden z-40 shadow-[0_-8px_16px_-1px_rgba(0,0,0,0.05)]" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 1rem)' }}>
+      <div className="flex items-center justify-between max-w-lg mx-auto">
+        <div>
+          <p className="text-[11px] text-gray-500 uppercase font-semibold tracking-wider">Total Amount</p>
+          <p className="font-bold text-lg text-gray-900">INR {total}</p>
+        </div>
+        <button 
+          onClick={handleCheckoutClick}
+          disabled={cartItems.length === 0 || !selectedAddress || razorpayLoading}
+          className="bg-black text-white px-8 py-3.5 rounded-xl text-sm font-semibold tracking-wide shadow-md disabled:opacity-50 transition-colors"
+        >
+          {razorpayLoading ? 'Processing...' : 'Place Order'}
+        </button>
+      </div>
+    </div>
 
     </>
   );

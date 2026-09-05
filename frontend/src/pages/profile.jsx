@@ -1,13 +1,15 @@
 import { Helmet } from 'react-helmet-async';
 import { useState, useEffect } from 'react';
-import { FaPlus, FaTrash, FaMapMarkerAlt, FaEdit, FaBox } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaMapMarkerAlt, FaEdit, FaBox, FaTimes } from 'react-icons/fa';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useCart } from '../components/CartContext';
 
 const Profile = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { clearCart } = useCart();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'addresses');
   const [addresses, setAddresses] = useState([]);
@@ -264,6 +266,29 @@ const Profile = () => {
     await updateAddresses(updatedAddresses);
   };
 
+  const handlePincodeChange = async (e) => {
+    const pin = e.target.value.replace(/\D/g, '').substring(0, 6);
+    setNewAddress({ ...newAddress, postalCode: pin });
+    
+    if (pin.length === 6) {
+      try {
+        const res = await axios.get(`https://api.postalpincode.in/pincode/${pin}`);
+        if (res.data && res.data[0].Status === 'Success') {
+          const details = res.data[0].PostOffice[0];
+          setNewAddress(prev => ({
+            ...prev,
+            postalCode: pin,
+            city: details.District || details.Block || prev.city,
+            state: details.State || prev.state
+          }));
+          toast.success("City & State auto-filled!");
+        }
+      } catch (err) {
+        console.error("Error fetching pincode:", err);
+      }
+    }
+  };
+
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     if (profileData.password && profileData.password !== profileData.confirmPassword) {
@@ -324,6 +349,7 @@ const Profile = () => {
               onClick={() => {
                 toast.dismiss(t.id);
                 localStorage.removeItem('userInfo');
+                clearCart();
                 navigate('/login');
               }}
               className="w-1/2 p-4 text-sm font-bold text-rose-600 hover:bg-rose-50 border-l border-gray-200 transition-colors"
@@ -396,72 +422,136 @@ const Profile = () => {
               </div>
 
               {isAdding && (
-                <div className="bg-white border border-gray-200 p-6 rounded-lg mb-8 shadow-sm animate-fade-in">
-                  <h3 className="font-serif text-lg mb-4">{editingId ? 'Edit Address' : 'Add New Address'}</h3>
-                  <form onSubmit={handleSaveAddress} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input 
-                      placeholder="House/Flat No., Building Name, Street, Area" 
-                      className="border p-2 rounded md:col-span-2 focus:ring-1 focus:ring-rose-500 outline-none" 
-                      value={newAddress.street}
-                      onChange={(e) => setNewAddress({...newAddress, street: e.target.value})}
-                      required
-                    />
-                    <input 
-                      placeholder="City" 
-                      className="border p-2 rounded focus:ring-1 focus:ring-rose-500 outline-none" 
-                      value={newAddress.city}
-                      onChange={(e) => setNewAddress({...newAddress, city: e.target.value})}
-                      required
-                    />
-                    <input 
-                      placeholder="State/Province" 
-                      className="border p-2 rounded focus:ring-1 focus:ring-rose-500 outline-none" 
-                      value={newAddress.state}
-                      onChange={(e) => setNewAddress({...newAddress, state: e.target.value})}
-                      required
-                    />
-                    <input 
-                      placeholder="PIN/ZIP Code" 
-                      className="border p-2 rounded focus:ring-1 focus:ring-rose-500 outline-none" 
-                      value={newAddress.postalCode}
-                      onChange={(e) => setNewAddress({...newAddress, postalCode: e.target.value})}
-                      required
-                    />
-                    <input 
-                      placeholder="Phone Number" 
-                      type="tel"
-                      className="border p-2 rounded focus:ring-1 focus:ring-rose-500 outline-none" 
-                      value={newAddress.phone}
-                      onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
-                      required
-                    />
-                    <input 
-                      placeholder="Country" 
-                      className="border p-2 rounded focus:ring-1 focus:ring-rose-500 outline-none" 
-                      value={newAddress.country}
-                      onChange={(e) => setNewAddress({...newAddress, country: e.target.value})}
-                      required
-                    />
-                    <input 
-                      placeholder="Nearby Landmark (Optional)" 
-                      className="border p-2 rounded md:col-span-2 focus:ring-1 focus:ring-rose-500 outline-none" 
-                      value={newAddress.landmark}
-                      onChange={(e) => setNewAddress({...newAddress, landmark: e.target.value})}
-                    />
-                    <select
-                      className="border p-2 rounded focus:ring-1 focus:ring-rose-500 outline-none"
-                      value={newAddress.addressType}
-                      onChange={(e) => setNewAddress({...newAddress, addressType: e.target.value})}
-                    >
-                      <option value="Home">Home</option>
-                      <option value="Work">Work</option>
-                      <option value="Other">Other</option>
-                    </select>
-                    <div className="md:col-span-2 mt-2">
-                      <button type="submit" className="bg-gray-900 text-white px-6 py-2 rounded hover:bg-gray-800 transition-colors">
+                <div className="bg-white border border-gray-200 rounded-xl p-5 md:p-6 mb-8 shadow-sm animate-fade-in">
+                  <div className="flex items-center justify-between mb-5 border-b border-gray-100 pb-4">
+                    <h3 className="text-lg font-serif text-gray-900">
+                      {editingId ? 'Edit Address' : 'Add New Address'}
+                    </h3>
+                    <button type="button" onClick={handleCancelEdit} className="text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-100 transition-colors">
+                      <FaTimes />
+                    </button>
+                  </div>
+                  <form onSubmit={handleSaveAddress} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">Address Type</label>
+                      <div className="flex gap-2">
+                        {['Home', 'Work', 'Other'].map((type) => (
+                          <button
+                            key={type}
+                            type="button"
+                            onClick={() => setNewAddress({ ...newAddress, addressType: type })}
+                            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                              newAddress.addressType === type ? 'bg-rose-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                          >
+                            {type}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        House/Flat No., Building, Street, Area <span className="text-rose-500">*</span>
+                      </label>
+                      <textarea 
+                        rows="2"
+                        placeholder="e.g. Flat 402, Sunshine Apts, 5th Cross, MG Road" 
+                        className="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none resize-none transition-all" 
+                        value={newAddress.street}
+                        onChange={(e) => setNewAddress({...newAddress, street: e.target.value})}
+                        required
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                          PIN Code <span className="text-rose-500">*</span>
+                        </label>
+                        <input 
+                          type="text"
+                          maxLength={6}
+                          placeholder="6-digit PIN" 
+                          className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all" 
+                          value={newAddress.postalCode}
+                          onChange={handlePincodeChange}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                          Phone Number <span className="text-rose-500">*</span>
+                        </label>
+                        <input 
+                          type="tel"
+                          maxLength={15}
+                          placeholder="10-digit mobile number" 
+                          className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all" 
+                          value={newAddress.phone}
+                          onChange={(e) => setNewAddress({...newAddress, phone: e.target.value.replace(/\D/g, '')})}
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                          City <span className="text-rose-500">*</span>
+                        </label>
+                        <input 
+                          type="text"
+                          placeholder="e.g. Mumbai" 
+                          className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all" 
+                          value={newAddress.city}
+                          onChange={(e) => setNewAddress({...newAddress, city: e.target.value})}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                          State <span className="text-rose-500">*</span>
+                        </label>
+                        <input 
+                          type="text"
+                          placeholder="e.g. Maharashtra" 
+                          className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all" 
+                          value={newAddress.state}
+                          onChange={(e) => setNewAddress({...newAddress, state: e.target.value})}
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-700 mb-1">
+                          Landmark <span className="text-gray-400 font-normal">(Optional)</span>
+                        </label>
+                        <input 
+                          type="text"
+                          placeholder="e.g. Near City Mall" 
+                          className="w-full border border-gray-300 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all" 
+                          value={newAddress.landmark}
+                          onChange={(e) => setNewAddress({...newAddress, landmark: e.target.value})}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-700 mb-1">Country</label>
+                        <input 
+                          type="text"
+                          value={newAddress.country}
+                          onChange={(e) => setNewAddress({...newAddress, country: e.target.value})}
+                          className="w-full border border-gray-300 rounded-xl p-2.5 text-sm bg-gray-50 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all" 
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 mt-2">
+                      <button type="button" onClick={handleCancelEdit} className="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-colors">
+                        Cancel
+                      </button>
+                      <button type="submit" className="bg-rose-500 text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:bg-rose-600 transition-colors shadow-md">
                         {editingId ? 'Update Address' : 'Save Address'}
                       </button>
-                      <button type="button" onClick={handleCancelEdit} className="ml-4 text-gray-500 hover:text-gray-700">Cancel</button>
                     </div>
                   </form>
                 </div>

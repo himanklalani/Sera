@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaCheckCircle } from 'react-icons/fa';
 import confetti from 'canvas-confetti';
+import { useCart } from '../components/CartContext';
 
 const OrderSuccess = () => {
   const fireConfetti = () => {
@@ -50,8 +51,11 @@ const OrderSuccess = () => {
   };
 
   const location = useLocation();
+  const { clearCart } = useCart();
 
   useEffect(() => {
+    // Clear cart state on order success (safety net)
+    clearCart();
     // Fire confetti after component mounts
     const timer = setTimeout(() => {
       fireConfetti();

@@ -461,7 +461,7 @@ const FlyingOfferBanner = ({ onComplete }) => {
 // ============================================
 // Updated: Floating Coupon Drawer with Multiple Coupons
 // ============================================
-export const FloatingCouponDrawer = ({ shouldShow }) => {
+export const FloatingCouponDrawer = ({ shouldShow, className = "fixed left-4 top-[25%] md:top-[32%] z-50" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [coupons, setCoupons] = useState([]);
 
@@ -525,7 +525,7 @@ export const FloatingCouponDrawer = ({ shouldShow }) => {
               ease: [0.34, 1.56, 0.64, 1],
               delay: 0.2 
             }}
-            className="fixed left-4 top-[25%] md:top-[32%] z-50"
+            className={className}
           >
             <motion.button
               onClick={() => setIsOpen(!isOpen)}

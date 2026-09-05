@@ -28,6 +28,11 @@ app.use(cors({
       return callback(null, true);
     }
     
+    // Allow any localhost or 127.0.0.1 port in local development (5173, 5174, etc.)
+    if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+
     // Allow Vercel preview URLs (*.vercel.app)
     if (origin.endsWith('.vercel.app')) {
       return callback(null, true);

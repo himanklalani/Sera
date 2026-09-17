@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt, FaInstagram, FaTint, FaGem, FaTruck, FaLink, FaWhatsapp, FaEnvelope, FaShareSquare, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaStar, FaHeart, FaMinus, FaPlus, FaShoppingCart, FaShareAlt, FaInstagram, FaTint, FaGem, FaTruck, FaLink, FaWhatsapp, FaEnvelope, FaShareSquare, FaChevronLeft, FaChevronRight, FaArrowRight } from 'react-icons/fa';
 import { useCart } from '../components/CartContext';
 import { copyToClipboard, nativeShare } from '../utils/shareUtils';
 
@@ -14,7 +14,7 @@ const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart: addToCartContext } = useCart();
+  const { addToCart: addToCartContext, cartItems } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -765,24 +765,55 @@ const ProductDetails = () => {
               </span>
             </div>
 
-            {/* Add to Cart Button */}
-            <button
-              onClick={handleAddToCart}
-              disabled={addingToCart || product.stock === 0}
-              className="w-full bg-[#e3004b] text-white py-3.5 px-8 rounded-xl uppercase tracking-widest font-semibold text-sm shadow-md hover:shadow-lg hover:bg-[#cc0043] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-3 mb-6"
-            >
-              {addingToCart ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                  Adding...
-                </>
-              ) : (
-                <>
+            {/* Add to Cart / Go to Cart Button */}
+            {product && cartItems?.some((item) => {
+              const prodId = item?.product?._id || item?.product;
+              if (prodId?.toString() !== product._id?.toString()) return false;
+              const isApparel = product.category?.toLowerCase().includes('apparel');
+              if (isApparel && selectedSize && item.size) {
+                return item.size === selectedSize;
+              }
+              return true;
+            }) ? (
+              <div className="mb-6">
+                <button
+                  onClick={() => navigate('/cart')}
+                  className="w-full bg-[#e3004b] text-white py-3.5 px-8 rounded-xl uppercase tracking-widest font-semibold text-sm shadow-md hover:shadow-lg hover:bg-[#cc0043] focus:outline-none transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
+                >
                   <FaShoppingCart className="w-4 h-4" />
-                  {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-                </>
-              )}
-            </button>
+                  <span>Go to Cart</span>
+                  <FaArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                </button>
+                <div className="text-center mt-2.5">
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    disabled={addingToCart || product.stock === 0}
+                    className="text-xs font-semibold text-gray-500 hover:text-rose-600 transition-colors inline-flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                  >
+                    {addingToCart ? 'Adding...' : '+ Add another to cart'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={handleAddToCart}
+                disabled={addingToCart || product.stock === 0}
+                className="w-full bg-[#e3004b] text-white py-3.5 px-8 rounded-xl uppercase tracking-widest font-semibold text-sm shadow-md hover:shadow-lg hover:bg-[#cc0043] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-3 mb-6 cursor-pointer"
+              >
+                {addingToCart ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  <>
+                    <FaShoppingCart className="w-4 h-4" />
+                    {product?.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                  </>
+                )}
+              </button>
+            )}
 
             {/* Features/Trust Badges (Hidden for Apparel) */}
             {!(product.category?.toLowerCase().includes('apparel')) && (

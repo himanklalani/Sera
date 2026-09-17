@@ -16,7 +16,9 @@ Sera uses a modern luxury aesthetic built with Tailwind CSS v4, custom Framer Mo
 * **Baby Pink**: `#ffe4e6` (Soft page backgrounds, overlay containers, and subtle card fills).
 * **Rose 50**: `#fff1f2` (Secondary background tint, product highlight cards, hover states).
 * **Rose 500 / Theme Accent**: `#f43f5e` (Primary interactive color: CTA buttons, active navigation indicators, badges, focused borders).
+* **Rose 600**: `#e11d48` (Primary button hover states and focused accents).
 * **Gold Accent**: `#c5a666` (Applied to luxury callouts, transactional email headers, and premium highlights).
+* **Emerald Accent**: `#10b981` (Applied to unlocked Free Shipping bars, success badges, and delivered orders).
 * **Body Background**: `#ffffff` (Clean white background for sharp contrast).
 * **Body Text**: `#1a1a1a` (High-contrast charcoal black).
 
@@ -31,12 +33,14 @@ Sera uses a modern luxury aesthetic built with Tailwind CSS v4, custom Framer Mo
 Sera features two core product pillars: **Anti-tarnish waterproof jewelry** and **chic women's apparel & tops**.
 
 ### Product Taxonomy
-1. **EARRINGS**: Anti-tarnish studs, hoops, drop earrings, and huggies.
-2. **NECKLACES**: Minimalist anti-tarnish pendants, layered chains, and chokers.
-3. **BRACELETS**: Anti-tarnish cuff bracelets, chain bracelets, and bangles.
-4. **COMBOS**: Curated jewelry sets combining matching necklaces, earrings, and bracelets at bundle prices.
-5. **APPAREL**: Premium women's tops, clothes, and everyday wear crafted from breathable cotton blend fabrics.
-6. **RINGS (PAUSED / BACKEND-ONLY)**: The `Ring` category schema and product records exist in the backend MongoDB database for data safety and legacy support, but **Rings are completely removed from the frontend UI, header navigation, category grids, and shop filters**. Ring sales are currently stopped.
+1. **EARRINGS** (`earrings`): Anti-tarnish studs, hoops, drop earrings, and huggies.
+2. **NECKLACES** (`necklaces`): Minimalist anti-tarnish pendants, layered chains, and chokers.
+3. **BRACELETS** (`bracelets`): Anti-tarnish cuff bracelets, chain bracelets, and bangles.
+4. **COMBOS** (`combos`): Curated jewelry sets combining matching necklaces, earrings, and bracelets at bundle prices.
+5. **APPAREL** (`apparel`): Premium women's tops, clothes, and everyday wear crafted from breathable cotton blend fabrics.
+6. **RINGS (`rings` - PAUSED / BACKEND-ONLY)**: The `Ring` category schema and product records exist in the backend MongoDB database for data safety and legacy support, but **Rings are completely removed from the frontend UI, header navigation, category grids, and shop filters**. Ring sales are currently stopped.
+
+> **Note on Storage**: While displayed in uppercase in UI headings, Mongoose schemas use `lowercase: true` on `category`, `tags`, and `aesthetics`. MongoDB documents store categories in lowercase (`earrings`, `necklaces`, `bracelets`, `combos`, `apparel`, `rings`).
 
 ### Keyword & Terminology Rules
 * **STRICTLY FORBIDDEN / AVOIDED TERMS**: **Do NOT use "18k", "plating", "plated", "PVD Coating", "PVD", "Hypoallergenic", "Stainless Steel", "Everyday Luxury", or "Skin-Friendly"** in UI copy, meta tags, schema markup, or seed scripts.
@@ -61,26 +65,32 @@ Sera features two core product pillars: **Anti-tarnish waterproof jewelry** and 
 Built with React (Vite) and React Router DOM v7.
 
 ### Application Root & Context Providers (`App.jsx`)
-* **`<CartProvider>` (`CartContext.jsx`)**: Manages shopping cart state, local storage persistence, subtotal calculations, item quantity adjustments, and MongoDB API synchronization.
+* **`<HelmetProvider>` (`react-helmet-async`)**: Wraps the entire application to manage document head tags, dynamic SEO titles, canonical links, and OpenGraph metadata.
+* **`<Preloader />` (`Preloader.jsx`)**: Preloads hero textures and core category visuals into memory before rendering.
+* **`<Router>` (`BrowserRouter`)**: HTML5 history API router.
+* **`<CartProvider>` (`CartContext.jsx`)**: Manages shopping cart state, local storage persistence for guests (`sera_guest_cart`), subtotal calculations, item quantity bounds, and MongoDB API synchronization (`POST /api/cart/sync`).
+* **`<AxiosInterceptor />` (`AxiosInterceptor.jsx`)**: Attaches JWT authorization headers to outgoing HTTP requests, handles global 401/403 states, and dispatches `StorageEvent` for instant same-tab guest cart fallback.
+* **`<Analytics />` (`Analytics.jsx`)**: Listens to router location changes and dispatches Google Analytics 4 (GA4) pageview events.
 * **`<ScrollToTop />` (`ScrollToTop.jsx`)**: Resets window scroll position to `(0, 0)` on every page transition.
-* **`<AxiosInterceptor />` (`AxiosInterceptor.jsx`)**: Attaches JWT authorization headers to outgoing HTTP requests and handles global 401 unauthenticated states.
-* **`<Toaster position="top-center" />`**: Renders top-center toast popups.
+* **`<CookieConsent />` (`CookieConsent.jsx`)**: Cookie consent and privacy policy confirmation banner.
+* **`<Toaster position="top-center" />`**: Renders top-center toast popups via `react-hot-toast`.
 
-### Router Map (All 26 Pages)
+### Router Map (All 26 Pages + 404)
 
 #### Core E-Commerce Pages
 * `/` ➔ `Home.jsx`: Hero WebGL slider, dynamic flyer popups, category bento cards, gifting 3D carousel, aesthetics collections, floating coupon drawer.
-* `/shop` ➔ `Shop.jsx`: Dynamic product catalog with keyword search, category filter, aesthetic collection filter, sorting, and price range filters synced to URL query strings.
+* `/shop` ➔ `Shop.jsx`: Dynamic product catalog with keyword search, category filter, aesthetic collection filter, sorting, and price range filters synced to URL query strings. Anchor tag pagination for SEO crawlability.
+* `/shop/:category` ➔ `Shop.jsx`: Direct category landing pages (e.g., `/shop/apparel`, `/shop/necklaces`, `/shop/earrings`, `/shop/bracelets`, `/shop/combos`).
 * `/shop/collection/:aesthetic` ➔ `Shop.jsx`: Direct collection deep-linking (e.g., `/shop/collection/minimalist`, `/shop/collection/combos`).
 * `/product/:id` ➔ `ProductDetails.jsx`: Product view with image gallery, size options, add-to-cart, review creation/listing, share popover, and "Complete the Look" accent pairs.
-* `/cart` ➔ `Cart.jsx`: Full cart management page, item quantities, free shipping progress bar (threshold ₹999), promo code input, subtotal summary.
-* `/checkout` ➔ `Checkout.jsx`: Shipping address selector/form, coupon code validation, order breakdown, Razorpay online payment integration.
-* `/order-success` ➔ `OrderSuccess.jsx`: Order confirmation view displaying order summary, delivery timeline, invoice download button, and confetti particle effects.
+* `/cart` ➔ `Cart.jsx`: Full cart management page, item quantities, `FreeShippingBar` (threshold INR 999), promo code input, subtotal summary, greeting card addon.
+* `/checkout` ➔ `Checkout.jsx`: Interactive shipping address cards with in-checkout Add/Edit/Delete address modal, coupon code validation, order breakdown, Razorpay online payment integration, and COD.
+* `/order-success` ➔ `OrderSuccess.jsx`: Order confirmation view displaying order summary, delivery timeline, invoice download button, confetti particle effects, and safety-net `clearCart()` call on mount.
 * `/profile` ➔ `profile.jsx`: User account management with tabs for Orders (with invoice download, cancellation, exchange request), Addresses (CRUD), Wishlist, Account Details, and custom styled Logout toast.
 
 #### Authentication Pages
-* `/login` ➔ `login.jsx`: User login form with JWT token storage.
-* `/register` ➔ `register.jsx`: Registration form triggering email OTP verification via TempUser pipeline.
+* `/login` ➔ `login.jsx`: User login form with JWT token storage, Google OAuth integration, and automatic guest cart sync (`syncGuestCart`). Preserves `?redirect=` target.
+* `/register` ➔ `register.jsx`: Registration form triggering email OTP verification via TempUser pipeline. Preserves `?redirect=` target.
 * `/forgot-password` ➔ `ForgotPassword.jsx`: Triggers password reset OTP via Brevo SMTP.
 * `/reset-password` ➔ `ResetPassword.jsx`: Verifies reset OTP and updates user password.
 
@@ -89,7 +99,7 @@ Built with React (Vite) and React Router DOM v7.
 * `/privacy-policy` ➔ `PrivacyPolicy.jsx`: Compliance policies.
 * `/terms` ➔ `TermsPage.jsx`: Terms of service.
 * `/returns` ➔ `Returns.jsx`: Returns, exchange policy, and cancellation policy documentation.
-* `/contact` ➔ `Contact.jsx`: Contact form submitting messages directly to backend database.
+* `/contact` ➔ `Contact.jsx`: Contact form submitting messages directly to backend database (max 2 per email).
 * `/jewelry-care` ➔ `JewelryCare.jsx`: Instructions for maintaining anti-tarnish jewelry.
 * `/materials` ➔ `MaterialsGuide.jsx`: Explanations of materials used (Anti-tarnish metals, Cotton blend fabrics).
 
@@ -99,10 +109,13 @@ Built with React (Vite) and React Router DOM v7.
 * `/sustainability` ➔ `Sustainability.jsx`: Ethical sourcing and eco-friendly packaging commitments.
 * `/sitemap` ➔ `Sitemap.jsx`: HTML sitemap for human navigation.
 * `/journal` ➔ `BlogList.jsx`: Editorial blog index.
-* `/journal/:slug` ➔ `BlogPost.jsx`: Single article view with dynamic markdown rendering.
+* `/journal/:slug` ➔ `BlogPost.jsx`: Single article view with dynamic markdown/HTML rendering and social share buttons.
 
 #### Admin Control Panel
 * `/admin` ➔ `AdminDashboard.jsx`: Comprehensive admin control panel containing tabs for Products, Orders, Categories, Coupons (with flyer visibility toggle & custom descriptions), Contacts, and Blogs.
+
+#### Not Found (404)
+* `*` ➔ `NotFound.jsx`: Soft 404 remediation page rendering `<meta name="robots" content="noindex">` via `SEO.jsx` and "Return to Shop" CTA.
 
 ---
 
@@ -134,8 +147,10 @@ All UI transitions utilize `framer-motion` for fluid 60fps animations.
 * **Shader Engine**: Three.js + GSAP driving custom fragment shaders for glass refraction, ripple effects, and frost distortions during slide changes.
 * **Mobile GPU Protection**: Fragment GLSL shader logic uses **branchless math** (eliminating `if` conditional branches in favor of `mix()` and `step()`) to prevent rendering crashes on mobile ARM Mali GPUs.
 
-### 6. Preloader Component (`Preloader.jsx`)
-* **Asset Pre-computation**: Blocks hero renders until all slide textures and core category images (Earrings, Bracelets, Necklaces, Combos, Apparel) are preloaded into browser cache.
+### 6. Free Shipping Progress Bar (`FreeShippingBar.jsx`)
+* Visual progress bar indicating how close the customer is to unlocking Free Shipping (threshold: subtotal > INR 999).
+* Reusable across `Cart.jsx` and `Checkout.jsx`.
+* Animates fill percentage with ease-out transitions (`bg-gradient-to-r from-rose-400 via-rose-500 to-rose-600`), and turns emerald with a congratulatory checkmark when unlocked or granted via coupon.
 
 ### 7. Welcome Offer Modal / Flying Banner (`Home.jsx`)
 * **Dynamic Backend Sync**: Fetches active flyer coupons from `/api/coupons/public`. Auto-hides completely if no flyer coupons exist.
@@ -165,7 +180,7 @@ All UI transitions utilize `framer-motion` for fluid 60fps animations.
 ### Free Shipping Threshold
 * **Rule**: Orders with subtotal **exceeding INR 999** automatically qualify for **Free Shipping**.
 * **Standard Rate**: Orders INR 999 or below incur a **INR 100 shipping fee**.
-* **Execution**: Consistently enforced across `Cart.jsx`, `Checkout.jsx`, and `TopBanner.jsx`.
+* **Execution**: Consistently enforced across `Cart.jsx`, `Checkout.jsx`, `paymentRoutes.js`, and `TopBanner.jsx`.
 
 ### Order Cancellation Lifecycle
 * **Pending Orders**: User can cancel via `/profile` with **100% refund** (0 fee).
@@ -174,12 +189,20 @@ All UI transitions utilize `framer-motion` for fluid 60fps animations.
 
 ### Exchange Policy
 * Customers can submit an exchange request within **3 days** of delivery. Free exchange applies to damaged or incorrect items; change-of-mind exchanges incur an INR 100 fee.
+* Admin can approve exchanges via `PUT /api/orders/:id/exchange/approve`.
 
-### Coupon Validation Rules (`/api/coupons/validate`)
+### Coupon Validation Rules (`/api/coupons/validate` & Backend Checkout)
 1. **Minimum Order Value**: Cart subtotal must meet `minOrderValue`.
 2. **First Order Only**: If `isFirstOrderOnly: true`, checks user's previous order history in MongoDB.
-3. **Usage Limits**: Verifies global `usageLimit` and per-user limit.
-4. **Read-Only**: `/validate` checks criteria without mutating usage counters (counters update only upon successful payment verification).
+3. **Usage Limits**: Verifies global `usageLimit` and `perUserLimit`.
+4. **Allowed Users**: If specified, checks if current user ID matches `allowedUsers`.
+5. **Read-Only `/validate`**: `/validate` checks criteria without mutating usage counters. Counters increment atomically ONLY upon successful payment verification.
+6. **Double-Check at Payment**: Both `/create-order` and `/verify-payment` re-validate the coupon on the server.
+
+### Address Management in Checkout
+* Users can maintain multiple saved addresses.
+* On `Checkout.jsx`, users can select between saved address cards, or add a new delivery address via an in-modal quick form that directly calls `PUT /api/auth/profile` and sets the new address as active.
+* Users can edit existing addresses inline or delete them with custom modal confirmation.
 
 ---
 
@@ -187,40 +210,170 @@ All UI transitions utilize `framer-motion` for fluid 60fps animations.
 
 Built with Node.js, Express, MongoDB, and Mongoose.
 
-* **`User.js`**: `name`, `email` (unique, lowercase), `password` (hashed with bcrypt), `phone`, `role` (`'user'` | `'admin'`), `addresses` (array of address subdocuments), `wishlist` (array of Product object references).
-* **`TempUser.js`**: Transient registration documents containing email details and an `otp` validation field with a 10-minute expiry window.
-* **`Product.js`**: `name`, `price`, `description`, `images` array (Cloudinary URLs), `category`, `aesthetics` array, `tags`, `stock`, `sales` count, `rating`, `numReviews`, `reviews` array, `accentPairs` array.
-* **`Order.js`**: `user`, `items` array, `shippingAddress`, `paymentMethod`, `paymentResult`, `totalPrice`, `status` (`'pending'`, `'processing'`, `'shipped'`, `'delivered'`, `'cancelled'`, `'exchange_requested'`, `'exchange_approved'`, `'exchanged'`), `cancellationFee`, `refundAmount`, `exchangeReason`.
-* **`Coupon.js`**: `code` (uppercase), `discountType` (`'percentage'` | `'fixed'`), `discountValue`, `isFreeShipping`, `minOrderValue`, `expiryDate`, `isActive`, `showInFlyer` (boolean), `description`, `usageLimit`, `usageCount`, `isFirstOrderOnly`.
-* **`Blog.js`**: `title`, `slug`, `content`, `excerpt`, `author`, `coverImage`, `published`.
-* **`Category.js`**: `name`, `image`, `description`.
-* **`Contact.js`**: `name`, `email`, `subject`, `message`, `status` (`'unread'` | `'read'`).
-* **`Newsletter.js`**: `email` (unique).
-* **`Review.js`**: `product`, `user`, `name`, `rating`, `comment`.
-* **`Cart.js`**: `user` (ref to User), `items` (array of `{ product (ref), quantity, size, note }`). One cart document per user. Guest carts are persisted in `localStorage` under key `sera_guest_cart` and bulk-synced to the DB via `POST /api/cart/sync` on login.
+### `User.js`
+* `name`: String, trimmed.
+* `email`: String, lowercase, unique, required.
+* `password`: String (hashed with bcrypt).
+* `phone`: String, unique, required.
+* `isEmailVerified`: Boolean (default true; users created only after OTP verification).
+* `role`: String enum (`'user'`, `'admin'`), default `'user'`.
+* `wishlist`: Array of ObjectIds referencing `Product`.
+* `addresses`: Array of address subdocuments:
+  - `addressType`: String (default `'Home'`)
+  - `street`: String
+  - `city`: String
+  - `state`: String
+  - `postalCode`: String
+  - `country`: String (default `'India'`)
+  - `phone`: String (optional per-address contact)
+  - `landmark`: String (optional)
+  - `isDefault`: Boolean
+* `isActive`: Boolean, default true.
+* `resetPasswordOtp`: String.
+* `resetPasswordExpires`: Date.
+* `authProvider`: String enum (`'local'`, `'google'`), default `'local'`.
+
+### `TempUser.js`
+* Transient registration document containing `name`, `email`, `password` (pre-hashed), `phone`, and an `otp` validation string with a 10-minute TTL index for automatic expiry.
+
+### `Product.js`
+* `name`: String, required, max 200 chars.
+* `description`: String, max 2000 chars.
+* `category`: String, lowercase, required (`earrings`, `necklaces`, `bracelets`, `combos`, `apparel`, `rings`).
+* `aesthetics`: Array of lowercase Strings (`minimalist`, `boho vibes`, `everyday glam`, `gifting`, `combos`, `statement`).
+* `price`: Number, required, min 0.
+* `images`: Array of Cloudinary URL Strings.
+* `stock`: Number, required, default 0.
+* `sales`: Number, default 0.
+* `views`: Number, default 0.
+* `rating`: Number, 0 to 5, default 0.
+* `numReviews`: Number, default 0.
+* `reviews`: Array of ObjectIds referencing `Review`.
+* `user`: ObjectId referencing `User` (admin creator).
+* `isActive`: Boolean, default true.
+* `isAddon`: Boolean, default false.
+* `featured`: Boolean, default false.
+* `sku`: String, unique, sparse.
+* `tags`: Array of lowercase Strings (`bestseller`, `new`, `sale`).
+* `accentPairs`: Array of ObjectIds referencing `Product` ("Complete the Look").
+* `isCombo`: Boolean, default false.
+* `comboItems`: Array of ObjectIds referencing `Product` (physical components).
+* **Indexes**: `{ category: 1 }`, `{ tags: 1 }`, `{ name: 'text', description: 'text', tags: 'text' }`, `{ rating: -1, numReviews: -1 }`, `{ featured: 1, createdAt: -1 }`.
+
+### `Order.js`
+* `user`: ObjectId referencing `User`, required.
+* `items`: Array of ordered items:
+  - `product`: ObjectId referencing `Product`, required.
+  - `quantity`: Number, min 1, required.
+  - `price`: Number, required (price snapshot at purchase time).
+  - `size`: String (apparel size).
+  - `name`: String (product title snapshot).
+  - `comboItems`: Array of ObjectIds referencing child products (snapshot for stock reversal on cancellation).
+  - `note`: String, max 450 chars (greeting card note).
+* `totalPrice`: Number, required.
+* `shippingPrice`: Number, default 0.
+* `couponCode`: String.
+* `couponDiscount`: Number, default 0.
+* `razorpayOrderId`: String.
+* `razorpayPaymentId`: String.
+* `razorpaySignature`: String.
+* `invoiceNumber`: String.
+* `status`: String enum (`'pending'`, `'processing'`, `'shipped'`, `'delivered'`, `'cancelled'`, `'exchange_requested'`, `'exchange_approved'`, `'exchanged'`), default `'pending'`.
+* `shippingAddress`: Subdocument with `street`, `city`, `state`, `postalCode`, `country`, `phone`, `landmark`.
+* `cancellationFee`: Number, default 0.
+* `exchangeFee`: Number, default 0.
+* `exchangeReason`: String, max 500 chars.
+* `refundAmount`: Number.
+* `deliveredAt`: Date.
+* `paymentMethod`: String enum (`'card'`, `'cod'`, `'upi'`, `'wallet'`), default `'cod'`.
+* `paymentStatus`: String enum (`'pending'`, `'paid'`, `'failed'`, `'refunded'`), default `'pending'`.
+* `trackingNumber`: String.
+* **Indexes**: `{ user: 1, 'items.product': 1, status: 1 }`, `{ user: 1, status: 1 }`, `{ status: 1, deliveredAt: -1 }`.
+
+### `Coupon.js`
+* `code`: String, unique, uppercase, required.
+* `discountType`: String enum (`'percentage'`, `'fixed'`), required.
+* `discountValue`: Number, required.
+* `minOrderValue`: Number, default 0.
+* `expiryDate`: Date.
+* `usageLimit`: Number.
+* `usageCount`: Number, default 0.
+* `perUserLimit`: Number, default 1.
+* `allowedUsers`: Array of ObjectIds referencing `User`.
+* `isActive`: Boolean, default true.
+* `isFreeShipping`: Boolean, default false.
+* `isFirstOrderOnly`: Boolean, default false.
+* `description`: String, max 500 chars.
+* `showInFlyer`: Boolean, default false.
+
+### `Blog.js`
+* `title`: String, required, trimmed.
+* `slug`: String, lowercase, unique, required.
+* `content`: String, required.
+* `coverImage`: String, default `''`.
+* `seoTitle`: String, default `''`.
+* `seoDescription`: String, default `''`.
+* `tags`: Array of Strings.
+* `isPublished`: Boolean, default false.
+* `author`: ObjectId referencing `User`, required.
+
+### `Category.js`
+* `name`: String, required, unique.
+* `image`: String.
+* `description`: String.
+
+### `Contact.js`
+* `name`: String, required.
+* `email`: String, lowercase, required.
+* `subject`: String.
+* `message`: String, required.
+* `status`: String enum (`'New'`, `'Read'`, `'Replied'`), default `'New'`.
+
+### `Newsletter.js`
+* `email`: String, lowercase, unique, required.
+
+### `Review.js`
+* `product`: ObjectId referencing `Product`, required.
+* `user`: ObjectId referencing `User`, required.
+* `name`: String, required.
+* `rating`: Number, 1 to 5, required.
+* `comment`: String, required.
+
+### `Cart.js`
+* `user`: ObjectId referencing `User`, unique, required.
+* `items`: Array of `{ product: ObjectId (ref Product), quantity: Number, size: String, note: String }`.
+* One document per registered user. Cleaned on payment success and auto-purges deleted products.
 
 ---
 
 ## 7. Complete API Endpoint Inventory
 
-### 1. Authentication (`/api/auth`)
+### 1. Authentication & Users (`/api/auth`)
 * `POST /api/auth/register`: Initiate user registration and dispatch email OTP.
 * `POST /api/auth/verify-otp`: Validate OTP and activate user account.
+* `POST /api/auth/resend-otp`: Resend email OTP for pending registration.
 * `POST /api/auth/login`: Authenticate credentials and return JWT token.
-* `GET /api/auth/profile`: Fetch user details, saved addresses, and wishlist.
-* `PUT /api/auth/profile`: Update user profile data and addresses array.
+* `POST /api/auth/google`: Authenticate / register via Google OAuth token.
+* `GET /api/auth/profile`: Fetch current user details, saved addresses, and populated wishlist.
+* `PUT /api/auth/profile`: Update user profile data and saved addresses array.
+* `GET /api/auth/wishlist`: Get user's saved wishlist items.
+* `POST /api/auth/wishlist`: Add a product to the user's wishlist (`{ productId }`).
+* `DELETE /api/auth/wishlist/:id`: Remove a product from the user's wishlist.
+* `PUT /api/auth/wishlist/toggle`: Toggle a product in the wishlist (`{ productId }`).
 * `POST /api/auth/forgot-password`: Send password reset OTP via email.
 * `POST /api/auth/reset-password`: Reset password using verified OTP.
-* `GET /api/auth/wishlist`: Get user's saved wishlist items.
-* `POST /api/auth/wishlist/:productId`: Toggle product in user wishlist.
+* `PUT /api/auth/change-password`: Change password for authenticated logged-in user.
+* `GET /api/auth/users` *(Admin)*: List all registered customer accounts.
 
 ### 2. Products (`/api/products`)
-* `GET /api/products`: Search, filter by category/aesthetic/price, and sort products.
-* `GET /api/products/bestsellers`: Fetch top products sorted by sales volume.
-* `GET /api/products/:id`: Get detailed metadata and verified reviews for a single product.
-* `GET /api/products/:id/review-eligibility`: Check if the authenticated user is eligible to review a product (must have a delivered order containing it).
-* `POST /api/products/:id/reviews`: Add a customer review and update product average rating.
+* `GET /api/products`: Search, filter by category/aesthetic/price, and sort products with pagination.
+* `GET /api/products/bestsellers`: Fetch products tagged with `bestseller` or highest sales volume.
+* `GET /api/products/top-bestsellers`: Fetch top bestsellers grouped by each main category (`earrings`, `necklaces`, `bracelets`, `combos`, `apparel`).
+* `GET /api/products/share/:id`: OpenGraph HTML crawler endpoint for WhatsApp and social bot link previews.
 * `POST /api/products/bulk`: **Bulk fetch** — accepts `{ productIds: [] }` and returns live product data for multiple products. Used by guest cart to hydrate with real-time prices and stock.
+* `GET /api/products/:id`: Get detailed metadata, populated `accentPairs`, populated `comboItems`, and verified reviews for a single product.
+* `GET /api/products/:id/review-eligibility`: Check if the authenticated user is eligible to review a product (must have a delivered order containing it).
+* `POST /api/products/:id/reviews`: Add a customer review and recalculate product average rating.
 * `POST /api/products` *(Admin)*: Create a new product.
 * `PUT /api/products/:id` *(Admin)*: Update product details.
 * `DELETE /api/products/:id` *(Admin)*: Delete a product.
@@ -234,8 +387,8 @@ Built with Node.js, Express, MongoDB, and Mongoose.
 
 ### 4. Checkout & Flyer Coupons (`/api/coupons`)
 * `GET /api/coupons/public`: Fetch active flyer coupons (`showInFlyer: true`) for frontend flyer modals. Automatically sanitizes internal tracking fields like `usageCount` and `allowedUsers`.
-* `POST /api/coupons/validate`: Validate promo code against cart subtotal and user history.
-* `GET /api/coupons` *(Admin)*: List all coupons.
+* `POST /api/coupons/validate`: Validate promo code against cart subtotal (`cartValue`), `orderTotal`, and user history. Read-only; does not mutate counters.
+* `GET /api/coupons` *(Admin)*: List all coupons with populated `allowedUsers`.
 * `POST /api/coupons` *(Admin)*: Create new coupon.
 * `PUT /api/coupons/:id` *(Admin)*: Update coupon.
 * `DELETE /api/coupons/:id` *(Admin)*: Delete coupon.
@@ -243,18 +396,21 @@ Built with Node.js, Express, MongoDB, and Mongoose.
 ### 5. Orders & Payments (`/api/orders` & `/api/payment`)
 * `POST /api/payment/create-order`: Initialize Razorpay payment session. **Server recalculates order total from DB prices** via `validateAndCalculateOrder()` — the client-supplied amount is completely ignored.
 * `POST /api/payment/verify-payment`: Verify Razorpay signature, **server recalculates total**, atomically decrements product stock (combo child components for combos), increments coupon usage atomically, clears DB cart, and saves order.
-* `POST /api/orders`: Submit new COD order.
+* `POST /api/orders`: Submit new COD order (calculates totals on server, decrements stock, clears DB cart).
 * `GET /api/orders`: Get logged-in user's order history.
 * `GET /api/orders/:id`: Get single order details.
 * `GET /api/orders/:id/invoice`: Stream PDF invoice generated on the fly via `pdfkit`.
-* `PUT /api/orders/:id/cancel`: Process order cancellation request.
-* `PUT /api/orders/:id/exchange`: Process order exchange request.
-* `GET /api/orders/admin/all` *(Admin)*: Get all customer orders.
+* `PUT /api/orders/:id/cancel`: Process order cancellation request (100% refund for pending; INR 100 fee for processing).
+* `PUT /api/orders/:id/exchange`: Submit order exchange request within 3 days of delivery.
+* `GET /api/orders/all/admin` *(Admin)*: Get all customer orders with pagination and user metadata.
 * `PUT /api/orders/:id/status` *(Admin)*: Update order fulfillment status.
+* `PUT /api/orders/:id/exchange/approve` *(Admin)*: Approve an exchange request.
+* `PUT /api/orders/:id/update` *(Admin)*: Update shipping address or customer details before shipment.
 
 ### 6. Editorial Blogs (`/api/blogs`)
-* `GET /api/blogs`: Fetch published blog posts.
+* `GET /api/blogs`: Fetch published blog posts (supports `?all=true` for admin preview).
 * `GET /api/blogs/:slug`: Fetch single blog post by slug.
+* `GET /api/blogs/share/:slug`: OpenGraph HTML crawler endpoint for WhatsApp and social bot link previews.
 * `POST /api/blogs` *(Admin)*: Create blog post.
 * `PUT /api/blogs/:id` *(Admin)*: Update blog post.
 * `DELETE /api/blogs/:id` *(Admin)*: Delete blog post.
@@ -262,14 +418,23 @@ Built with Node.js, Express, MongoDB, and Mongoose.
 ### 7. Categories, Contacts & Newsletters
 * `GET /api/categories`: Fetch all product categories.
 * `POST /api/categories` *(Admin)*: Create a new category.
-* `POST /api/contact`: Submit a customer inquiry via the contact form.
+* `DELETE /api/categories/:id` *(Admin)*: Delete category.
+* `POST /api/contact`: Submit a customer inquiry via the contact form (rate-limited to max 2 submissions per email address).
 * `GET /api/contact` *(Admin)*: List all customer inquiries.
-* `POST /api/newsletter`: Subscribe an email to the newsletter.
-* `GET /api/feed/instagram`: Fetch cached Instagram graph feed for footer UI.
+* `PUT /api/contact/:id/status` *(Admin)*: Update inquiry status (`New`, `Read`, `Replied`).
+* `POST /api/newsletter`: Subscribe an email to the newsletter (IP rate-limited to max 5 requests per day).
+* `GET /api/newsletter` *(Admin)*: List all newsletter subscribers.
 
-### 8. Media Upload (`/api/upload`)
-* `POST /api/upload`: Upload single image to Cloudinary `jewelry-products` folder.
+### 8. Product Feeds & Sitemaps
+* `GET /api/feed/google-merchant`: Returns an XML RSS 2.0 product catalog feed formatted for Google Merchant Center.
+* `GET /sitemap.xml`: Dynamically generated XML sitemap mapping all active products and published blogs with `updatedAt` timestamps.
+
+### 9. Media Upload (`/api/upload`)
+* `POST /api/upload`: Upload single image buffer to Cloudinary `jewelry-products` folder (max 5MB, returns `secure_url`).
 * `POST /api/upload/multiple`: Upload batch of images (up to 10) to Cloudinary.
+
+### 10. System Health Check
+* `GET /api/healthcheck`: Health check endpoint that pings MongoDB connection pool and verifies server liveness.
 
 ---
 
@@ -278,21 +443,29 @@ Built with Node.js, Express, MongoDB, and Mongoose.
 ### A. Non-WWW to WWW 301 Redirects (`vercel.json`)
 * All requests arriving at `serastore.in` are permanently redirected via 301 response headers to `https://www.serastore.in/$1`.
 
-### B. WhatsApp & Social Bot OpenGraph Interceptor (`vercel.json`)
-* `vercel.json` intercepts incoming user agents matching social bots (`WhatsApp`, `facebookexternalhit`, `Twitterbot`, `LinkedInBot`, `Pinterest`, `bot`, `crawler`, `spider`) on `/product/:id` routes and rewrites the request directly to the backend endpoint: `https://backend.serastore.in/api/products/share/:id`.
-* The backend endpoint fetches the target product from MongoDB and returns lightweight raw static HTML containing dynamic OpenGraph tags (`og:title`, `og:description`, `og:image`, `og:url`) with high-res Cloudinary images, enabling rich previews in chat apps.
+### B. WhatsApp & Social Bot OpenGraph Interceptors (`vercel.json`)
+* `vercel.json` intercepts incoming user agents matching social bots (`WhatsApp`, `facebookexternalhit`, `Twitterbot`, `LinkedInBot`, `Pinterest`, `bot`, `crawler`, `spider`) on dynamic routes:
+  1. `/product/:id` ➔ Proxied to `https://backend.serastore.in/api/products/share/:id`
+  2. `/journal/:slug` ➔ Proxied to `https://backend.serastore.in/api/blogs/share/:slug`
+* The backend returns static HTML with dynamic OpenGraph tags (`og:title`, `og:description`, `og:image`, `og:url`) and instant meta-refresh redirect for human visitors.
 
-### C. Automated XML Sitemap Generation (`sitemapRoutes.js`)
-* **Live XML Endpoint**: `https://www.serastore.in/sitemap.xml` (served via backend route `GET /api/sitemap`).
+### C. Automated XML Sitemap Generation
+* **Live XML Endpoint**: `https://www.serastore.in/sitemap.xml` (rewritten via `vercel.json` to backend `https://backend.serastore.in/sitemap.xml`).
 * Automatically queries MongoDB `Product` and `Blog` collections to append newly added products (`/product/:id`) and published articles (`/journal/:slug`) with their exact `updatedAt` timestamps in ISO 8601 format.
 
-### D. Dynamic Image Optimization & Cloudinary Pipeline
+### D. Centralized SEO Component (`SEO.jsx`)
+* Injected into all pages via `react-helmet-async`.
+* Standardizes title template (`Page | Sera`), description, canonical URL (stripping URL query params), OpenGraph, and Twitter tags.
+* Emits default JSON-LD `Organization` schema and supports page-specific structured data (e.g. `Product`, `Article`).
+* Injects `<meta name="robots" content="noindex">` on 404 and invalid product error states.
+
+### E. Dynamic Image Optimization & Cloudinary Pipeline
 * All uploaded images pass through Cloudinary's dynamic image processing pipeline.
 * **Auto-Format & Quality**: Cloudinary URLs automatically inject `f_auto,q_auto` to deliver modern WebP/AVIF images based on browser capabilities.
 * **Width Restrictions**: Images rendered in carousels and product grids specify strict width caps (`w_600`, `w_800`, `w_2000`) to eliminate mobile bandwidth bloat.
 * **Automated Alt Text**: Product images dynamically compute alt tags: `alt={`${product.name} - Anti-Tarnish Premium Jewelry & Clothes`}`.
 
-### E. Crawling Rules (`robots.txt`)
+### F. Crawling Rules (`robots.txt`)
 Located at `https://www.serastore.in/robots.txt`:
 ```txt
 User-agent: *
@@ -316,16 +489,17 @@ Sitemap: https://www.serastore.in/sitemap.xml
 
 ## 9. Email & SMTP Infrastructure (Brevo)
 
-All transactional emails are dispatched via **Brevo (formerly Sendinblue)** SMTP.
+All transactional emails are dispatched via **Brevo (formerly Sendinblue)** SMTP using `emailService.js`.
 
 ### Email Triggers
 | Trigger | Recipient | Subject |
 | :--- | :--- | :--- |
 | New user registration | New user | OTP verification email for account activation |
+| Resend OTP | User | Resend registration OTP |
 | Forgot password | User | Password reset OTP email |
-| Successful payment | User | Order confirmation with invoice summary |
-| Exchange request | Admin (internal) | Customer exchange request notification |
-| Contact form submission | Admin (internal) | New inquiry from website contact form |
+| Successful payment / Order placed | User | Order confirmation with invoice summary |
+| Exchange request | Admin (`ADMIN_EMAIL`) | Customer exchange request notification |
+| Contact form submission | Admin (`ADMIN_EMAIL`) | New customer inquiry from website contact form |
 
 ### Email Design Rules
 * **Header Accent**: Gold (`#c5a666`) used in email banners and header backgrounds to match the luxury brand aesthetic.
@@ -335,22 +509,22 @@ All transactional emails are dispatched via **Brevo (formerly Sendinblue)** SMTP
 
 ## 10. Valid Product Field Values
 
-These are the known valid enumerated values for the `Product` model's categorical fields. Any new admin creating or seeding products must use these exact values.
+These are the valid enumerated values for the `Product` model's categorical fields. Any new admin creating or seeding products must use these values.
 
-### `category` Field (exact strings, case-sensitive)
-* `"EARRINGS"`
-* `"NECKLACES"`
-* `"BRACELETS"`
-* `"COMBOS"`
-* `"APPAREL"`
-* `"RINGS"` *(Paused — do not use in new product listings)*
+### `category` Field (stored in lowercase in DB via Mongoose `lowercase: true`)
+* `"earrings"`
+* `"necklaces"`
+* `"bracelets"`
+* `"combos"`
+* `"apparel"`
+* `"rings"` *(Paused — backend-only for historical orders, do not list new)*
 
-### `tags` Field (array — multiple allowed)
-* `"bestseller"` — Shown in the Bestsellers carousel section on the homepage.
+### `tags` Field (stored in lowercase in DB)
+* `"bestseller"` — Shown in the Bestsellers section on the homepage.
 * `"new"` — Flagged as new arrivals in the catalog.
 * `"sale"` — Products currently on discount or promotional pricing.
 
-### `aesthetics` Field (array — multiple allowed, drives `/shop/collection/:aesthetic` routing)
+### `aesthetics` Field (stored in lowercase in DB, drives `/shop/collection/:aesthetic` routing)
 * `"minimalist"` — Clean, simple designs.
 * `"boho vibes"` — Earthy, layered, free-spirited styles.
 * `"everyday glam"` — Subtle shimmer and elevated daily wear.
@@ -365,10 +539,10 @@ These are the known valid enumerated values for the `Product` model's categorica
 | Layer | Technology | Host / URL |
 | :--- | :--- | :--- |
 | **Frontend SPA** | React + Vite | Vercel → `https://www.serastore.in` |
-| **Backend API** | Node.js + Express | Separate Vercel/Railway deployment → `https://backend.serastore.in` |
+| **Backend API** | Node.js + Express | Vercel / Railway → `https://backend.serastore.in` |
 | **Database** | MongoDB Atlas | Cloud-hosted MongoDB cluster |
 | **Media CDN** | Cloudinary | `https://res.cloudinary.com/dhby5v7rw/` |
-| **Email SMTP** | Brevo | Outbound transactional email |
+| **Email SMTP** | Brevo | Outbound transactional email (`smtp-relay.brevo.com`) |
 | **Payments** | Razorpay | Payment gateway (`razorpay.com`) |
 
 ---
@@ -406,13 +580,13 @@ ADMIN_EMAIL=admin@serastore.in
 ### Guest Cart (`localStorage`)
 * Stored under key `sera_guest_cart` as a JSON array of `{ _id, product (full object), quantity, size, note }`.
 * On every `fetchCart()` call for unauthenticated users, `CartContext` calls `POST /api/products/bulk` to hydrate items with live stock and prices. Deleted items are removed with a toast; quantity-capped items are flagged.
-* `JSON.parse` on both `userInfo` and `sera_guest_cart` is wrapped in `try/catch` — corrupted values are cleared and the app continues.
+* `JSON.parse` on both `userInfo` and `sera_guest_cart` is wrapped in `try/catch` — corrupted values are cleared and the app continues operating cleanly without crashing.
 
 ### Guest → Auth Sync (`syncGuestCart`)
 * Called immediately after login / register / Google OAuth — **before** navigation to the redirect target.
 * Sends all guest items in a single `POST /api/cart/sync` request (bulk, not N+1).
-* After sync, `localStorage` key `sera_guest_cart` is deleted and `fetchCart()` is called to pull the merged cart from DB.
-* **Do not call `fetchCart()` separately after `syncGuestCart()`** — it is invoked internally at the end of sync.
+* After sync, `localStorage` key `sera_guest_cart` is deleted and `fetchCart()` is called internally to pull the merged cart from the database.
+* **Do not call `fetchCart()` separately after `syncGuestCart()`** — it is already invoked internally.
 
 ### Cart Reset Rules
 * `clearCart()` must be called in: **COD order success**, **Razorpay payment success**, **`OrderSuccess.jsx` mount** (safety net), and **explicit user logout** (`profile.jsx`).
@@ -423,3 +597,16 @@ ADMIN_EMAIL=admin@serastore.in
 * **Coupon codes must be validated server-side at both `create-order` and `verify-payment` stages.** Frontend `/api/coupons/validate` is for UX feedback only — it does **not** lock in the discount.
 * **Combo stock is deducted from physical child `comboItems`, not the virtual parent product.**
 * **`updateQuantity()` in `CartContext` guards `quantity < 1`** to prevent negative or zero-quantity cart items.
+
+---
+
+## 14. Social Sharing & Canvas Watermarking Architecture (`shareUtils.js`)
+
+* **Rich Clipboard Image Watermarking**:
+  - `getPngBlob()` in `shareUtils.js` loads the target product image and draws it onto an 800x900 canvas.
+  - Automatically composites the official Sera logo (`/slogo.png`) centered at the bottom of the canvas with a clean white padding banner.
+  - Generates a PNG blob written to `navigator.clipboard` alongside plain text.
+* **OS / Chat App Clipboard Compatibility**:
+  - Direct "Copy Link" buttons copy plain text URLs exclusively, preventing WhatsApp or mobile operating systems from dropping text links when mixed image/text clipboards are pasted.
+* **Native Web Share**:
+  - Uses `navigator.share` with fallback to clipboard copy when the Web Share API is unsupported.

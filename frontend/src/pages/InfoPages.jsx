@@ -130,7 +130,7 @@ export const FAQ = () => {
     },
     {
       question: "International Shipping?",
-      answer: "Currently shipping within India only. International shipping coming soon!"
+      answer: "Currently shipping pan-India. For international shipping enquiries, please contact us at serajewels1@gmail.com and we'll do our best to help."
     },
     {
       question: "Payment Methods?",

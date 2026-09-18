@@ -43,7 +43,7 @@ const Footer = () => {
                className="group" aria-label="Instagram">
               <FaInstagram className="w-6 h-6 text-gray-900 group-hover:text-rose-600 transition-colors duration-300 hover:scale-110" />
             </a>
-            <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer" 
+            <a href="https://www.pinterest.com/serastore/" target="_blank" rel="noopener noreferrer" 
                className="group" aria-label="Pinterest">
               <FaPinterest className="w-6 h-6 text-gray-900 group-hover:text-rose-600 transition-colors duration-300 hover:scale-110" />
             </a>
@@ -131,7 +131,7 @@ const Footer = () => {
                     <FaInstagram className="w-3.5 h-3.5" />
                     <span>Instagram</span>
                   </a>
-                  <a href="https://pinterest.com/serajewelry" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-rose-600 transition-colors text-xs">
+                  <a href="https://www.pinterest.com/serastore/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-rose-600 transition-colors text-xs">
                     <FaPinterest className="w-3.5 h-3.5" />
                     <span>Pinterest</span>
                   </a>
@@ -149,7 +149,7 @@ const Footer = () => {
             <Link to="/privacy-policy" className="hover:text-rose-600 transition-colors uppercase hover:underline">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-rose-600 transition-colors uppercase hover:underline">Terms of Service</Link>
             <Link to="/sitemap" className="hover:text-rose-600 transition-colors uppercase hover:underline">Sitemap</Link>
-            <span>© 2025 SERA. All rights reserved.</span>
+            <span>© {new Date().getFullYear()} SERA. All rights reserved.</span>
           </div>
           <div>
             <span className="text-gray-400">timeless jewelry & conscious fashion</span>

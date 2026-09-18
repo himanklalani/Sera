@@ -447,7 +447,7 @@ const ProductDetails = () => {
         "@type": "ListItem",
         "position": 3,
         "name": product.category,
-        "item": `https://www.serastore.in/shop/${product.category.toLowerCase()}`
+        "item": `https://www.serastore.in/shop/${{'necklace':'necklaces','bracelet':'bracelets','earring':'earrings','earrings':'earrings','combos':'combos','combo':'combos','apparel':'apparel'}[product.category?.toLowerCase()] || product.category?.toLowerCase()}`
       },
       {
         "@type": "ListItem",
@@ -488,7 +488,7 @@ const ProductDetails = () => {
           </li>
           <li><span className="text-gray-300">/</span></li>
           <li>
-            <Link to={`/shop/${product.category.toLowerCase()}`} className="hover:text-rose-500 transition-colors capitalize">{product.category}</Link>
+            <Link to={`/shop/${({'necklace':'necklaces','bracelet':'bracelets','earring':'earrings','earrings':'earrings','combos':'combos','combo':'combos','apparel':'apparel'})[product.category?.toLowerCase()] || product.category?.toLowerCase()}`} className="hover:text-rose-500 transition-colors capitalize">{product.category}</Link>
           </li>
           <li><span className="text-gray-300">/</span></li>
           <li className="text-gray-900 truncate max-w-[200px]" aria-current="page">

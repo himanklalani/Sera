@@ -13,6 +13,8 @@ const escapeXML = (str) => {
     .replace(/'/g, '&apos;');
 };
 
+const TODAY = new Date().toISOString().split('T')[0];
+
 router.get('/', async (req, res) => {
   try {
     const products = await Product.find({ isActive: true }).select('_id name category images updatedAt');
@@ -25,11 +27,13 @@ router.get('/', async (req, res) => {
   <!-- Core Pages -->
   <url>
     <loc>${baseUrl}/</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>${baseUrl}/shop</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -37,26 +41,31 @@ router.get('/', async (req, res) => {
   <!-- Category Landing Pages -->
   <url>
     <loc>${baseUrl}/shop/earrings</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>${baseUrl}/shop/necklaces</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>${baseUrl}/shop/bracelets</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>${baseUrl}/shop/combos</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>${baseUrl}/shop/apparel</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -64,41 +73,49 @@ router.get('/', async (req, res) => {
   <!-- Discovery & Info Pages -->
   <url>
     <loc>${baseUrl}/gifts</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>${baseUrl}/about</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${baseUrl}/faq</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/jewelry-care</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/materials</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/contact</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${baseUrl}/size-guide</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>${baseUrl}/sustainability</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -106,16 +123,19 @@ router.get('/', async (req, res) => {
   <!-- Legal Pages -->
   <url>
     <loc>${baseUrl}/privacy-policy</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>${baseUrl}/terms</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>${baseUrl}/returns</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
@@ -123,6 +143,7 @@ router.get('/', async (req, res) => {
   <!-- Journal/Blog Hub -->
   <url>
     <loc>${baseUrl}/journal</loc>
+    <lastmod>${TODAY}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>

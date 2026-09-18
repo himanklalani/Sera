@@ -152,7 +152,7 @@ export default function NavOverlay({ isOpen, onClose }) {
                <p className="text-gray-500 text-sm mb-4">Follow us</p>
                <div className="flex justify-center space-x-6 text-gray-400">
                   <a href="https://www.instagram.com/serastore.in" className="hover:text-rose-500 transition-colors">Instagram</a>
-                  <a href="#" className="hover:text-rose-500 transition-colors">Pinterest</a>
+                  <a href="https://www.pinterest.com/serastore/" target="_blank" rel="noopener noreferrer" className="hover:text-rose-500 transition-colors">Pinterest</a>
                </div>
             </div>
 

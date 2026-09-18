@@ -894,7 +894,7 @@ const GiftingSection = () => {
           viewport={{ once: true }}
           className="flex flex-col sm:flex-row gap-6 sm:gap-8 justify-center items-center"
         >
-          <FramerButton to="/shop?category=COMBOS" variant="dark">Shop Combos</FramerButton>
+          <FramerButton to="/shop/combos" variant="dark">Shop Combos</FramerButton>
           <TextArrowCTA to="/gifts" variant="dark">Gifting Hub</TextArrowCTA>
         </motion.div>
       </div>
@@ -990,7 +990,7 @@ const ApparelDropSection = () => (
         viewport={{ once: true }}
         className="flex flex-col sm:flex-row gap-4"
       >
-        <FramerButton to="/shop?category=APPAREL" variant="light">Explore Apparel</FramerButton>
+        <FramerButton to="/shop/apparel" variant="light">Explore Apparel</FramerButton>
         <FramerButton to="/size-guide" variant="transparent">Size Guide</FramerButton>
       </motion.div>
 
@@ -1084,7 +1084,7 @@ const CategoriesSection = () => {
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-stone-100 to-stone-200 flex items-center justify-center">
-                    <span className="text-stone-400 text-xs tracking-widest uppercase">Coming Soon</span>
+                    <span className="text-stone-400 text-xs tracking-widest uppercase">{cat.name}</span>
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />

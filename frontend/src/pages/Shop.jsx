@@ -8,6 +8,29 @@ import toast from 'react-hot-toast';
 import { useCart } from '../components/CartContext';
 
 
+// Category slug & normalization helpers to support singular and plural seamlessly
+const normalizeCategory = (cat) => {
+  if (!cat || cat.toLowerCase() === 'all') return 'All';
+  const lower = cat.toLowerCase().trim();
+  if (lower === 'necklaces' || lower === 'necklace') return 'Necklace';
+  if (lower === 'bracelets' || lower === 'bracelet') return 'Bracelet';
+  if (lower === 'earrings' || lower === 'earring') return 'Earrings';
+  if (lower === 'combos' || lower === 'combo') return 'Combos';
+  if (lower === 'apparel' || lower === 'apparels') return 'Apparel';
+  return cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
+};
+
+const categoryToSlug = (cat) => {
+  const map = {
+    'Necklace': 'necklaces',
+    'Bracelet': 'bracelets',
+    'Earrings': 'earrings',
+    'Combos': 'combos',
+    'Apparel': 'apparel'
+  };
+  return map[cat] || cat.toLowerCase();
+};
+
 // Custom Hook: Synchronize URL params with state (prevents race conditions)
 const useURLSync = () => {
   const location = useLocation();
@@ -18,9 +41,7 @@ const useURLSync = () => {
     const params = new URLSearchParams(location.search);
     let cat = params.get('category') || pathCategory;
     return {
-      category: cat ? 
-        cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase() 
-        : 'All',
+      category: normalizeCategory(cat),
       aesthetic: pathAesthetic || params.get('aesthetic') || null,
       page: Math.max(1, parseInt(params.get('page') || '1', 10)),
       tags: params.get('tags') ? params.get('tags').split(',').map(t => t.trim()) : [],
@@ -47,7 +68,7 @@ const useURLSync = () => {
     if (newParams.aesthetic) {
       basePath = `/shop/collection/${newParams.aesthetic.toLowerCase()}`;
     } else if (newParams.category && newParams.category !== 'All') {
-      basePath = `/shop/${newParams.category.toLowerCase()}`;
+      basePath = `/shop/${categoryToSlug(newParams.category)}`;
     }
     navigate(`${basePath}${params.toString() ? '?' + params.toString() : ''}`, { replace: true });
   }, [navigate]);
@@ -136,7 +157,7 @@ const Shop = () => {
 
 
         if (selectedCategory !== 'All') {
-          params.set('category', selectedCategory.toLowerCase());
+          params.set('category', categoryToSlug(selectedCategory));
         }
         if (selectedAesthetic) {
           params.set('aesthetics', selectedAesthetic.toLowerCase());
@@ -610,14 +631,14 @@ const Shop = () => {
       <SEO 
         title={seoTitles[selectedCategory] || seoTitles['All']}
         description={seoDescriptions[selectedCategory] || seoDescriptions['All']}
-        canonicalUrl={`https://www.serastore.in/shop${selectedCategory === 'All' ? '' : '/' + selectedCategory.toLowerCase()}`}
+        canonicalUrl={`https://www.serastore.in/shop${selectedCategory === 'All' ? '' : '/' + categoryToSlug(selectedCategory)}`}
         schema={[
           {
             "@context": "https://schema.org",
             "@type": "CollectionPage",
             "name": selectedCategory === 'All' ? 'Shop All Collections' : `${selectedCategory} Collection`,
             "description": seoDescriptions[selectedCategory] || seoDescriptions['All'],
-            "url": `https://www.serastore.in/shop${selectedCategory === 'All' ? '' : '/' + selectedCategory.toLowerCase()}`
+            "url": `https://www.serastore.in/shop${selectedCategory === 'All' ? '' : '/' + categoryToSlug(selectedCategory)}`
           },
           {
             "@context": "https://schema.org",
@@ -639,7 +660,7 @@ const Shop = () => {
                 "@type": "ListItem",
                 "position": 3,
                 "name": selectedCategory,
-                "item": `https://www.serastore.in/shop/${selectedCategory.toLowerCase()}`
+                "item": `https://www.serastore.in/shop/${categoryToSlug(selectedCategory)}`
               }] : [])
             ]
           },

@@ -42,6 +42,10 @@ Sera features two core product pillars: **Anti-tarnish waterproof jewelry** and 
 
 > **Note on Storage**: While displayed in uppercase in UI headings, Mongoose schemas use `lowercase: true` on `category`, `tags`, and `aesthetics`. MongoDB documents store categories in lowercase (`earrings`, `necklaces`, `bracelets`, `combos`, `apparel`, `rings`).
 
+### Sizing Policy
+* **Jewelry & Accessories (Earrings, Necklaces, Bracelets, Combos)**: **100% Anti-Tarnish, Waterproof, and Universal Free Size**. All jewelry is designed with built-in adjustable extension chains, flexible cuffs, or universal fits so that **all can fit** without requiring size selection.
+* **Apparel**: Sized garments requiring customer size selection (**XS, S, M, L**).
+
 ### Keyword & Terminology Rules
 * **STRICTLY FORBIDDEN / AVOIDED TERMS**: **Do NOT use "18k", "coating", "plating", "plated", "PVD Coating", "PVD", "Hypoallergenic", "Stainless Steel", "Gold", "Silver", "Demi-Fine", "Everyday Luxury", or "Skin-Friendly"** in UI copy, meta tags, schema markup, or seed scripts.
 * **APPROVED JEWELRY KEYWORDS**:

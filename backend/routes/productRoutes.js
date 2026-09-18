@@ -132,9 +132,22 @@ router.get('/', asyncHandler(async (req, res) => {
     };
   }
 
-  // Filter by category
+  // Filter by category (handles both singular and plural queries seamlessly)
   if (req.query.category) {
-    query.category = req.query.category.toLowerCase();
+    const cat = req.query.category.toLowerCase().trim();
+    if (cat === 'necklaces' || cat === 'necklace') {
+      query.category = { $in: ['necklace', 'necklaces'] };
+    } else if (cat === 'bracelets' || cat === 'bracelet') {
+      query.category = { $in: ['bracelet', 'bracelets'] };
+    } else if (cat === 'earrings' || cat === 'earring') {
+      query.category = { $in: ['earrings', 'earring'] };
+    } else if (cat === 'combos' || cat === 'combo') {
+      query.category = { $in: ['combos', 'combo'] };
+    } else if (cat === 'apparel' || cat === 'apparels') {
+      query.category = { $in: ['apparel', 'apparels'] };
+    } else {
+      query.category = cat;
+    }
   }
 
   // Filter by tags

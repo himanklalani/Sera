@@ -756,6 +756,25 @@ const ProductDetails = () => {
             </div>
           )}
 
+          {/* Sizing Indicator for Jewelry / Accessories (Free Size - All Can Fit) */}
+          {!product.category?.toLowerCase().includes('apparel') && (
+            <div className="mt-4 flex items-center justify-between bg-rose-50/60 border border-rose-100 rounded-2xl px-4 py-3">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <div>
+                  <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">Size: Free Size</span>
+                  <p className="text-[11px] text-gray-500">Universal Fit • Adjustable • Fits All</p>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/size-guide')}
+                className="text-xs font-semibold text-rose-600 hover:text-rose-700 underline tracking-wide"
+              >
+                Size Guide
+              </button>
+            </div>
+          )}
+
           {/* Add to Cart Area & Features Box */}
           <div className="mt-8 border border-gray-200 rounded-[20px] p-4 sm:p-5 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] bg-white relative">
             
@@ -839,17 +858,17 @@ const ProductDetails = () => {
             {/* Features/Trust Badges (Hidden for Apparel) */}
             {!(product.category?.toLowerCase().includes('apparel')) && (
               <div className="grid grid-cols-3 gap-2 pt-5 border-t border-gray-100">
-                <div className="flex flex-col items-center text-center gap-2">
-                  <FaTint className="text-gray-400 text-xl" />
-                  <span className="text-[10px] md:text-xs uppercase font-medium tracking-wide text-gray-500">Sweatproof</span>
+                <div className="flex flex-col items-center text-center gap-1.5">
+                  <FaTint className="text-rose-500 text-lg" />
+                  <span className="text-[10px] md:text-xs uppercase font-semibold tracking-wide text-gray-700">Anti-Tarnish<br/>& Waterproof</span>
                 </div>
-                <div className="flex flex-col items-center text-center gap-2">
-                  <FaGem className="text-gray-400 text-xl" />
-                  <span className="text-[10px] md:text-xs uppercase font-medium tracking-wide text-gray-500">Premium Finish</span>
+                <div className="flex flex-col items-center text-center gap-1.5">
+                  <FaGem className="text-rose-500 text-lg" />
+                  <span className="text-[10px] md:text-xs uppercase font-semibold tracking-wide text-gray-700">Universal<br/>Free Size</span>
                 </div>
-                <div className="flex flex-col items-center text-center gap-2">
-                  <FaTruck className="text-gray-400 text-xl" />
-                  <span className="text-[10px] md:text-xs uppercase font-medium tracking-wide text-gray-500">Free Shipping<br/>Above ₹999</span>
+                <div className="flex flex-col items-center text-center gap-1.5">
+                  <FaTruck className="text-rose-500 text-lg" />
+                  <span className="text-[10px] md:text-xs uppercase font-semibold tracking-wide text-gray-700">Free Shipping<br/>Above ₹999</span>
                 </div>
               </div>
             )}
@@ -881,9 +900,20 @@ const ProductDetails = () => {
             <div className="p-6 md:p-8 bg-white min-h-[200px]">
               {activeTab === 'details' && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
-                  {product.category?.toLowerCase().includes('apparel') && (
+                  {product.category?.toLowerCase().includes('apparel') ? (
                     <div className="bg-gray-50 rounded-xl px-5 py-4 mb-6 text-gray-800 font-medium flex items-center border border-gray-100">
                       <span className="text-gray-900 font-semibold mr-2">Fabric:</span> 100% high quality cotton blend material, soft and comfortable on skin
+                    </div>
+                  ) : (
+                    <div className="bg-rose-50/50 rounded-xl px-5 py-4 mb-6 text-gray-800 text-xs md:text-sm font-medium border border-rose-100 space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-900 font-semibold">Features:</span> 
+                        <span className="text-rose-600 font-semibold">100% Anti-Tarnish & Waterproof</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-900 font-semibold">Sizing:</span> 
+                        <span>Universal Free Size (Adjustable • All Can Fit)</span>
+                      </div>
                     </div>
                   )}
                   {product.description}

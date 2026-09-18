@@ -111,8 +111,16 @@ This file tracks the SEO and Performance Optimization changes that have been pus
     - `"curated jewelry gifting hub"` ➔ `/gifts`
     - `"complete jewelry care guide"` ➔ `/jewelry-care`
   - **Sitewide Footer Architecture (`Footer.jsx`):** Restructured footer into a dedicated 4-column layout including a "Collections" column and "Guides & Gifts" column with keyword-rich internal anchors on every page.
-  - **Blog Post Interlinking Grid (`BlogPost.jsx`):** Added a category explore hub at the foot of every single Journal article passing link juice to all core categories.
+- **Category Routing & Singular/Plural DB Mapping Fix (`Shop.jsx`, `productRoutes.js`):**
+  - Resolved issue where URLs like `/shop/necklaces` or `/shop/bracelets` returned 0 products because MongoDB stored categories in singular (`necklace`, `bracelet`).
+  - Added seamless bidirectional category slug normalization and query matching in `productRoutes.js` (`$in: ['necklace', 'necklaces']`, `$in: ['bracelet', 'bracelets']`, etc.) and `Shop.jsx`.
+  - Category filter pills in `Shop.jsx` now correctly activate when landing on plural canonical URLs.
+- **Universal Free Size & Apparel Sizing Architecture (`SizeGuide.jsx`, `productdetails.jsx`):**
+  - Updated `SizeGuide.jsx` with a comprehensive guide establishing that **all Sera jewelry & accessories are 100% Anti-Tarnish, Waterproof, and Universal Free Size (all can fit)** featuring adjustable built-in extension chains and flexible cuffs.
+  - Sizing chart explicitly focused on women's cotton blend tops and apparel (XS, S, M, L).
+  - Added a dedicated "Size: Free Size (Universal Fit • All Can Fit)" badge, updated trust badges ("Anti-Tarnish & Waterproof", "Universal Free Size"), and description specs on all non-apparel product pages in `productdetails.jsx`.
 - **Strict Brand Negative Vocabulary Compliance:**
   - Audited all frontend pages and backend content ensuring 0 occurrences of forbidden terms.
+
 
 

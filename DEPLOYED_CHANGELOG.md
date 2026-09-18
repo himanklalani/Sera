@@ -122,5 +122,20 @@ This file tracks the SEO and Performance Optimization changes that have been pus
 - **Strict Brand Negative Vocabulary Compliance:**
   - Audited all frontend pages and backend content ensuring 0 occurrences of forbidden terms.
 
+### 10. Final Audit Pass: Breadcrumb Canonicals, Dead Link Clean-Up & Zero "Coming Soon" (`commit 25a3880`)
+- **Breadcrumbs & JSON-LD Schema (`productdetails.jsx`):**
+  - Updated breadcrumb UI and structured schema (`BreadcrumbList`) to map singular database categories to canonical plural slugs (`/shop/necklaces`, `/shop/bracelets`, `/shop/earrings`, `/shop/combos`, `/shop/apparel`).
+- **Elimination of "Coming Soon" Phrasing Sitewide:**
+  - `Home.jsx`: Category card fallback and CTA links updated directly to `/shop/combos` and `/shop/apparel`.
+  - `InfoPages.jsx`: FAQ international shipping updated from "coming soon" to clear pan-India fulfillment notice with direct contact email.
+- **Social & Footer Modernization (`Footer.jsx`, `NavOverlay.jsx`):**
+  - Replaced dead Pinterest placeholder (`#`) with official brand destination (`https://www.pinterest.com/serastore/`).
+  - Converted hardcoded copyright year to dynamic `© {new Date().getFullYear()} Sera Jewels`.
+- **Sitemap Freshness Timestamps (`backend/routes/sitemapRoutes.js`):**
+  - Added real-time ISO `<lastmod>` timestamps to all 19 static, discovery, legal, and category landing page entries to trigger prompt Googlebot re-crawling.
 
-
+### 11. Dynamic Sitemap Proxy Unlocking & Vercel Static Override Fix (`commit 54757f1`)
+- **Vercel Static File Override Resolution (`frontend/public/sitemap.xml`):**
+  - Removed legacy static `frontend/public/sitemap.xml` file (dating from August 18, 2026 containing only 19 static/outdated links).
+  - Vercel's edge routing prioritizes public static assets above `vercel.json` rewrites. Deleting this file allowed the rule `"source": "/sitemap.xml"` ➔ `"destination": "https://backend.serastore.in/sitemap.xml"` to take effect.
+  - Live sitemap now dynamically generates and serves all **78 URLs** (19 core/category/info pages, all active products with Google Image XML schemas, and published journal articles).

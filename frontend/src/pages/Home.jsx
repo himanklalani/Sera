@@ -1069,7 +1069,7 @@ const CategoriesSection = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: index * 0.03 }}
               viewport={{ once: true }}
-              onClick={() => navigate(`/shop?category=${cat.name}`)}
+              onClick={() => navigate(`/shop/${cat.name.toLowerCase()}`)}
               className={`group cursor-pointer relative ${index === 4 ? 'col-span-2 sm:col-span-1' : ''}`}
             >
               <div className={`relative overflow-hidden rounded-2xl bg-gray-100 shadow-md hover:shadow-xl transition-all duration-300 ${index === 4 ? 'aspect-[2/1] sm:aspect-[3/4]' : 'aspect-[3/4]'}`}>
@@ -1148,7 +1148,7 @@ const BentoCollectionsSection = () => {
       img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780227859/everyday_s8miea.jpg',
       size: 'tall',
       color: 'from-pink-50 to-rose-50',
-      link: '/shop?tags=everyday'
+      link: '/shop/collection/everyday-glam'
     },
     {
       name: 'Accent Pairs',
@@ -1156,7 +1156,7 @@ const BentoCollectionsSection = () => {
       img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780227858/pair_cqurjg.jpg',
       size: 'small',
       color: 'from-rose-50 to-white',
-      link: '/shop?tags=accent'
+      link: '/shop/collection/statement'
     },
     {
       name: 'Minimalist',
@@ -1164,7 +1164,7 @@ const BentoCollectionsSection = () => {
       img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780227859/minimalist_cdynyl.jpg',
       size: 'small',
       color: 'from-white to-rose-50',
-      link: '/shop?tags=minimalist'
+      link: '/shop/collection/minimalist'
     },
     {
       name: 'Boho Vibes',
@@ -1172,7 +1172,7 @@ const BentoCollectionsSection = () => {
       img: 'https://res.cloudinary.com/dhby5v7rw/image/upload/f_auto,q_auto,w_800/v1780227858/boho_ejcz5g.png',
       size: 'wider',
       color: 'from-rose-50 to-pink-100',
-      link: '/shop?tags=boho'
+      link: '/shop/collection/boho-vibes'
     },
   ], []);
 

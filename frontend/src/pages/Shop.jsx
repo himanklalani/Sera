@@ -3,7 +3,7 @@ import { useLocation, useNavigate, Link, useParams } from 'react-router-dom';
 import SEO from '../components/SEO';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaFilter, FaSearch, FaShoppingCart, FaTimes, FaCheck, FaChevronLeft, FaChevronRight, FaStar } from 'react-icons/fa';
+import { FaFilter, FaSearch, FaShoppingCart, FaTimes, FaCheck, FaChevronLeft, FaChevronRight, FaStar, FaChevronDown } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { useCart } from '../components/CartContext';
 
@@ -78,6 +78,7 @@ const Shop = () => {
   const [sortBy, setSortBy] = useState(initialParams.sortBy);
   const [totalPages, setTotalPages] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const navigate = useNavigate();
   const { addToCart: contextAddToCart } = useCart();
   const categories = ['All', 'Necklace', 'Earrings', 'Bracelet', 'Combos', 'Apparel'];
@@ -505,19 +506,109 @@ const Shop = () => {
   };
 
 
-  const seoDescriptions = {
-    'All': "Explore our complete collection of affordable, minimalistic, and cutesy anti-tarnish jewelry. Sera's everyday luxury pieces are waterproof, skin-safe, and designed to shine forever.",
-    'Necklace': "Discover our elegant collection of anti-tarnish necklaces and dainty pendants. Perfect for layering or everyday wear, each waterproof gold necklace is designed to elevate your outfit without fading.",
-    'Earrings': "Shop lightweight, waterproof earrings made for everyday wear. From classic gold hoops to statement studs, find your new everyday staples here.",
-    'Bracelet': "Stack and style with our durable, water-resistant bracelets. Designed with premium waterproof technology so you can wear them through workouts, showers, and beyond.",
-    'Combos': "Curated jewelry sets and bundled pairings that make the perfect gift or addition to your own collection. Enjoy more style for less.",
-    'Apparel': "Coming Soon: A carefully selected capsule of minimal, everyday apparel to pair perfectly with your favorite Sera jewels."
+  const seoTitles = {
+    'All': 'Anti-Tarnish Waterproof Jewelry & Chic Women\'s Apparel | Sera Store',
+    'Necklace': 'Anti-Tarnish Waterproof Necklaces & Pendants | Sera',
+    'Earrings': 'Waterproof Anti-Tarnish Earrings, Hoops & Studs | Sera',
+    'Bracelet': 'Waterproof Anti-Tarnish Bracelets & Cuffs | Sera',
+    'Combos': 'Curated Jewelry Combo Sets & Gift Bundles | Sera',
+    'Apparel': 'Chic Women\'s Tops & Breathable Cotton Blend Apparel | Sera'
   };
+
+  const seoDescriptions = {
+    'All': "Explore Sera's collection of waterproof anti-tarnish jewelry, chic women's tops, matching jewelry combos, and curated gift boxes. Designed for effortless everyday wear.",
+    'Necklace': "Discover elegant anti-tarnish necklaces, dainty pendants, and layered chains. Waterproof and sweatproof, crafted for daily wear without fading.",
+    'Earrings': "Shop lightweight waterproof earrings made for everyday wear. From classic hoops to delicate studs and drop earrings, find your signature pair.",
+    'Bracelet': "Stack and style with durable, waterproof bracelets and cuffs. Sweatproof and tarnish-resistant for all-day wear.",
+    'Combos': "Curated matching jewelry combo sets and bundles. Beautifully paired necklaces, earrings, and bracelets at bundle prices—perfect gifts for her.",
+    'Apparel': "Shop chic women's tops and everyday clothes crafted from breathable, premium cotton blend fabrics. Effortless silhouettes designed for daily comfort and timeless grace."
+  };
+
+  const categoryFaqs = {
+    'Earrings': [
+      {
+        question: "Are Sera earrings waterproof and sweatproof?",
+        answer: "Yes, all Sera earrings are crafted to be fully waterproof and sweatproof. You can wear them through workouts, showers, and daily routines without tarnishing."
+      },
+      {
+        question: "What styles of earrings does Sera offer?",
+        answer: "Our collection features lightweight hoops, minimalist studs, huggies, and elegant drop earrings designed for all-day comfort."
+      },
+      {
+        question: "How do I care for anti-tarnish earrings?",
+        answer: "Simply wipe with a soft dry cloth after wearing and store in a clean pouch to keep them shining like new."
+      }
+    ],
+    'Necklace': [
+      {
+        question: "Can I wear Sera necklaces every day?",
+        answer: "Yes, our anti-tarnish necklaces are designed specifically for daily wear and layering. They maintain their luster through sweat and moisture."
+      },
+      {
+        question: "How do I keep layered necklaces from tangling?",
+        answer: "Layer necklaces of different lengths (such as 14, 16, and 18 inches) and mix chain textures to prevent twisting."
+      },
+      {
+        question: "Do necklaces include adjustable extenders?",
+        answer: "Most of our necklaces feature built-in extender chains so you can adjust the drop length for any neckline."
+      }
+    ],
+    'Bracelet': [
+      {
+        question: "Are Sera bracelets resistant to water?",
+        answer: "Yes, our bracelets are waterproof and sweatproof, making them safe for hand washing, gym sessions, and daily wear."
+      },
+      {
+        question: "How should I style stackable bracelets?",
+        answer: "Pair delicate chain bracelets with structured cuffs for an effortless, chic layered look."
+      }
+    ],
+    'Combos': [
+      {
+        question: "What is included in a Sera Jewelry Combo Set?",
+        answer: "Each combo set features matching, complementary pieces—such as matching necklaces, earrings, and bracelets—curated together at bundle savings."
+      },
+      {
+        question: "Are jewelry combos suitable for gifting?",
+        answer: "Yes, our curated combos are customer favorites for birthdays, anniversaries, and special celebrations, complete with optional gift cards and notes."
+      }
+    ],
+    'Apparel': [
+      {
+        question: "What fabrics are used in Sera women's tops?",
+        answer: "Our apparel is crafted from premium, breathable cotton blend fabrics that provide soft touch, gentle stretch, and all-day comfort."
+      },
+      {
+        question: "How do I find my size in Sera tops?",
+        answer: "Refer to our interactive Size Guide for detailed bust and length measurements across standard sizes."
+      },
+      {
+        question: "How should I wash Sera cotton blend tops?",
+        answer: "Machine wash on gentle cold cycle with similar colors and hang dry to maintain fabric softness and shape."
+      }
+    ],
+    'All': [
+      {
+        question: "What makes Sera products unique?",
+        answer: "Sera unites durable anti-tarnish, waterproof jewelry with chic, breathable women's fashion and curated gift combos for effortless everyday style."
+      },
+      {
+        question: "Does Sera offer free delivery across India?",
+        answer: "Yes, all orders above INR 999 automatically qualify for Free Shipping everywhere in India."
+      },
+      {
+        question: "Can I add a personalized gift message to my order?",
+        answer: "Yes, during checkout you can include a custom greeting card and heartfelt note for your recipient."
+      }
+    ]
+  };
+
+  const currentFaqs = categoryFaqs[selectedCategory] || categoryFaqs['All'];
 
   return (
     <div className="min-h-screen bg-white pt-16 md:pt-20">
       <SEO 
-        title={selectedCategory === 'All' ? 'Shop All Collections | Sera' : `Affordable Anti-Tarnish ${selectedCategory} | Sera`}
+        title={seoTitles[selectedCategory] || seoTitles['All']}
         description={seoDescriptions[selectedCategory] || seoDescriptions['All']}
         canonicalUrl={`https://www.serastore.in/shop${selectedCategory === 'All' ? '' : '/' + selectedCategory.toLowerCase()}`}
         schema={[
@@ -551,6 +642,18 @@ const Shop = () => {
                 "item": `https://www.serastore.in/shop/${selectedCategory.toLowerCase()}`
               }] : [])
             ]
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": currentFaqs.map((faq) => ({
+              "@type": "Question",
+              "name": faq.question,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": faq.answer
+              }
+            }))
           }
         ]}
       />
@@ -789,16 +892,73 @@ const Shop = () => {
 
             {!selectedTags.includes('bestseller') && renderPagination()}
 
-            {/* SEO Content Block */}
+            {/* SEO Buying Guide & FAQ Section */}
             <div className="mt-16 pt-8 border-t border-gray-100 pb-12">
-              <h2 className="text-xl md:text-2xl font-serif text-gray-900 mb-4">
-                {selectedCategory === 'All' ? 'Affordable Anti-Tarnish Jewelry' 
-                  : selectedCategory === 'Apparel' ? 'Premium Everyday Apparel'
-                  : `High-Quality Anti-Tarnish ${selectedCategory}`}
-              </h2>
-              <p className="text-gray-600 text-sm md:text-base leading-relaxed max-w-4xl">
-                {seoDescriptions[selectedCategory] || seoDescriptions['All']}
-              </p>
+              <div className="bg-rose-50/50 rounded-2xl p-6 md:p-8 border border-rose-100/60 mb-8">
+                <h2 className="text-xl md:text-2xl font-serif text-gray-900 mb-3">
+                  {selectedCategory === 'All'
+                    ? 'Anti-Tarnish Waterproof Jewelry & Women\'s Everyday Fashion'
+                    : selectedCategory === 'Apparel'
+                    ? 'Chic Women\'s Tops & Breathable Cotton Blend Apparel'
+                    : selectedCategory === 'Combos'
+                    ? 'Matching Jewelry Combo Sets & Gift Bundles for Her'
+                    : `Anti-Tarnish Waterproof ${selectedCategory} for Daily Wear`}
+                </h2>
+                <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-4">
+                  {seoDescriptions[selectedCategory] || seoDescriptions['All']}
+                </p>
+                <p className="text-gray-500 text-xs md:text-sm leading-relaxed">
+                  {selectedCategory === 'Apparel'
+                    ? 'Each piece in our apparel collection is thoughtfully tailored from soft cotton blend fabrics to blend effortlessly into your daily wardrobe—from casual brunch to evening outings.'
+                    : selectedCategory === 'Combos'
+                    ? 'Our matching sets take the guesswork out of styling. Designed as coordinated pairs of necklaces, earrings, and bracelets, they make meaningful, memorable gifts for her.'
+                    : 'Crafted for active lifestyles and effortless elegance, our anti-tarnish waterproof pieces stay bright and durable through showers, workouts, and busy days without fading.'}
+                </p>
+              </div>
+
+              {/* FAQ Accordion */}
+              <div className="space-y-3">
+                <h3 className="font-serif text-lg md:text-xl font-medium text-gray-900 mb-4">
+                  Frequently Asked Questions
+                </h3>
+                {currentFaqs.map((faq, idx) => {
+                  const isOpen = openFaqIndex === idx;
+                  return (
+                    <div
+                      key={idx}
+                      className="border border-gray-200 rounded-xl overflow-hidden transition-colors bg-white"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                        className="w-full flex items-center justify-between p-4 md:p-5 text-left text-sm md:text-base font-medium text-gray-900 hover:text-rose-600 transition-colors"
+                      >
+                        <span>{faq.question}</span>
+                        <FaChevronDown
+                          className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 flex-shrink-0 ml-3 ${
+                            isOpen ? 'rotate-180 text-rose-500' : ''
+                          }`}
+                        />
+                      </button>
+                      <AnimatePresence>
+                        {isOpen && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="px-4 pb-4 md:px-5 md:pb-5 pt-0 text-xs md:text-sm text-gray-600 leading-relaxed border-t border-gray-50">
+                              {faq.answer}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </motion.div>
         </div>

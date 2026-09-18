@@ -102,11 +102,29 @@ const BlogPost = () => {
           dangerouslySetInnerHTML={{ __html: blog.content }}
         />
         
-        <div className="mt-16 pt-8 border-t border-gray-100 flex flex-col items-center">
-          <p className="text-gray-500 font-inter mb-4 text-center">Loved this article? Shop the collection below.</p>
-          <Link to="/shop" className="bg-rose-500 text-white px-8 py-3 rounded-full font-inter font-medium hover:bg-rose-600 transition-all shadow-md hover:shadow-lg">
-            Shop Sera Jewels
-          </Link>
+        <div className="mt-16 pt-10 border-t border-gray-100 not-prose">
+          <h3 className="text-2xl font-serif text-gray-900 text-center mb-3">Explore the Collections</h3>
+          <p className="text-gray-500 font-inter text-sm mb-6 text-center">Complete your style with our waterproof, sweatproof jewelry and modern apparel.</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link to="/shop/necklaces" className="px-5 py-2.5 rounded-full border border-gray-200 text-xs font-semibold text-gray-800 hover:border-rose-500 hover:text-rose-600 transition-colors">
+              Waterproof Necklaces
+            </Link>
+            <Link to="/shop/earrings" className="px-5 py-2.5 rounded-full border border-gray-200 text-xs font-semibold text-gray-800 hover:border-rose-500 hover:text-rose-600 transition-colors">
+              Anti-Tarnish Earrings
+            </Link>
+            <Link to="/shop/bracelets" className="px-5 py-2.5 rounded-full border border-gray-200 text-xs font-semibold text-gray-800 hover:border-rose-500 hover:text-rose-600 transition-colors">
+              Tarnish-Resistant Bracelets
+            </Link>
+            <Link to="/shop/combos" className="px-5 py-2.5 rounded-full border border-gray-200 text-xs font-semibold text-gray-800 hover:border-rose-500 hover:text-rose-600 transition-colors">
+              Jewelry Combo Sets
+            </Link>
+            <Link to="/shop/apparel" className="px-5 py-2.5 rounded-full border border-gray-200 text-xs font-semibold text-gray-800 hover:border-rose-500 hover:text-rose-600 transition-colors">
+              Chic Women's Tops
+            </Link>
+            <Link to="/gifts" className="px-5 py-2.5 rounded-full bg-rose-500 text-white text-xs font-semibold hover:bg-rose-600 transition-colors">
+              Curated Gifting Hub
+            </Link>
+          </div>
         </div>
       </article>
     </>

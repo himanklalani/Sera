@@ -389,13 +389,34 @@ const ProductDetails = () => {
 
   if (!product) return null;
 
+  const isApparel = product.category?.toLowerCase() === 'apparel';
+  const isCombo = product.isCombo || product.category?.toLowerCase() === 'combos';
+
+  const categoryDisplay = isApparel
+    ? "Chic Women's Apparel & Tops"
+    : isCombo
+    ? "Jewelry Combo Set & Gift Bundle"
+    : `Waterproof Anti-Tarnish ${product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1).toLowerCase() : 'Jewelry'}`;
+
+  const defaultDescription = isApparel
+    ? `Buy ${product.name} at Sera. Chic, breathable cotton blend women's top designed for effortless everyday comfort.`
+    : isCombo
+    ? `Buy ${product.name} at Sera. Matching anti-tarnish jewelry combo set curated at bundle pricing—ideal gift for her.`
+    : `Buy ${product.name} at Sera. Waterproof, anti-tarnish, and sweatproof everyday jewelry crafted to last.`;
+
+  const metaTitle = `${product.name} | ${categoryDisplay} | Sera`;
+
   const jsonLd = {
     "@context": "https://schema.org/",
     "@type": "Product",
     "name": product.name,
-    "image": product.images || [],
-    "description": product.description || `Beautiful anti-tarnish ${product.category} from Sera.`,
-    "sku": product._id,
+    "image": product.images && product.images.length > 0 ? product.images : [FALLBACK_IMAGE],
+    "description": product.description || defaultDescription,
+    "sku": product.sku || product._id,
+    "brand": {
+      "@type": "Brand",
+      "name": "Sera"
+    },
     "offers": {
       "@type": "Offer",
       "url": window.location.href,
@@ -448,8 +469,8 @@ const ProductDetails = () => {
   return (
     <>
       <SEO 
-        title={`${product.name} | ${product.category === 'Apparel' ? 'Premium Everyday Apparel' : `Affordable Anti-Tarnish ${product.category}`}`}
-        description={product.description?.substring(0, 160) || `Buy the ${product.name}. ${product.category === 'Apparel' ? 'Premium, minimal, and everyday comfortable apparel.' : 'Affordable, waterproof, and high-quality anti-tarnish jewelry.'}`}
+        title={metaTitle}
+        description={product.description?.substring(0, 160) || defaultDescription}
         canonicalUrl={`https://www.serastore.in/product/${product._id}`}
         ogImage={product.images?.[0] || FALLBACK_IMAGE}
         schema={[jsonLd, breadcrumbSchema]}
@@ -486,7 +507,7 @@ const ProductDetails = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
               src={product.images?.[selectedImage] || FALLBACK_IMAGE}
-              alt={`${product.name} - Anti-Tarnish Premium Jewelry`}
+              alt={`${product.name} - ${isApparel ? "Chic Women's Tops & Apparel" : "Anti-Tarnish Waterproof Jewelry"} | Sera`}
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 e.currentTarget.src = FALLBACK_IMAGE;

@@ -9,46 +9,68 @@ const generateGoogleMerchantXML = (products) => {
   xml += `  <channel>\n`;
   xml += `    <title>Sera Jewels</title>\n`;
   xml += `    <link>https://www.serastore.in</link>\n`;
-  xml += `    <description>Premium Anti-Tarnish Minimalist Jewelry</description>\n`;
+  xml += `    <description>Premium Anti-Tarnish Waterproof Jewelry &amp; Women's Chic Apparel</description>\n`;
 
-  products.forEach(product => {
+  products.forEach((product) => {
     // Only include active products with a price and an image
     if (product.isActive && product.price > 0 && product.images && product.images.length > 0) {
       // Escape special characters for XML
       const escapeXML = (str) => {
         if (!str) return '';
-        return str.replace(/&/g, '&amp;')
-                  .replace(/</g, '&lt;')
-                  .replace(/>/g, '&gt;')
-                  .replace(/"/g, '&quot;')
-                  .replace(/'/g, '&apos;');
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&apos;');
       };
 
+      const isApparel = product.category?.toLowerCase() === 'apparel';
       const title = escapeXML(product.name);
-      // Use fallback description if missing
-      const description = escapeXML(product.description || `Buy ${product.name} at Sera Jewels. Premium anti-tarnish jewelry.`);
+      const defaultDesc = isApparel
+        ? `Shop ${product.name} at Sera. Chic, breathable cotton blend women's top designed for everyday comfort.`
+        : `Buy ${product.name} at Sera. Premium anti-tarnish, waterproof everyday jewelry.`;
+
+      const description = escapeXML(product.description || defaultDesc);
       const link = `https://www.serastore.in/product/${product._id}`;
+
       // Google requires absolute image URLs
-      let imageLink = product.images[0];
-      if (!imageLink.startsWith('http')) {
-        imageLink = `https://www.serastore.in${imageLink}`;
+      let primaryImage = product.images[0];
+      if (!primaryImage.startsWith('http')) {
+        primaryImage = `https://www.serastore.in${primaryImage}`;
       }
-      
+
       const price = `${product.price}.00 INR`;
       const availability = product.stock > 0 ? 'in_stock' : 'out_of_stock';
+      const productType = isApparel
+        ? 'Apparel &amp; Accessories &gt; Clothing &gt; Tops'
+        : 'Apparel &amp; Accessories &gt; Jewelry';
+      const googleCategory = isApparel ? '212' : '188';
 
       xml += `    <item>\n`;
       xml += `      <g:id>${product._id}</g:id>\n`;
       xml += `      <g:title>${title}</g:title>\n`;
       xml += `      <g:description>${description}</g:description>\n`;
       xml += `      <g:link>${link}</g:link>\n`;
-      xml += `      <g:image_link>${imageLink}</g:image_link>\n`;
+      xml += `      <g:image_link>${escapeXML(primaryImage)}</g:image_link>\n`;
+
+      // Additional images for Google Shopping image carousels
+      if (product.images.length > 1) {
+        product.images.slice(1, 10).forEach((extraImg) => {
+          let extraUrl = extraImg;
+          if (!extraUrl.startsWith('http')) {
+            extraUrl = `https://www.serastore.in${extraUrl}`;
+          }
+          xml += `      <g:additional_image_link>${escapeXML(extraUrl)}</g:additional_image_link>\n`;
+        });
+      }
+
       xml += `      <g:price>${price}</g:price>\n`;
       xml += `      <g:availability>${availability}</g:availability>\n`;
       xml += `      <g:condition>new</g:condition>\n`;
-      // Google requires a brand for jewelry
-      xml += `      <g:brand>Sera</g:brand>\n`; 
-      // If we don't have GTIN/MPN, we set identifier_exists to false
+      xml += `      <g:brand>Sera</g:brand>\n`;
+      xml += `      <g:product_type>${productType}</g:product_type>\n`;
+      xml += `      <g:google_product_category>${googleCategory}</g:google_product_category>\n`;
       xml += `      <g:identifier_exists>no</g:identifier_exists>\n`;
       xml += `    </item>\n`;
     }
@@ -65,7 +87,7 @@ router.get('/google-merchant', async (req, res) => {
   try {
     const products = await Product.find({ isActive: true });
     const xmlData = generateGoogleMerchantXML(products);
-    
+
     res.header('Content-Type', 'application/xml');
     res.send(xmlData);
   } catch (error) {

@@ -26,12 +26,12 @@ export default function NavOverlay({ isOpen, onClose }) {
       path: '/shop',
       isExpandable: true,
       subItems: [
-        { name: 'All Products', path: '/shop' }, // Added "All Products" option
-        { name: 'Necklace', path: '/shop?category=Necklace' }, 
-        { name: 'Earrings', path: '/shop?category=Earrings' },
-        { name: 'Bracelets', path: '/shop?category=Bracelet' },
-        { name: 'Combos', path: '/shop?category=Combos' },
-        { name: 'Apparel', path: '/shop?category=Apparel' },
+        { name: 'All Products', path: '/shop' },
+        { name: 'Necklaces', path: '/shop/necklaces' }, 
+        { name: 'Earrings', path: '/shop/earrings' },
+        { name: 'Bracelets', path: '/shop/bracelets' },
+        { name: 'Combos', path: '/shop/combos' },
+        { name: 'Apparel', path: '/shop/apparel' },
       ]
     },
     { title: 'Gifting Hub', path: '/gifts' },

@@ -91,3 +91,28 @@ This file tracks the SEO and Performance Optimization changes that have been pus
 - **"Add to Cart" ➔ "Go to Cart" Transition (`productdetails.jsx`):** Automatically transitions the main CTA button to an interactive "Go to Cart ➔" action button once an item is added to the cart, eliminating mobile checkout reach friction while maintaining a clean aesthetic. Provides an inline "+ Add another to cart" secondary action and dynamic size-awareness.
 - **Master Technical Blueprint Audit (`Rules.md`):** Complete synchronization of database schemas (`Blog`, `Order`, `Product`, `User`, `Coupon`), full API endpoint inventory (including Google Merchant Center feed, share crawler endpoints, auth endpoints), frontend context providers, and social share watermarking architecture.
 
+## Push Date: September 18, 2026
+
+### 9. Strategy 3 & 4: Gifting & Occasion Search Expansion + Sitewide Descriptive Anchor Text Architecture
+- **Strategy 3 (Gifting & Female Fashion Occasion Search Engine Optimization):**
+  - **New High-Intent SEO Gifting Articles:** Authored and seeded 2 strategic articles into MongoDB:
+    1. *"5 Thoughtful Jewelry Gift Sets for Her Under ₹1,500"* (`/journal/5-thoughtful-jewelry-gift-sets-under-1500`) targeting price-conscious gift seekers and birthdays/anniversaries.
+    2. *"The Ultimate Gifting Guide: Thoughtful Gifts for Her (Jewelry Combos & Chic Tops)"* (`/journal/ultimate-gifting-guide-jewelry-gift-sets-for-her`) targeting occasion searches and wardrobe capsule gifts.
+  - **Database Blog Sanitization:** Ran a full audit across all 8 published blog articles in MongoDB. Sanitized 100% of forbidden vocabulary terms (no coating, PVD, plating, hypoallergenic, stainless steel, gold, silver, demi-fine, everyday luxury, skin-friendly) and replaced them with approved search-intent phrases.
+  - **Gifting Hub Revamp (`GiftingHub.jsx`):** Replaced query links with direct canonical category cards (`/shop/necklaces`, `/shop/combos`, `/shop/earrings`, `/shop/apparel`). Added rich occasion-based gift discovery and highlighted unboxing packaging.
+- **Strategy 4 (Sitewide Descriptive Anchor Text & Canonical Internal Linking):**
+  - **Canonical Category Routing:** Replaced legacy query URLs (`/shop?category=...`) in `NavOverlay.jsx`, `Home.jsx`, and `GiftingHub.jsx` with canonical routes (`/shop/necklaces`, `/shop/earrings`, `/shop/bracelets`, `/shop/combos`, `/shop/apparel`), completely resolving Google Search Console canonical validation flags.
+  - **Descriptive Anchor Text Injections:** Replaced generic CTA links ("Shop", "Click here", "Explore") across `JewelryCare.jsx`, `MaterialsGuide.jsx`, `SizeGuide.jsx`, `Sustainability.jsx`, and `Footer.jsx` with high-ranking keyword anchors:
+    - `"anti-tarnish waterproof necklaces"` ➔ `/shop/necklaces`
+    - `"waterproof earrings"` ➔ `/shop/earrings`
+    - `"tarnish-resistant bracelets"` ➔ `/shop/bracelets`
+    - `"matching jewelry combo sets"` ➔ `/shop/combos`
+    - `"chic cotton blend tops"` ➔ `/shop/apparel`
+    - `"curated jewelry gifting hub"` ➔ `/gifts`
+    - `"complete jewelry care guide"` ➔ `/jewelry-care`
+  - **Sitewide Footer Architecture (`Footer.jsx`):** Restructured footer into a dedicated 4-column layout including a "Collections" column and "Guides & Gifts" column with keyword-rich internal anchors on every page.
+  - **Blog Post Interlinking Grid (`BlogPost.jsx`):** Added a category explore hub at the foot of every single Journal article passing link juice to all core categories.
+- **Strict Brand Negative Vocabulary Compliance:**
+  - Audited all frontend pages and backend content ensuring 0 occurrences of forbidden terms.
+
+

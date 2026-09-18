@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { motion } from 'framer-motion';
 
@@ -23,8 +24,8 @@ const SizeGuide = () => {
   return (
     <div className="min-h-screen bg-rose-50/30 text-gray-900 pt-32 pb-24">
       <SEO
-        title="Apparel Size Guide | Sera"
-        description="Find your perfect fit. Our comprehensive size guide for Sera apparel collections in inches and centimeters."
+        title="Apparel Size Guide | Sera Women's Fashion"
+        description="Find your perfect fit. Our comprehensive size guide for Sera women's cotton blend tops and apparel in inches and centimeters."
         canonicalUrl="https://www.serastore.in/size-guide"
       />
 
@@ -41,7 +42,7 @@ const SizeGuide = () => {
             Apparel Size Guide
           </h1>
           <p className="text-base md:text-lg text-gray-500 max-w-2xl mx-auto font-light tracking-wide">
-            Measure yourself and use the chart below to find your perfect Sera fit.
+            Measure yourself and use the chart below to find your perfect Sera fit in our breathable women's tops.
           </p>
         </motion.div>
         
@@ -102,6 +103,33 @@ const SizeGuide = () => {
             </tbody>
           </table>
         </motion.div>
+
+        {/* Strategy 4 Contextual Navigation Links */}
+        <div className="mt-16 text-center space-y-6">
+          <p className="text-gray-600 text-sm">
+            Found your size? Explore our tailored silhouettes and coordinate with matching accessories.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link 
+              to="/shop/apparel" 
+              className="inline-block bg-black text-white px-8 py-3 uppercase tracking-widest text-xs font-semibold hover:bg-rose-600 transition-colors"
+            >
+              Shop Women's Tops
+            </Link>
+            <Link 
+              to="/shop/necklaces" 
+              className="inline-block bg-white text-gray-900 border border-gray-300 px-8 py-3 uppercase tracking-widest text-xs font-semibold hover:border-rose-600 hover:text-rose-600 transition-colors"
+            >
+              Pair with Waterproof Necklaces
+            </Link>
+            <Link 
+              to="/shop/combos" 
+              className="inline-block bg-white text-gray-900 border border-gray-300 px-8 py-3 uppercase tracking-widest text-xs font-semibold hover:border-rose-600 hover:text-rose-600 transition-colors"
+            >
+              Matching Jewelry Combos
+            </Link>
+          </div>
+        </div>
         
       </div>
     </div>

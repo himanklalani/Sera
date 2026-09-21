@@ -74,10 +74,17 @@ const generateGoogleMerchantXML = (products) => {
       xml += `      <g:identifier_exists>no</g:identifier_exists>\n`;
       xml += `      <g:gender>female</g:gender>\n`;
       xml += `      <g:age_group>adult</g:age_group>\n`;
+      xml += `      <g:shipping_label>${isApparel ? 'apparel' : 'jewelry'}</g:shipping_label>\n`;
+      xml += `      <g:min_handling_time>${isApparel ? 5 : 2}</g:min_handling_time>\n`;
+      xml += `      <g:max_handling_time>${isApparel ? 7 : 3}</g:max_handling_time>\n`;
       xml += `      <g:shipping>\n`;
       xml += `        <g:country>IN</g:country>\n`;
-      xml += `        <g:service>Standard Delivery</g:service>\n`;
+      xml += `        <g:service>${isApparel ? 'Custom Stitched Apparel Delivery' : 'Standard Delivery'}</g:service>\n`;
       xml += `        <g:price>${product.price > 999 ? '0.00' : '100.00'} INR</g:price>\n`;
+      xml += `        <g:min_handling_time>${isApparel ? 5 : 2}</g:min_handling_time>\n`;
+      xml += `        <g:max_handling_time>${isApparel ? 7 : 3}</g:max_handling_time>\n`;
+      xml += `        <g:min_transit_time>5</g:min_transit_time>\n`;
+      xml += `        <g:max_transit_time>${isApparel ? 7 : 5}</g:max_transit_time>\n`;
       xml += `      </g:shipping>\n`;
       xml += `    </item>\n`;
     }

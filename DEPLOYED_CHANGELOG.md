@@ -147,8 +147,13 @@ This file tracks the SEO and Performance Optimization changes that have been pus
   - Found and fixed a critical crawler trap in `frontend/vercel.json` where a greedy `bot|Bot|Crawler|Spider` regex was intercepting Googlebot and StoreBot-Google requests on `/product/:id` and `/journal/:slug`.
   - The interception was sending search engine crawlers to a backend share endpoint with a self-referencing `<meta http-equiv="refresh">` loop, causing Merchant Center to flag "Product page unavailable" and GSC to abandon crawling with "Discovered – currently not indexed (Last crawled: N/A)".
   - Narrowed regex to only target social sharing unfurlers (`WhatsApp`, `facebookexternalhit`, `Facebot`, `Twitterbot`, `LinkedInBot`, `Pinterest`, `TelegramBot`, `Discordbot`, `Slackbot`). All search and shopping bots now receive the full React application with rendered DOM, pricing, schema, and CTAs.
-- **Resolution of "Missing shipping information" (`backend/routes/feedRoutes.js`):**
-  - Injected compliant `<g:shipping>` nodes into the Google Merchant Center XML feed, matching Sera's delivery policy (Standard Delivery: Free above INR 999, INR 100 below INR 999).
+- **Resolution of "Missing shipping information" & Category-Specific Delivery Times (`feedRoutes.js`, `productdetails.jsx`):**
+  - Injected compliant `<g:shipping>` nodes and item-level handling times into the Google Merchant Center XML feed:
+    - **Jewelry:** Handling 2–3 business days + Transit 3–4 business days (**5–7 business days total**).
+    - **Apparel (Custom Stitched):** Handling 5–7 business days + Transit 5 business days (**10–12 business days total**).
+    - Added `<g:shipping_label>apparel</g:shipping_label>` vs `<g:shipping_label>jewelry</g:shipping_label>`.
+    - Maintained delivery price policy (Free above INR 999, INR 100 below INR 999).
+  - Updated `productdetails.jsx` shipping badge to display `"Custom stitched & delivered in 10-12 business days"` for apparel.
   - Injected `<g:gender>female</g:gender>` and `<g:age_group>adult</g:age_group>` tags for Google Shopping taxonomy compliance.
 - **Cart Add-on Feed Sanitization (`feedRoutes.js`, `sitemapRoutes.js`):**
   - Filtered out non-catalog cart upsells (`isAddon: true` and `category: 'add-on'`, e.g., Kit Kat, Greeting Card, Scrunchie) from Google Merchant Center and public XML sitemaps.

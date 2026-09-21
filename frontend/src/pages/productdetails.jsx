@@ -875,7 +875,7 @@ const ProductDetails = () => {
             
             {/* Original Shipping Notice */}
             <div className="absolute -bottom-8 left-0 right-0 flex items-center justify-center gap-1.5 text-gray-400 text-[11px] font-medium tracking-wide">
-              <span>{product.category?.toLowerCase().includes('apparel') ? 'Shipped in 7-10 business days' : 'Shipped in 5-7 business days'}</span>
+              <span>{product.category?.toLowerCase().includes('apparel') ? 'Custom stitched & delivered in 10-12 business days' : 'Shipped in 5-7 business days'}</span>
             </div>
           </div>
 

@@ -726,12 +726,12 @@ const ProductDetails = () => {
                    selectedSize === 'L'  ? <span>Chest 38" <span className="text-gray-300 font-light mx-1.5">|</span> Waist 30" <span className="text-gray-300 font-light mx-1.5">|</span> Hip 38"</span> :
                    <span className="text-gray-500">Select a size to view measurements</span>}
                 </div>
-                <button 
-                  onClick={() => navigate('/size-guide')}
+                <Link 
+                  to="/size-guide"
                   className="bg-rose-600 text-white px-4 py-1.5 rounded-full hover:bg-rose-700 transition-colors whitespace-nowrap shadow-sm"
                 >
                   What's my size?
-                </button>
+                </Link>
               </div>
 
               {/* Size Buttons */}
@@ -766,12 +766,12 @@ const ProductDetails = () => {
                   <p className="text-[11px] text-gray-500">Universal Fit • Adjustable • Fits All</p>
                 </div>
               </div>
-              <button
-                onClick={() => navigate('/size-guide')}
+              <Link
+                to="/size-guide"
                 className="text-xs font-semibold text-rose-600 hover:text-rose-700 underline tracking-wide"
               >
                 Size Guide
-              </button>
+              </Link>
             </div>
           )}
 
@@ -1154,6 +1154,9 @@ const ProductDetails = () => {
           {/* ========== GLOBAL CONTEXTUAL SEO LINKS ========== */}
           {!product.category?.toLowerCase().includes('apparel') && (
             <div className="mt-12 bg-gray-50/50 rounded-2xl p-6 border border-gray-100 shadow-sm flex flex-col gap-3">
+              <p className="text-gray-700">
+                <strong>Materials & Quality:</strong> Crafted with high-grade base metals and an advanced waterproof finish. <Link to="/materials" className="text-rose-600 hover:underline font-medium">Explore our Materials Guide</Link>.
+              </p>
               <p className="text-gray-700">
                 <strong>Care Instructions:</strong> Our advanced waterproof technology ensures everyday durability. <Link to="/jewelry-care" className="text-rose-600 hover:underline font-medium">Read our full Jewelry Care guide</Link>.
               </p>

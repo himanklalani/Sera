@@ -157,3 +157,15 @@ This file tracks the SEO and Performance Optimization changes that have been pus
   - Injected `<g:gender>female</g:gender>` and `<g:age_group>adult</g:age_group>` tags for Google Shopping taxonomy compliance.
 - **Cart Add-on Feed Sanitization (`feedRoutes.js`, `sitemapRoutes.js`):**
   - Filtered out non-catalog cart upsells (`isAddon: true` and `category: 'add-on'`, e.g., Kit Kat, Greeting Card, Scrunchie) from Google Merchant Center and public XML sitemaps.
+
+### 13. Deep Internal Linking Perfection & Semantic Crawlability Pass
+- **Navigation Drawer Semantic Links (`NavOverlay.jsx`):**
+  - Converted JavaScript button click handlers into true semantic `<Link to="...">` components across primary and category sub-menus. Guarantees search engines crawl the full navigation tree on mobile and desktop viewports.
+- **Product Page Cross-Linking Wheel (`productdetails.jsx`):**
+  - Replaced JavaScript `navigate('/size-guide')` buttons with semantic `<Link to="/size-guide">` tags across apparel measurements and jewelry free-size badges.
+  - Injected an explicit internal backlink to the Materials Guide (`/materials`) into the product specs section, completing the three-way link wheel between every product and `/materials`, `/jewelry-care`, and `/sustainability`.
+- **HTML Sitemap Synchronization (`Sitemap.jsx`):**
+  - Removed outdated link to non-existent `/shop/rings`.
+  - Added dedicated keyword links for `Jewelry Combo Sets` (`/shop/combos`) and `Chic Women's Tops` (`/shop/apparel`).
+- **404 Recovery Funnel (`NotFound.jsx`):**
+  - Updated primary CTA button to link to `/shop` ("EXPLORE THE SHOP") and added quick collection pill links (`Necklaces`, `Earrings`, `Bracelets`, `Combo Sets`, `Gifting Hub`) to prevent dead-end crawling drops.

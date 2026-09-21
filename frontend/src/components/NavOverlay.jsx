@@ -83,13 +83,14 @@ export default function NavOverlay({ isOpen, onClose }) {
                     <div>
                       <div className="flex">
                         {/* Clickable Products title - takes 80% width */}
-                        <button 
-                          onClick={() => handleLinkClick(item.path)}
+                        <Link 
+                          to={item.path}
+                          onClick={onClose}
                           className="flex-1 flex items-center p-6 text-left group"
                           aria-label={`Go to ${item.title}`}
                         >
                           <span className="text-2xl font-serif text-gray-900 group-hover:text-rose-600 transition-colors">{item.title}</span>
-                        </button>
+                        </Link>
                         
                         {/* Dropdown toggle button - takes 20% width */}
                         <button 
@@ -111,21 +112,23 @@ export default function NavOverlay({ isOpen, onClose }) {
                             className="bg-rose-50 border-t border-rose-100"
                           >
                             {item.subItems.map((sub) => (
-                              <button
+                              <Link
                                 key={sub.name}
-                                onClick={() => handleLinkClick(sub.path)}
+                                to={sub.path}
+                                onClick={onClose}
                                 className="block w-full text-left py-3 px-8 text-lg font-serif text-gray-700 hover:text-rose-600 hover:bg-rose-100 transition-colors"
                               >
                                 {sub.name}
-                              </button>
+                              </Link>
                             ))}
                           </motion.div>
                         )}
                       </AnimatePresence>
                     </div>
                   ) : (
-                    <button 
-                      onClick={() => handleLinkClick(item.path)}
+                    <Link 
+                      to={item.path}
+                      onClick={onClose}
                       className="w-full flex justify-between items-center p-6 text-left group"
                       aria-label={`Go to ${item.title}`}
                     >
@@ -142,7 +145,7 @@ export default function NavOverlay({ isOpen, onClose }) {
                         )}
                       </div>
                       <span className="text-gray-300 group-hover:text-rose-400 transition-colors">→</span>
-                    </button>
+                    </Link>
                   )}
                 </motion.div>
               ))}

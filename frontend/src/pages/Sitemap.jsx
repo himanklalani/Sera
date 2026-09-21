@@ -23,12 +23,13 @@ const Sitemap = () => {
           <div>
             <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Shop</h2>
             <ul className="space-y-3">
-              <li><Link to="/shop" className="text-gray-600 hover:text-rose-600 transition-colors">All Jewelry</Link></li>
-              <li><Link to="/shop/rings" className="text-gray-600 hover:text-rose-600 transition-colors">Rings</Link></li>
-              <li><Link to="/shop/earrings" className="text-gray-600 hover:text-rose-600 transition-colors">Earrings</Link></li>
-              <li><Link to="/shop/necklaces" className="text-gray-600 hover:text-rose-600 transition-colors">Necklaces</Link></li>
-              <li><Link to="/shop/bracelets" className="text-gray-600 hover:text-rose-600 transition-colors">Bracelets</Link></li>
-              <li><Link to="/gifts" className="text-gray-600 hover:text-rose-600 transition-colors">Gifting Hub</Link></li>
+              <li><Link to="/shop" className="text-gray-600 hover:text-rose-600 transition-colors">All Products</Link></li>
+              <li><Link to="/shop/necklaces" className="text-gray-600 hover:text-rose-600 transition-colors">Waterproof Necklaces</Link></li>
+              <li><Link to="/shop/earrings" className="text-gray-600 hover:text-rose-600 transition-colors">Anti-Tarnish Earrings</Link></li>
+              <li><Link to="/shop/bracelets" className="text-gray-600 hover:text-rose-600 transition-colors">Tarnish-Resistant Bracelets</Link></li>
+              <li><Link to="/shop/combos" className="text-gray-600 hover:text-rose-600 transition-colors">Jewelry Combo Sets</Link></li>
+              <li><Link to="/shop/apparel" className="text-gray-600 hover:text-rose-600 transition-colors">Chic Women's Tops</Link></li>
+              <li><Link to="/gifts" className="text-gray-600 hover:text-rose-600 transition-colors">Curated Gifting Hub</Link></li>
             </ul>
           </div>
 

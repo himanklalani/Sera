@@ -17,7 +17,11 @@ const TODAY = new Date().toISOString().split('T')[0];
 
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find({ isActive: true }).select('_id name category images updatedAt');
+    const products = await Product.find({ 
+      isActive: true, 
+      isAddon: { $ne: true },
+      category: { $nin: ['add-on', 'addon'] }
+    }).select('_id name category images updatedAt');
     const blogs = await Blog.find({ isPublished: true }).select('slug title coverImage updatedAt');
 
     const baseUrl = 'https://www.serastore.in';

@@ -23,7 +23,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(?:WhatsApp|facebookexternalhit|Twitterbot|LinkedInBot|Pinterest|bot|Bot|Crawler|Spider).*"
+          "value": ".*(?:WhatsApp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Pinterest|TelegramBot|Discordbot|Slackbot).*"
         }
       ],
       "destination": "https://backend.serastore.in/api/blogs/share/:slug"
@@ -34,7 +34,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(?:WhatsApp|facebookexternalhit|Twitterbot|LinkedInBot|Pinterest|bot|Bot|Crawler|Spider).*"
+          "value": ".*(?:WhatsApp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Pinterest|TelegramBot|Discordbot|Slackbot).*"
         }
       ],
       "destination": "https://backend.serastore.in/api/products/share/:id"

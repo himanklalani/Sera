@@ -72,6 +72,13 @@ const generateGoogleMerchantXML = (products) => {
       xml += `      <g:product_type>${productType}</g:product_type>\n`;
       xml += `      <g:google_product_category>${googleCategory}</g:google_product_category>\n`;
       xml += `      <g:identifier_exists>no</g:identifier_exists>\n`;
+      xml += `      <g:gender>female</g:gender>\n`;
+      xml += `      <g:age_group>adult</g:age_group>\n`;
+      xml += `      <g:shipping>\n`;
+      xml += `        <g:country>IN</g:country>\n`;
+      xml += `        <g:service>Standard Delivery</g:service>\n`;
+      xml += `        <g:price>${product.price > 999 ? '0.00' : '100.00'} INR</g:price>\n`;
+      xml += `      </g:shipping>\n`;
       xml += `    </item>\n`;
     }
   });
@@ -85,7 +92,11 @@ const generateGoogleMerchantXML = (products) => {
 // Description: Returns an XML RSS feed of all active products formatted for Google Merchant Center
 router.get('/google-merchant', async (req, res) => {
   try {
-    const products = await Product.find({ isActive: true });
+    const products = await Product.find({ 
+      isActive: true, 
+      isAddon: { $ne: true },
+      category: { $nin: ['add-on', 'addon'] }
+    });
     const xmlData = generateGoogleMerchantXML(products);
 
     res.header('Content-Type', 'application/xml');

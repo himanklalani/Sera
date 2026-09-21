@@ -139,3 +139,16 @@ This file tracks the SEO and Performance Optimization changes that have been pus
   - Removed legacy static `frontend/public/sitemap.xml` file (dating from August 18, 2026 containing only 19 static/outdated links).
   - Vercel's edge routing prioritizes public static assets above `vercel.json` rewrites. Deleting this file allowed the rule `"source": "/sitemap.xml"` ➔ `"destination": "https://backend.serastore.in/sitemap.xml"` to take effect.
   - Live sitemap now dynamically generates and serves all **78 URLs** (19 core/category/info pages, all active products with Google Image XML schemas, and published journal articles).
+
+## Push Date: September 21, 2026
+
+### 12. Google Merchant Center & Search Console Crawler Loop Remediation
+- **Resolution of "Product page unavailable" & GSC "Discovered – currently not indexed":**
+  - Found and fixed a critical crawler trap in `frontend/vercel.json` where a greedy `bot|Bot|Crawler|Spider` regex was intercepting Googlebot and StoreBot-Google requests on `/product/:id` and `/journal/:slug`.
+  - The interception was sending search engine crawlers to a backend share endpoint with a self-referencing `<meta http-equiv="refresh">` loop, causing Merchant Center to flag "Product page unavailable" and GSC to abandon crawling with "Discovered – currently not indexed (Last crawled: N/A)".
+  - Narrowed regex to only target social sharing unfurlers (`WhatsApp`, `facebookexternalhit`, `Facebot`, `Twitterbot`, `LinkedInBot`, `Pinterest`, `TelegramBot`, `Discordbot`, `Slackbot`). All search and shopping bots now receive the full React application with rendered DOM, pricing, schema, and CTAs.
+- **Resolution of "Missing shipping information" (`backend/routes/feedRoutes.js`):**
+  - Injected compliant `<g:shipping>` nodes into the Google Merchant Center XML feed, matching Sera's delivery policy (Standard Delivery: Free above INR 999, INR 100 below INR 999).
+  - Injected `<g:gender>female</g:gender>` and `<g:age_group>adult</g:age_group>` tags for Google Shopping taxonomy compliance.
+- **Cart Add-on Feed Sanitization (`feedRoutes.js`, `sitemapRoutes.js`):**
+  - Filtered out non-catalog cart upsells (`isAddon: true` and `category: 'add-on'`, e.g., Kit Kat, Greeting Card, Scrunchie) from Google Merchant Center and public XML sitemaps.

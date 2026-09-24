@@ -507,8 +507,8 @@ Sitemap: https://www.serastore.in/sitemap.xml
   - Generates dedicated static HTML shells for all 19 top-level routes (e.g. `/gifts/index.html`, `/shop/index.html`, `/shop/bracelets/index.html`, `/journal/index.html`, etc.) in `frontend/dist/`.
   - Statically bakes the unique `<link rel="canonical">`, `<title>`, `<meta name="description">`, OpenGraph, and Twitter tags directly into the initial HTML document before any JavaScript executes.
 * **URL Normalization & Trailing Slash Enforcement (`vercel.json`)**:
-  - `"cleanUrls": true` strips `.html` extensions.
   - `"trailingSlash": false` 308-redirects any trailing slash request (e.g., `/gifts/` ➔ `/gifts`), guaranteeing that every URL has exactly one canonical format.
+  - (`cleanUrls: true` is omitted to prevent conflict with Vercel's SPA catch-all rewrite to `/index.html`).
 * **SPA Shell Cleanup (`index.html`)**:
   - Removed all hidden keyword `<div style="display:none">` blocks.
   - Included fallback canonical `<link rel="canonical" href="https://www.serastore.in" />` on the root shell.

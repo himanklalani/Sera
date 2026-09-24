@@ -180,8 +180,8 @@ This file tracks the SEO and Performance Optimization changes that have been pus
 #### Fixes Applied
 
 **`frontend/vercel.json`:**
-- Added `"cleanUrls": true` — Vercel sends 301 redirects for `.html` extensions.
-- Added `"trailingSlash": false` — Vercel sends 301 Permanent Redirects for all trailing-slash variants (`/gifts/` → `/gifts`), eliminating duplicate slash URL indexing.
+- Kept `"trailingSlash": false` — Vercel sends 301 Permanent Redirects for all trailing-slash variants (`/gifts/` → `/gifts`), eliminating duplicate slash URL indexing.
+- Omitted `"cleanUrls": true` because it conflicts with Vercel's SPA catch-all rewrite to `/index.html` on dynamic routes (`/cart`, `/checkout`, `/product/:id`).
 
 **`frontend/index.html`:**
 - Removed the toxic hidden fallback `<div style="display:none" aria-hidden="true">` which served identical homepage copy on every route before JS hydration.

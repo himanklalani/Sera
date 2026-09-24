@@ -9,25 +9,48 @@ export default function SEO({
   schema,
   robots
 }) {
-  const currentUrl = canonicalUrl || (typeof window !== 'undefined' ? window.location.href : 'https://www.serastore.in');
-  
   const defaultTitle = "Sera - Premium Anti-Tarnish Jewelry & Women's Apparel";
   const defaultDescription = "Shop the best anti-tarnish waterproof jewelry and chic women's cotton blend tops. From minimalist necklaces to everyday wear combos.";
 
-  const finalTitle = title ? `${title} | Sera` : defaultTitle;
+  const finalTitle = title ? (title.includes('Sera') ? title : `${title} | Sera`) : defaultTitle;
   const finalDescription = description || defaultDescription;
 
-  // Base Organization Schema (always present)
-  const baseSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Sera Jewels",
-    "url": "https://www.serastore.in",
-    "logo": "https://www.serastore.in/logo.avif",
-    "sameAs": [
-      "https://www.instagram.com/serastore.in"
-    ]
+  const normalizeCanonical = (url) => {
+    if (!url) return 'https://www.serastore.in';
+    const clean = url.split('?')[0].split('#')[0];
+    if (clean.length > 'https://www.serastore.in'.length && clean.endsWith('/')) {
+      return clean.slice(0, -1);
+    }
+    return clean;
   };
+
+  const currentUrl = normalizeCanonical(canonicalUrl || (typeof window !== 'undefined' ? window.location.href : 'https://www.serastore.in'));
+
+  // Base Organization & WebSite Schemas (always present)
+  const baseSchema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Sera Jewels",
+      "url": "https://www.serastore.in",
+      "logo": "https://www.serastore.in/logo.avif",
+      "sameAs": [
+        "https://www.instagram.com/serastore.in",
+        "https://www.pinterest.com/serastore/"
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Sera Jewels",
+      "url": "https://www.serastore.in",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.serastore.in/shop?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ];
 
   return (
     <Helmet>
@@ -36,7 +59,7 @@ export default function SEO({
       {robots && <meta name="robots" content={robots} />}
       
       {/* Canonical Tag - Fixes duplicate content issues */}
-      <link rel="canonical" href={currentUrl.split('?')[0]} />
+      <link rel="canonical" href={currentUrl} />
 
       {/* Open Graph / Facebook */}
       <meta property="og:type" content="website" />
@@ -52,7 +75,7 @@ export default function SEO({
       <meta name="twitter:description" content={finalDescription} />
       <meta name="twitter:image" content={ogImage} />
 
-      {/* Organization Schema */}
+      {/* Organization & WebSite Schema */}
       <script type="application/ld+json">
         {JSON.stringify(baseSchema)}
       </script>

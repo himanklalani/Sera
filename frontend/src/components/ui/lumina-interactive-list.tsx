@@ -334,7 +334,7 @@ export function Component() {
 
   return (
     <>
-      <main className="slider-wrapper w-full h-full relative" ref={containerRef}>
+      <section aria-label="Hero Showcase" className="slider-wrapper w-full h-full relative" ref={containerRef}>
         <canvas className="webgl-canvas w-full h-full absolute inset-0"></canvas>
         
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-[15vh] md:justify-center md:pb-0 md:pt-48 text-white text-center pointer-events-none z-10 px-4">
@@ -344,9 +344,9 @@ export function Component() {
             transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center"
           >
-            <h2 className="text-xs md:text-xl lg:text-2xl font-light tracking-[0.2em] md:tracking-[0.4em] uppercase text-white/95">
-              TIMELESS ELEGANCE
-            </h2>
+            <h1 className="text-xs md:text-xl lg:text-2xl font-light tracking-[0.2em] md:tracking-[0.4em] uppercase text-white/95">
+              TIMELESS ELEGANCE <span className="sr-only">— Premium Anti-Tarnish Jewelry & Women's Apparel</span>
+            </h1>
             
             <div className="flex items-center gap-3 md:gap-4 my-2 md:my-4">
               <div className="h-px w-8 md:w-16 bg-rose-300/80"></div>
@@ -378,7 +378,7 @@ export function Component() {
             <TextArrowCTA to="/gifts" rightArrow={true}>GIFTING HUB</TextArrowCTA>
           </motion.div>
         </div>
-      </main>
+      </section>
     </>
   );
 }

@@ -1,4 +1,6 @@
 {
+  "cleanUrls": true,
+  "trailingSlash": false,
   "redirects": [
     {
       "source": "/(.*)",
@@ -27,6 +29,17 @@
         }
       ],
       "destination": "https://backend.serastore.in/api/blogs/share/:slug"
+    },
+    {
+      "source": "/product/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(?:StoreBot-Google|AdsBot-Google).*"
+        }
+      ],
+      "destination": "https://backend.serastore.in/api/products/merchant/:id"
     },
     {
       "source": "/product/:id",

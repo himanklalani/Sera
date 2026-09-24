@@ -55,8 +55,10 @@ const Footer = () => {
             <p className="text-sm text-gray-700 mb-4 font-medium">Subscribe for exclusive offers, early access, and jewelry care tips.</p>
             <form className="flex max-w-sm" onSubmit={handleSubscribe}>
               <input 
+                id="newsletter-email"
                 type="email" 
                 placeholder="Enter your email" 
+                aria-label="Email address for newsletter"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="flex-1 px-4 py-3 border border-rose-200 rounded-l-lg focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 text-sm bg-white/50 backdrop-blur-sm"

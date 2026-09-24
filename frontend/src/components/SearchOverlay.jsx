@@ -132,6 +132,9 @@ export default function SearchOverlay({ isOpen, onClose }) {
         >
           <div 
             ref={overlayRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Product Search"
             className="bg-white p-6 w-full max-w-2xl rounded-lg shadow-lg max-h-[80vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >

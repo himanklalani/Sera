@@ -33,7 +33,14 @@ const FreeShippingBar = ({ subtotal = 0, isCouponFreeShipping = false, threshold
               FREE
             </span>
           </div>
-          <div className="w-full bg-emerald-200/60 h-2 rounded-full mt-2.5 overflow-hidden">
+          <div 
+            className="w-full bg-emerald-200/60 h-2 rounded-full mt-2.5 overflow-hidden"
+            role="progressbar"
+            aria-valuenow={100}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Free shipping progress"
+          >
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: '100%' }}
@@ -62,7 +69,14 @@ const FreeShippingBar = ({ subtotal = 0, isCouponFreeShipping = false, threshold
               {progress}%
             </span>
           </div>
-          <div className="w-full bg-rose-100/70 h-2 rounded-full overflow-hidden relative">
+          <div 
+            className="w-full bg-rose-100/70 h-2 rounded-full overflow-hidden relative"
+            role="progressbar"
+            aria-valuenow={progress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Free shipping progress"
+          >
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}

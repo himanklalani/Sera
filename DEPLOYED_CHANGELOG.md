@@ -169,3 +169,104 @@ This file tracks the SEO and Performance Optimization changes that have been pus
   - Added dedicated keyword links for `Jewelry Combo Sets` (`/shop/combos`) and `Chic Women's Tops` (`/shop/apparel`).
 - **404 Recovery Funnel (`NotFound.jsx`):**
   - Updated primary CTA button to link to `/shop` ("EXPLORE THE SHOP") and added quick collection pill links (`Necklaces`, `Earrings`, `Bracelets`, `Combo Sets`, `Gifting Hub`) to prevent dead-end crawling drops.
+
+## Push Date: September 24, 2026
+
+### 14. GSC Canonical Deduplication & Full Accessibility (WCAG 2.1 AA) Audit
+
+#### Root Cause of "Duplicate without user-selected canonical" (GSC)
+- In a Vite SPA deployed on Vercel, every route (`/gifts`, `/shop/bracelets`, `/shop/apparel`) previously returned the same `index.html` with **no static canonical tag** and a hidden `<div style="display:none">` containing generic homepage copy. Googlebot's raw HTTP crawl pass (before JS rendering) saw identical HTML with no canonical URL, grouping them as duplicates of the homepage. Also, absence of `"trailingSlash": false` in `vercel.json` meant `/gifts` and `/gifts/` both returned 200 OK, creating duplicate URL variants in Googlebot's queue.
+
+#### Fixes Applied
+
+**`frontend/vercel.json`:**
+- Added `"cleanUrls": true` — Vercel sends 301 redirects for `.html` extensions.
+- Added `"trailingSlash": false` — Vercel sends 301 Permanent Redirects for all trailing-slash variants (`/gifts/` → `/gifts`), eliminating duplicate slash URL indexing.
+
+**`frontend/index.html`:**
+- Removed the toxic hidden fallback `<div style="display:none" aria-hidden="true">` which served identical homepage copy on every route before JS hydration.
+- Added default `<link rel="canonical" href="https://www.serastore.in/" />` in static HTML so Googlebot's first HTTP pass has a canonical even without JS execution.
+- Added OpenGraph and Twitter card fallback meta tags (`summary_large_image`).
+
+**`frontend/scripts/prerender-seo.js` (NEW):**
+- Created a `postbuild` static generator that reads `dist/index.html` and creates dedicated static HTML files at `dist/{route}/index.html` for all 19 canonical routes.
+- Pre-bakes `<link rel="canonical">`, page-specific `<title>`, and `<meta name="description">` directly into the static HTML on line 5, so Googlebot's raw HTTP crawl reads the correct canonical instantly without JS.
+- Updated `frontend/package.json` build script to `"vite build && node scripts/prerender-seo.js"`.
+
+**`frontend/src/components/SEO.jsx`:**
+- Fixed title duplication bug (`title.includes('Sera') ? title : \`${title} | Sera\`` — eliminated `... | Sera | Sera` double-appends).
+- Added URL normalization stripping hashes, query params, and trailing slashes before emitting canonical tags.
+- Added Schema.org `WebSite` with Google `SearchAction` (Sitelinks Searchbox) alongside `Organization`.
+
+**`frontend/src/components/Preloader.jsx`:**
+- Added bot detection (`isBot`) and non-home route detection. Bots and non-home routes immediately skip the 1.8–8s Cloudinary image preloading, allowing Googlebot's Web Rendering Service to render page content instantly without hitting render timeouts.
+
+**`frontend/src/pages/Home.jsx`:**
+- Removed conflicting duplicate `<Helmet>` inside `<HeroSection>`.
+- Normalized canonical URL to `https://www.serastore.in` (no trailing slash).
+
+#### WCAG 2.1 AA Accessibility Fixes
+
+**`frontend/src/App.jsx`:**
+- Added accessible "Skip to main content" link (`.sr-only focus:not-sr-only`) and `id="main-content"` on `<main>` for WCAG 2.4.1 compliance.
+
+**`frontend/src/components/ui/lumina-interactive-list.tsx`:**
+- Replaced duplicate outer `<main>` landmark with `<section aria-label="Hero Showcase">`.
+- Upgraded hero heading to semantic `<h1>` with screen-reader text.
+
+**`frontend/src/components/NavOverlay.jsx`:**
+- Added `role="dialog" aria-modal="true" aria-label="Navigation Menu"` and `aria-label="Close Navigation Menu"` on close button.
+
+**`frontend/src/components/SearchOverlay.jsx`:**
+- Added `role="dialog" aria-modal="true" aria-label="Product Search"`.
+
+**`frontend/src/components/Footer.jsx`:**
+- Added `id="newsletter-email"` and `aria-label="Email address for newsletter"` to newsletter input.
+
+**`frontend/src/components/FreeShippingBar.jsx`:**
+- Added `role="progressbar" aria-valuenow={...} aria-valuemin={0} aria-valuemax={100} aria-label="Free shipping progress"`.
+
+---
+
+### 15. Google Merchant Center "Product Page Unavailable" Fix — StoreBot-Google Routing
+
+#### Root Cause
+Google Merchant Center uses **StoreBot-Google**, a non-JS-rendering crawler. Unlike Googlebot (which runs full headless Chrome), StoreBot reads raw HTTP response HTML only. When StoreBot hit `https://www.serastore.in/product/:id`, Vercel returned the blank 4,048-byte React SPA shell with no product data → GMC flagged 21 products as "Product page unavailable".
+
+**History of the redirect loop fix (Sept 21):** The original fix correctly removed the broad `bot|Bot` regex from `vercel.json` (which was causing an infinite redirect loop: StoreBot → share endpoint → `<meta http-equiv="refresh">` back to `/product/:id` → StoreBot → loop). But removing the regex entirely left StoreBot back at the blank SPA shell. The Sept 21 fix stopped the loop but didn't provide StoreBot with real product HTML.
+
+#### Fixes Applied
+
+**`backend/routes/productRoutes.js` — New `GET /api/products/merchant/:id` endpoint:**
+- Dedicated StoreBot endpoint returning fully rendered static product HTML with **zero redirects**.
+- Response body contains: product `<h1>`, price, description, availability, images, breadcrumb nav, and `<link>` to canonical product URL.
+- Full Schema.org `Product` JSON-LD with `OfferShippingDetails` (handling time + transit time per category).
+- Sets `X-Robots-Tag: noindex` so this helper URL is never indexed itself.
+- `<link rel="canonical" href="https://www.serastore.in/product/:id">` tells Google the real URL.
+
+**`frontend/vercel.json` — Bot routing updated:**
+- Added `StoreBot-Google` and `AdsBot-Google` intercept rule **before** the social bot rule.
+- StoreBot hits `/product/:id` → proxied to `/api/products/merchant/:id` (real product HTML, no redirect).
+- Social bots (WhatsApp/Facebook/Twitter/etc) still route to `/api/products/share/:id` (OG tags + human redirect).
+- Regular users and Googlebot still receive the full React SPA.
+
+**Bot Routing Priority Map (vercel.json):**
+```
+/product/:id
+  1. UA: StoreBot-Google / AdsBot-Google  →  /api/products/merchant/:id  (rich HTML, NO redirect)
+  2. UA: WhatsApp / FB / Twitter / etc    →  /api/products/share/:id     (OG tags + human redirect)
+  3. Everyone else (users, Googlebot)     →  React SPA /index.html
+```
+
+**`backend/routes/feedRoutes.js` — Merchant Center XML Feed improvements:**
+- Moved `<g:shipping>` block **before** `<g:price>` (GMC processes in document order; shipping before price helps attribute recognition).
+- Added `<g:transit_time_label>` (`standard` for jewelry, `custom-stitched` for apparel) for India shipping policy binding.
+- Added `<g:custom_label_0>` (apparel vs jewelry) for GMC campaign segmentation.
+- Normalized price format to always use `Number.toFixed(2)`.
+
+#### "Missing Shipping Information" Note
+The `<g:shipping>` nodes were already added Sept 21. GMC needs a manual **"Fetch Now"** in Merchant Center → Data Sources to re-crawl the feed and clear cached errors.
+
+#### "Available Soon" Add-Ons (Kit Kat, Cadbury Silk, Greeting Card, Scrunchie)
+These were submitted to GMC before the `isAddon: true` filter was deployed. Feed filter is in place. GMC will drop them after next scheduled feed refresh.
+

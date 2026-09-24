@@ -12,7 +12,7 @@ const generateGoogleMerchantXML = (products) => {
   xml += `    <description>Premium Anti-Tarnish Waterproof Jewelry &amp; Women's Chic Apparel</description>\n`;
 
   products.forEach((product) => {
-    // Only include active products with a price and an image
+    // Only include active products with a price and at least one image
     if (product.isActive && product.price > 0 && product.images && product.images.length > 0) {
       // Escape special characters for XML
       const escapeXML = (str) => {
@@ -40,12 +40,13 @@ const generateGoogleMerchantXML = (products) => {
         primaryImage = `https://www.serastore.in${primaryImage}`;
       }
 
-      const price = `${product.price}.00 INR`;
+      const price = `${Number(product.price).toFixed(2)} INR`;
       const availability = product.stock > 0 ? 'in_stock' : 'out_of_stock';
       const productType = isApparel
         ? 'Apparel &amp; Accessories &gt; Clothing &gt; Tops'
         : 'Apparel &amp; Accessories &gt; Jewelry';
       const googleCategory = isApparel ? '212' : '188';
+      const shippingPrice = product.price > 999 ? '0.00' : '100.00';
 
       xml += `    <item>\n`;
       xml += `      <g:id>${product._id}</g:id>\n`;
@@ -65,6 +66,18 @@ const generateGoogleMerchantXML = (products) => {
         });
       }
 
+      // Shipping block FIRST — GMC reads in document order; having shipping before price
+      // helps the crawler associate delivery cost before rendering the price field.
+      xml += `      <g:shipping>\n`;
+      xml += `        <g:country>IN</g:country>\n`;
+      xml += `        <g:service>${isApparel ? 'Custom Stitched Apparel Delivery' : 'Standard Delivery'}</g:service>\n`;
+      xml += `        <g:price>${shippingPrice} INR</g:price>\n`;
+      xml += `        <g:min_handling_time>${isApparel ? 5 : 2}</g:min_handling_time>\n`;
+      xml += `        <g:max_handling_time>${isApparel ? 7 : 3}</g:max_handling_time>\n`;
+      xml += `        <g:min_transit_time>5</g:min_transit_time>\n`;
+      xml += `        <g:max_transit_time>${isApparel ? 7 : 5}</g:max_transit_time>\n`;
+      xml += `      </g:shipping>\n`;
+
       xml += `      <g:price>${price}</g:price>\n`;
       xml += `      <g:availability>${availability}</g:availability>\n`;
       xml += `      <g:condition>new</g:condition>\n`;
@@ -75,17 +88,10 @@ const generateGoogleMerchantXML = (products) => {
       xml += `      <g:gender>female</g:gender>\n`;
       xml += `      <g:age_group>adult</g:age_group>\n`;
       xml += `      <g:shipping_label>${isApparel ? 'apparel' : 'jewelry'}</g:shipping_label>\n`;
+      xml += `      <g:transit_time_label>${isApparel ? 'custom-stitched' : 'standard'}</g:transit_time_label>\n`;
       xml += `      <g:min_handling_time>${isApparel ? 5 : 2}</g:min_handling_time>\n`;
       xml += `      <g:max_handling_time>${isApparel ? 7 : 3}</g:max_handling_time>\n`;
-      xml += `      <g:shipping>\n`;
-      xml += `        <g:country>IN</g:country>\n`;
-      xml += `        <g:service>${isApparel ? 'Custom Stitched Apparel Delivery' : 'Standard Delivery'}</g:service>\n`;
-      xml += `        <g:price>${product.price > 999 ? '0.00' : '100.00'} INR</g:price>\n`;
-      xml += `        <g:min_handling_time>${isApparel ? 5 : 2}</g:min_handling_time>\n`;
-      xml += `        <g:max_handling_time>${isApparel ? 7 : 3}</g:max_handling_time>\n`;
-      xml += `        <g:min_transit_time>5</g:min_transit_time>\n`;
-      xml += `        <g:max_transit_time>${isApparel ? 7 : 5}</g:max_transit_time>\n`;
-      xml += `      </g:shipping>\n`;
+      xml += `      <g:custom_label_0>${isApparel ? 'apparel' : 'jewelry'}</g:custom_label_0>\n`;
       xml += `    </item>\n`;
     }
   });
@@ -99,8 +105,8 @@ const generateGoogleMerchantXML = (products) => {
 // Description: Returns an XML RSS feed of all active products formatted for Google Merchant Center
 router.get('/google-merchant', async (req, res) => {
   try {
-    const products = await Product.find({ 
-      isActive: true, 
+    const products = await Product.find({
+      isActive: true,
       isAddon: { $ne: true },
       category: { $nin: ['add-on', 'addon'] }
     });

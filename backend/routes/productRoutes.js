@@ -322,6 +322,175 @@ router.get('/share/:id', asyncHandler(async (req, res) => {
 }));
 
 
+// @desc    Google Shopping / Merchant Center StoreBot HTML endpoint (NO redirect)
+// @route   GET /api/products/merchant/:id
+// @access  Public
+// StoreBot-Google does NOT execute JavaScript. It reads raw HTML.
+// This endpoint returns a rich, fully-rendered static HTML product page
+// with all key product fields visible in the body and JSON-LD schema.
+router.get('/merchant/:id', asyncHandler(async (req, res) => {
+  if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).send('Invalid Product ID');
+  }
+
+  const product = await Product.findById(req.params.id).lean();
+  if (!product || !product.isActive) {
+    return res.status(404).send('Product not found');
+  }
+
+  const frontendUrl = `https://www.serastore.in/product/${product._id}`;
+  const imageUrl = product.images?.[0] || 'https://www.serastore.in/logo.avif';
+  const isApparel = product.category?.toLowerCase() === 'apparel';
+  const availability = product.stock > 0 ? 'in_stock' : 'out_of_stock';
+  const availabilityText = product.stock > 0 ? 'In Stock' : 'Out of Stock';
+  const priceFormatted = `₹${product.price?.toFixed(2)} INR`;
+  const categoryDisplay = isApparel
+    ? "Women's Apparel & Tops"
+    : `Anti-Tarnish Waterproof ${product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : 'Jewelry'}`;
+  const shippingText = isApparel
+    ? 'Custom stitched & delivered in 10–12 business days. Free shipping on orders above ₹999.'
+    : 'Delivered in 5–7 business days. Free shipping on orders above ₹999.';
+  const description = product.description
+    || (isApparel
+      ? `Buy ${product.name} at Sera. Chic, breathable cotton blend women's top.`
+      : `Buy ${product.name} at Sera. Waterproof, anti-tarnish everyday jewelry crafted to last.`);
+
+  const jsonLd = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.images || [imageUrl],
+    "description": description,
+    "sku": product.sku || String(product._id),
+    "brand": { "@type": "Brand", "name": "Sera" },
+    "offers": {
+      "@type": "Offer",
+      "url": frontendUrl,
+      "priceCurrency": "INR",
+      "price": product.price || 0,
+      "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "itemCondition": "https://schema.org/NewCondition",
+      "shippingDetails": {
+        "@type": "OfferShippingDetails",
+        "shippingRate": {
+          "@type": "MonetaryAmount",
+          "value": product.price > 999 ? "0" : "100",
+          "currency": "INR"
+        },
+        "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "IN" },
+        "deliveryTime": {
+          "@type": "ShippingDeliveryTime",
+          "handlingTime": {
+            "@type": "QuantitativeValue",
+            "minValue": isApparel ? 5 : 2,
+            "maxValue": isApparel ? 7 : 3,
+            "unitCode": "DAY"
+          },
+          "transitTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 5,
+            "maxValue": isApparel ? 7 : 5,
+            "unitCode": "DAY"
+          }
+        }
+      }
+    }
+  };
+
+  // Build additional images HTML
+  const additionalImagesHtml = (product.images || []).slice(1, 5).map(img =>
+    `<img src="${img}" alt="${product.name} - additional view" width="200" style="margin:4px;" />`
+  ).join('\n      ');
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${product.name} | ${categoryDisplay} | Sera</title>
+  <meta name="description" content="${description.substring(0, 160)}" />
+  <link rel="canonical" href="${frontendUrl}" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="product" />
+  <meta property="og:url" content="${frontendUrl}" />
+  <meta property="og:title" content="${product.name} | Sera" />
+  <meta property="og:description" content="${description.substring(0, 200)}" />
+  <meta property="og:image" content="${imageUrl}" />
+  <meta property="product:price:amount" content="${product.price}" />
+  <meta property="product:price:currency" content="INR" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${product.name} | Sera" />
+  <meta name="twitter:description" content="${description.substring(0, 200)}" />
+  <meta name="twitter:image" content="${imageUrl}" />
+
+  <!-- Google Shopping / Schema.org JSON-LD -->
+  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
+</head>
+<body>
+  <header>
+    <a href="https://www.serastore.in">Sera - Premium Anti-Tarnish Jewelry &amp; Women's Apparel</a>
+  </header>
+  <main>
+    <nav aria-label="Breadcrumb">
+      <ol>
+        <li><a href="https://www.serastore.in">Home</a></li>
+        <li><a href="https://www.serastore.in/shop/${product.category}">Shop ${product.category}</a></li>
+        <li><span aria-current="page">${product.name}</span></li>
+      </ol>
+    </nav>
+
+    <article itemscope itemtype="https://schema.org/Product">
+      <h1 itemprop="name">${product.name}</h1>
+      <p itemprop="description">${description}</p>
+
+      <div>
+        <strong>Category:</strong> <span>${categoryDisplay}</span>
+      </div>
+
+      <div itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+        <div>
+          <strong>Price:</strong>
+          <span itemprop="price" content="${product.price}">${priceFormatted}</span>
+          <meta itemprop="priceCurrency" content="INR" />
+        </div>
+        <div>
+          <strong>Availability:</strong>
+          <link itemprop="availability" href="${product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'}" />
+          <span>${availabilityText}</span>
+        </div>
+        <div>
+          <strong>Condition:</strong>
+          <link itemprop="itemCondition" href="https://schema.org/NewCondition" />
+          <span>New</span>
+        </div>
+        <div>
+          <strong>Shipping:</strong> <span>${shippingText}</span>
+        </div>
+        <div>
+          <a href="${frontendUrl}" itemprop="url">View &amp; Buy on Sera</a>
+        </div>
+      </div>
+
+      <div>
+        <img src="${imageUrl}" alt="${product.name} - ${categoryDisplay}" width="600" itemprop="image" />
+        ${additionalImagesHtml}
+      </div>
+
+      ${product.category ? `<div><a href="https://www.serastore.in/shop/${product.category}">Shop more ${categoryDisplay}</a></div>` : ''}
+    </article>
+  </main>
+</body>
+</html>`;
+
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('X-Robots-Tag', 'noindex'); // We don't want this helper URL indexed
+  res.send(html);
+}));
+
+
 // @desc    Fetch multiple products in bulk by IDs
 // @route   POST /api/products/bulk
 // @access  Public

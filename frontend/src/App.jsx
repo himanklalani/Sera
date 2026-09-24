@@ -61,8 +61,14 @@ function App() {
         <CookieConsent />
         <Toaster position="top-center" />
         <div className="min-h-screen flex flex-col bg-white">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-gray-900 focus:text-white focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm font-semibold"
+          >
+            Skip to main content
+          </a>
           <Navbar />
-          <main className="flex-grow">
+          <main id="main-content" className="flex-grow">
             <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="w-8 h-8 border-4 border-rose-200 border-t-rose-500 rounded-full animate-spin"></div></div>}>
               <Routes>
                 {/* core pages */}

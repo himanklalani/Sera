@@ -429,8 +429,9 @@ Built with Node.js, Express, MongoDB, and Mongoose.
 * `POST /api/newsletter`: Subscribe an email to the newsletter (IP rate-limited to max 5 requests per day).
 * `GET /api/newsletter` *(Admin)*: List all newsletter subscribers.
 
-### 8. Product Feeds & Sitemaps
-* `GET /api/feed/google-merchant`: Returns an XML RSS 2.0 product catalog feed formatted for Google Merchant Center.
+### 8. Product Feeds, Sitemaps & Merchant Crawlers
+* `GET /api/feed/google-merchant`: Returns an XML RSS 2.0 product catalog feed formatted for Google Merchant Center (ordered with `<g:shipping>` before `<g:price>`, `<g:transit_time_label>`, `<g:custom_label_0>`, and strict filtering excluding `isAddon: true` gift add-ons).
+* `GET /api/products/merchant/:id`: Dedicated endpoint for StoreBot-Google and AdsBot-Google crawlers returning fully static HTML without redirects (eliminating GMC "Product page unavailable" errors), complete with Schema.org `Product` JSON-LD (`OfferShippingDetails`), breadcrumbs, canonical tag, and `X-Robots-Tag: noindex`.
 * `GET /sitemap.xml`: Dynamically generated XML sitemap mapping all active products and published blogs with `updatedAt` timestamps.
 
 ### 9. Media Upload (`/api/upload`)
@@ -447,11 +448,21 @@ Built with Node.js, Express, MongoDB, and Mongoose.
 ### A. Non-WWW to WWW 301 Redirects (`vercel.json`)
 * All requests arriving at `serastore.in` are permanently redirected via 301 response headers to `https://www.serastore.in/$1`.
 
-### B. WhatsApp & Social Bot OpenGraph Interceptors (`vercel.json`)
-* `vercel.json` intercepts incoming user agents matching social bots (`WhatsApp`, `facebookexternalhit`, `Twitterbot`, `LinkedInBot`, `Pinterest`, `bot`, `crawler`, `spider`) on dynamic routes:
-  1. `/product/:id` ➔ Proxied to `https://backend.serastore.in/api/products/share/:id`
-  2. `/journal/:slug` ➔ Proxied to `https://backend.serastore.in/api/blogs/share/:slug`
-* The backend returns static HTML with dynamic OpenGraph tags (`og:title`, `og:description`, `og:image`, `og:url`) and instant meta-refresh redirect for human visitors.
+### B. Crawler & Social Bot Interception Architecture (`vercel.json`)
+* `vercel.json` applies a strict priority-ordered proxy routing hierarchy for crawlers and bots:
+  1. **Google Merchant Crawlers (`StoreBot-Google`, `AdsBot-Google`)** on `/product/:id`:
+     - Proxied directly to `https://backend.serastore.in/api/products/merchant/:id`.
+     - Returns 100% static HTML with product title `<h1>`, price, availability, images, breadcrumbs, and Schema.org `Product` JSON-LD with `OfferShippingDetails`.
+     - **Zero redirects**: Prevents the infinite redirect loop and solves Google Merchant Center's "Product page unavailable" error.
+     - Emits `X-Robots-Tag: noindex` so the merchant proxy URL is never indexed separately from the canonical product page.
+  2. **Social Media Scrapers (`WhatsApp`, `facebookexternalhit`, `Facebot`, `Twitterbot`, `LinkedInBot`, `Pinterest`, `TelegramBot`, `Discordbot`, `Slackbot`)**:
+     - `/product/:id` ➔ Proxied to `https://backend.serastore.in/api/products/share/:id`.
+     - `/journal/:slug` ➔ Proxied to `https://backend.serastore.in/api/blogs/share/:slug`.
+     - Returns static HTML containing rich OpenGraph (`og:title`, `og:description`, `og:image`, `og:url`) and Twitter Card metadata, alongside an instant meta-refresh redirect (`<meta http-equiv="refresh">`) for human visitors who open the share link.
+  3. **Search Engine Headless Crawlers (Googlebot, Bingbot) & Regular Users**:
+     - Route directly to the React SPA `/index.html` (or pre-baked static route shells).
+     - Headless Chrome renders client-side JS seamlessly.
+     - **CRITICAL**: Never add broad `bot|Bot|crawler|spider` tokens to `vercel.json` regexes, as this catches Google StoreBot and causes redirect loops or blank page issues.
 
 ### C. Automated XML Sitemap Generation
 * **Live XML Endpoint**: `https://www.serastore.in/sitemap.xml` (rewritten via `vercel.json` to backend `https://backend.serastore.in/sitemap.xml`).
@@ -488,6 +499,38 @@ Disallow: /order-success
 
 Sitemap: https://www.serastore.in/sitemap.xml
 ```
+
+### G. Search Engine Indexing & Canonical Deduplication System (GSC Fixes)
+* **Root Cause of "Duplicate without user-selected canonical"**: In client-side SPAs, raw HTTP crawlers saw identical blank `index.html` shells across all routes. Previously, a hidden `<div style="display:none">` in `index.html` containing homepage copy was parsed by crawlers as the text of every page, triggering Google Search Console's "Duplicate without user-selected canonical" warning on static routes. Furthermore, lack of trailing-slash enforcement allowed `/gifts` and `/gifts/` to resolve independently.
+* **Build-Time Static Prerendering (`frontend/scripts/prerender-seo.js`)**:
+  - Automatically runs post-build (`vite build && node scripts/prerender-seo.js` in `frontend/package.json`).
+  - Generates dedicated static HTML shells for all 19 top-level routes (e.g. `/gifts/index.html`, `/shop/index.html`, `/shop/bracelets/index.html`, `/journal/index.html`, etc.) in `frontend/dist/`.
+  - Statically bakes the unique `<link rel="canonical">`, `<title>`, `<meta name="description">`, OpenGraph, and Twitter tags directly into the initial HTML document before any JavaScript executes.
+* **URL Normalization & Trailing Slash Enforcement (`vercel.json`)**:
+  - `"cleanUrls": true` strips `.html` extensions.
+  - `"trailingSlash": false` 308-redirects any trailing slash request (e.g., `/gifts/` ➔ `/gifts`), guaranteeing that every URL has exactly one canonical format.
+* **SPA Shell Cleanup (`index.html`)**:
+  - Removed all hidden keyword `<div style="display:none">` blocks.
+  - Included fallback canonical `<link rel="canonical" href="https://www.serastore.in" />` on the root shell.
+* **Preloader Bot Bypass (`Preloader.jsx`)**:
+  - Detects bot user agents (`/bot|googlebot|crawler|spider|robot|crawling/i`) and non-home routes.
+  - Bypasses the 1.8s–8s Cloudinary image preloader instantly so search engine crawlers (Googlebot WRS) never hit 5-second rendering timeouts.
+* **Semantic & Accessibility Cleanliness (WCAG 2.1 AA)**:
+  - Standardized single `<h1>` hierarchy per page.
+  - Replaced duplicate `<main>` landmarks with semantic `<section>`.
+  - Added skip-to-main-content link (`#main-content`) and ARIA dialog/progressbar attributes (`NavOverlay`, `SearchOverlay`, `FreeShippingBar`, `Footer`).
+
+### H. Shipping Policy & Google Merchant Center Integration
+* **Free Shipping Threshold**: Free shipping on orders **₹999 and above**. Flat ₹99 shipping fee on orders under ₹999.
+* **Delivery Timelines**:
+  - **Jewelry & Accessories**: Standard delivery within **5–7 business days**.
+  - **Apparel**: Custom-stitched to order within **10–12 business days**.
+* **Google Merchant Feed Requirements (`/api/feed/google-merchant`)**:
+  - `<g:shipping>` node block must be positioned **before** `<g:price>` for GMC schema parsing.
+  - `<g:transit_time_label>` is set dynamically to `custom-stitched` for apparel and `standard` for jewelry.
+  - `<g:custom_label_0>` categorizes items (`apparel` vs `jewelry`) for campaign bidding and policy segmentation.
+  - Prices are normalized with `Number.toFixed(2)`.
+  - Gift add-ons (`isAddon: true` such as chocolates, greeting cards, scrunchies) are strictly filtered out of the merchant feed.
 
 ---
 

@@ -7,6 +7,15 @@ export default function Preloader() {
   const isLoadedRef = useRef(false);
 
   useEffect(() => {
+    // Only show preloader on the homepage and never block search engine crawlers
+    const isBot = typeof navigator !== 'undefined' && /bot|googlebot|crawler|spider|inspection/i.test(navigator.userAgent);
+    const isHomePage = typeof window !== 'undefined' && (window.location.pathname === '/' || window.location.pathname === '');
+
+    if (isBot || !isHomePage) {
+      setIsVisible(false);
+      return;
+    }
+
     // 1. Explicitly preload heavy hero images AND category images
     const imagesToPreload = [
       // Hero Images

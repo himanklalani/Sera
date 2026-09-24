@@ -60,11 +60,18 @@ export default function NavOverlay({ isOpen, onClose }) {
             exit={{ x: "100%" }}
             transition={{ duration: 0.5, ease: [0.165, 0.84, 0.44, 1] }}
             className="w-full md:w-[500px] h-full bg-[#fff0f3] shadow-2xl p-8 overflow-y-auto"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation Menu"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-12">
               <span className="text-sm font-bold tracking-widest uppercase text-gray-500">Menu</span>
-              <button onClick={onClose} className="text-2xl text-gray-800 hover:text-rose-600 transition-colors">
+              <button 
+                onClick={onClose} 
+                aria-label="Close Navigation Menu"
+                className="text-2xl text-gray-800 hover:text-rose-600 transition-colors"
+              >
                 <FaTimes />
               </button>
             </div>

@@ -831,7 +831,7 @@ const GiftingSection = () => {
                 <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg border-4 border-white">
                   <img
                     src={img}
-                    alt={`Gift ${index + 1}`}
+                    alt={`Sera Curated Gift Box & Packaging - Slide ${index + 1}`}
                     className="w-full h-full object-cover will-change-transform"
                     loading="eager"
                     decoding="async"
@@ -921,11 +921,6 @@ const HeroSection = () => {
 
   return (
     <div className="relative w-full h-[100svh] overflow-hidden bg-gray-900 safe-area">
-      <Helmet>
-        <title>Sera | Affordable Anti-Tarnish Jewelry</title>
-        <meta name="description" content="Discover Sera's premium collection of waterproof, anti-tarnish jewelry. Shop affordable necklaces, earrings, bracelets, and chic apparel combos." />
-      </Helmet>
-      
       {/* Dynamic WebGL Slider */}
       <LuminaSlider />
       
@@ -1535,7 +1530,7 @@ const BrandPromiseSection = () => {
 export default function Home() {
   return (
     <div>
-      <SEO canonicalUrl="https://www.serastore.in/" />
+      <SEO canonicalUrl="https://www.serastore.in" />
       <HeroSection />
       <CategoriesSection />
       <ApparelDropSection />
